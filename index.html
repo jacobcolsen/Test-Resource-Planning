@@ -927,6 +927,191 @@
     }
 
     /* =========================================================
+       TRAVEL & INFRASTRUCTURE — PHASE 5
+    ========================================================= */
+
+    /* Travel assumptions expandable section inside role modal */
+    #rf-travel-section {
+      grid-column: 1 / -1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-top: 4px;
+    }
+
+    #rf-travel-section .form-grid {
+      gap: 12px;
+    }
+
+    /* Live travel cost preview bar (inside modal) */
+    .travel-calc-preview {
+      grid-column: 1 / -1;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(79,126,248,0.07);
+      border: 1px solid rgba(79,126,248,0.2);
+      margin-top: 4px;
+    }
+
+    .tcp-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-width: 80px;
+    }
+
+    .tcp-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+    }
+
+    .tcp-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .tcp-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* Travel section tab layout */
+    #travel-content { }
+
+    /* Travel summary bar */
+    .travel-summary-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .travel-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .travel-stat .ts-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-subtle);
+      margin-bottom: 4px;
+    }
+
+    .travel-stat .ts-value {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    .travel-stat .ts-sub {
+      font-size: 11px;
+      color: var(--text-subtle);
+      margin-top: 3px;
+    }
+
+    .travel-stat.accent  .ts-value { color: var(--accent); }
+    .travel-stat.accent2 .ts-value { color: var(--accent2); }
+
+    /* Travel roles table */
+    .travel-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .travel-block-header {
+      padding: 11px 18px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .travel-block-header .tbh-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .travel-block-header .tbh-badge {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    #travel-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #travel-table th {
+      padding: 8px 14px;
+      text-align: right;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      background: var(--surface2);
+      white-space: nowrap;
+    }
+
+    #travel-table th:first-child,
+    #travel-table th:nth-child(2) { text-align: left; }
+
+    #travel-table td {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      text-align: right;
+      font-size: 12px;
+      color: var(--text-muted);
+      vertical-align: middle;
+    }
+
+    #travel-table td:first-child { text-align: left; }
+    #travel-table td:nth-child(2) { text-align: left; }
+
+    #travel-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+    .travel-role-name { font-weight: 600; color: var(--text); font-size: 13px; }
+    .travel-project-name { font-size: 11px; color: var(--text-muted); }
+
+    .col-cost { color: var(--accent2); font-weight: 700; }
+    .col-trips { color: var(--accent); font-weight: 600; }
+
+    /* No travel roles empty state */
+    #travel-empty {
+      padding: 64px 24px;
+      text-align: center;
+      color: var(--text-subtle);
+    }
+    #travel-empty .emp-icon { font-size: 40px; opacity: 0.3; margin-bottom: 12px; }
+    #travel-empty p { font-size: 13px; }
+
+    /* =========================================================
        DASHBOARD — PHASE 4
     ========================================================= */
 
@@ -1219,14 +1404,16 @@
 
     </div>
 
-    <!-- ── TRAVEL / INFRASTRUCTURE (placeholder) ── -->
+    <!-- ── TRAVEL & INFRASTRUCTURE (Phase 5) ── -->
     <div id="section-travel" class="section">
-      <div class="placeholder-section">
-        <div class="ph-icon">🗺️</div>
-        <h2>Travel &amp; Infrastructure</h2>
-        <p>Trip projections, travel cost estimates, workstation demand forecasts, and site infrastructure requirements will appear here.</p>
-        <div class="ph-badge">Coming in a future phase</div>
+      <div class="section-header">
+        <div>
+          <h2>Travel &amp; Infrastructure</h2>
+          <p>Trip projections and cost estimates for travel-required roles across all projects</p>
+        </div>
       </div>
+      <!-- Rendered by renderTravelSection() -->
+      <div id="travel-content"></div>
     </div>
 
     <!-- ── DASHBOARD (Phase 4) ── -->
@@ -1424,9 +1611,88 @@
 
           <div class="form-group full-width">
             <div class="form-toggle-row">
-              <input type="checkbox" id="rf-travel" />
+              <input type="checkbox" id="rf-travel" onchange="onTravelCheck()" />
               <label for="rf-travel">Travel required</label>
             </div>
+          </div>
+
+          <!-- ── Travel Assumptions (shown when travel required) ── -->
+          <div class="form-group full-width" id="rf-travel-section" style="display:none;">
+            <div id="rf-travel-inputs">
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:10px;">
+                Travel Assumptions
+              </div>
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+
+                <div class="form-group">
+                  <label for="rf-tvl-travelers">Travelers</label>
+                  <input type="number" id="rf-tvl-travelers" min="1" max="999" value="1"
+                         placeholder="# who travel" oninput="onTravelCalc()" />
+                </div>
+
+                <div class="form-group">
+                  <label for="rf-tvl-trips">Trips per Person</label>
+                  <input type="number" id="rf-tvl-trips" min="0" max="99" value="4"
+                         placeholder="e.g. 4" oninput="onTravelCalc()" />
+                </div>
+
+                <div class="form-group">
+                  <label for="rf-tvl-days">Avg Trip Duration (days)</label>
+                  <input type="number" id="rf-tvl-days" min="1" max="365" value="5"
+                         placeholder="e.g. 5" oninput="onTravelCalc()" />
+                </div>
+
+                <div class="form-group">
+                  <label for="rf-tvl-airfare">Airfare per Trip ($)</label>
+                  <input type="number" id="rf-tvl-airfare" min="0" value="800"
+                         placeholder="800" oninput="onTravelCalc()" />
+                </div>
+
+                <div class="form-group">
+                  <label for="rf-tvl-lodging">Lodging per Night ($)</label>
+                  <input type="number" id="rf-tvl-lodging" min="0" value="149"
+                         placeholder="149" oninput="onTravelCalc()" />
+                </div>
+
+                <div class="form-group">
+                  <label for="rf-tvl-rental">Rental/Transport per Trip ($)</label>
+                  <input type="number" id="rf-tvl-rental" min="0" value="55"
+                         placeholder="55" oninput="onTravelCalc()" />
+                </div>
+
+                <div class="form-group">
+                  <label for="rf-tvl-perdiem">Per Diem per Day ($)</label>
+                  <input type="number" id="rf-tvl-perdiem" min="0" value="157"
+                         placeholder="157" oninput="onTravelCalc()" />
+                </div>
+
+                <div class="form-group">
+                  <label for="rf-tvl-misc">Misc per Trip ($)</label>
+                  <input type="number" id="rf-tvl-misc" min="0" value="100"
+                         placeholder="100" oninput="onTravelCalc()" />
+                </div>
+
+              </div><!-- /.form-grid -->
+
+              <!-- Live cost preview -->
+              <div class="travel-calc-preview" id="rf-tvl-preview" style="margin-top:10px;">
+                <div class="tcp-item">
+                  <span class="tcp-label">Total Trips</span>
+                  <span class="tcp-value" id="tcp-trips">0</span>
+                </div>
+                <div class="tcp-divider"></div>
+                <div class="tcp-item">
+                  <span class="tcp-label">Per Trip Cost</span>
+                  <span class="tcp-value" id="tcp-per-trip">$0</span>
+                </div>
+                <div class="tcp-divider"></div>
+                <div class="tcp-item">
+                  <span class="tcp-label">Total Travel Cost</span>
+                  <span class="tcp-value" id="tcp-total" style="color:var(--accent2)">$0</span>
+                </div>
+              </div>
+
+            </div><!-- /#rf-travel-inputs -->
           </div>
 
           <!-- ── Workforce Mix ── -->
@@ -1528,15 +1794,15 @@
       execEnd: '2026-03-31',
       notes: 'Coordinating with Edwards AFB range scheduling. Key dependency on sensor integration milestone in Q2.',
       roles: [
-        { id: 'r1',  role: 'Test Lead',            customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for Edwards coordination.',          activeDuty: 1, govCivilian: 0, contractor: 0 },
-        { id: 'r2',  role: 'Flight Test Engineer', customRole: '', qty: 3, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 2, govCivilian: 0, contractor: 1 },
-        { id: 'r3',  role: 'Data Analyst',         customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time data review during test points.',       activeDuty: 0, govCivilian: 1, contractor: 1 },
-        { id: 'r4',  role: 'Mission Planner',      customRole: '', qty: 1, phase: 'Planning',  start: '2025-01-15', end: '2025-04-30', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
-        { id: 'r5',  role: 'Safety Officer',       customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie.', activeDuty: 1, govCivilian: 0, contractor: 0 },
-        { id: 'r6',  role: 'Range Support',        customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 0, govCivilian: 2, contractor: 0 },
-        { id: 'r7',  role: 'Aircraft Maintainer',  customRole: '', qty: 4, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Includes crew chief and two specialists.',        activeDuty: 4, govCivilian: 0, contractor: 0 },
-        { id: 'r8',  role: 'Data Systems Engineer',customRole: '', qty: 2, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Instrumentation setup and real-time telemetry.',  activeDuty: 0, govCivilian: 1, contractor: 1 },
-        { id: 'r9',  role: 'Logistics Coordinator',customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r1', role: 'Test Lead',            customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for Edwards coordination.',          activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r2', role: 'Flight Test Engineer', customRole: '', qty: 3, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 2, govCivilian: 0, contractor: 1, tvlTravelers: 3, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r3', role: 'Data Analyst',         customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time data review during test points.',       activeDuty: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 6, tvlAvgDays: 5, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r4', role: 'Mission Planner',      customRole: '', qty: 1, phase: 'Planning',  start: '2025-01-15', end: '2025-04-30', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r5', role: 'Safety Officer',       customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie.', activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 4, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r6', role: 'Range Support',        customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r7', role: 'Aircraft Maintainer',  customRole: '', qty: 4, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Includes crew chief and two specialists.',        activeDuty: 4, govCivilian: 0, contractor: 0, tvlTravelers: 4, tvlTripsPerPerson: 12, tvlAvgDays: 7, tvlAirfare: 700, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r8', role: 'Data Systems Engineer',customRole: '', qty: 2, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Instrumentation setup and real-time telemetry.',  activeDuty: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r9', role: 'Logistics Coordinator',customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
       ],
     },
     {
@@ -1552,10 +1818,10 @@
       execEnd: '2025-12-15',
       notes: 'Hardware-in-the-loop testing complete. Awaiting final software build from contractor.',
       roles: [
-        { id: 'r10', role: 'Test Lead',             customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 1, govCivilian: 0, contractor: 0 },
-        { id: 'r11', role: 'Test Engineer',         customRole: '', qty: 3, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 2, govCivilian: 1, contractor: 0 },
+        { id: 'r10', role: 'Test Lead',             customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r11', role: 'Test Engineer',         customRole: '', qty: 3, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 2, govCivilian: 1, contractor: 0, tvlTravelers: 3, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
         { id: 'r12', role: 'Avionics Engineer',     customRole: '', qty: 2, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: 'Contractor-provided; GFE laptop required.', activeDuty: 0, govCivilian: 0, contractor: 2 },
-        { id: 'r13', role: 'Data Systems Engineer', customRole: '', qty: 1, phase: 'Execution', start: '2025-06-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r13', role: 'Data Systems Engineer', customRole: '', qty: 1, phase: 'Execution', start: '2025-06-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 5, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
         { id: 'r14', role: 'Logistics Coordinator', customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0 },
       ],
     },
@@ -1572,13 +1838,13 @@
       execEnd: '2026-01-31',
       notes: 'Requires dedicated chase aircraft. Risk: weather windows at Eglin may compress schedule.',
       roles: [
-        { id: 'r15', role: 'Test Lead',             customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                  activeDuty: 1, govCivilian: 0, contractor: 0 },
-        { id: 'r16', role: 'Test Engineer',         customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Structural instrumentation monitoring.', activeDuty: 2, govCivilian: 0, contractor: 0 },
-        { id: 'r17', role: 'Safety Officer',        customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                  activeDuty: 1, govCivilian: 0, contractor: 0 },
-        { id: 'r18', role: 'Range Support',         customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range coordination required.',    activeDuty: 0, govCivilian: 2, contractor: 0 },
-        { id: 'r19', role: 'Aircraft Maintainer',   customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                  activeDuty: 2, govCivilian: 0, contractor: 0 },
-        { id: 'r20', role: 'Logistics Coordinator', customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                  activeDuty: 0, govCivilian: 1, contractor: 0 },
-        { id: 'r21', role: 'Custom',                customRole: 'Chase Aircraft Pilot',qty: 1, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Coordinate with 40 FTS for availability.', activeDuty: 1, govCivilian: 0, contractor: 0 },
+        { id: 'r15', role: 'Test Lead',             customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r16', role: 'Test Engineer',         customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Structural instrumentation monitoring.',   activeDuty: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r17', role: 'Safety Officer',        customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r18', role: 'Range Support',         customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range coordination required.',       activeDuty: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r19', role: 'Aircraft Maintainer',   customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r20', role: 'Logistics Coordinator', customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                      activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r21', role: 'Custom',                customRole: 'Chase Aircraft Pilot',qty: 1, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Coordinate with 40 FTS for availability.', activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
       ],
     },
   ];
@@ -1683,13 +1949,22 @@
   }
 
   // Core aggregation: one entry per month in the portfolio span.
-  // Each entry: { ym, label, total, ad, gc, ctr, ws, byProject }
+  // Each entry: { ym, label, total, ad, gc, ctr, ws, trips, travelCost, byProject }
+  //
+  // TRAVEL DISTRIBUTION METHOD:
+  //   Travel is spread evenly across the active months of each role.
+  //   For a role active in N months:
+  //     tripsThisMonth     = role.totalTrips     / N
+  //     travelCostThisMonth = role.totalTravelCost / N
+  //   This treats travel as uniformly distributed across the role's full date
+  //   range — simple and suitable for long-range planning estimates.
   function computeMonthlyData() {
     const { minYM, maxYM } = portfolioExtents();
     if (!minYM || !maxYM) return [];
 
     return monthRange(minYM, maxYM).map(ym => {
       let total = 0, ad = 0, gc = 0, ctr = 0, ws = 0;
+      let trips = 0, travelCost = 0;
       const byProject = {};   // projectId → personnel count this month
 
       projects.forEach(p => {
@@ -1705,6 +1980,15 @@
           if (r.wsRequired) {
             ws += Math.ceil(qty * (r.wsRatio || 1));
           }
+          // Spread travel evenly across active months
+          if (r.travelRequired) {
+            const tv = calcRoleTravel(r);
+            if (tv && tv.totalTrips > 0) {
+              const activeMonths = roleActiveMonthCount(r);
+              trips      += tv.totalTrips      / activeMonths;
+              travelCost += tv.totalTravelCost / activeMonths;
+            }
+          }
         });
         if (pCount > 0) byProject[p.id] = pCount;
       });
@@ -1714,8 +1998,60 @@
       const label = new Date(yr, mo - 1, 1)
         .toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 
-      return { ym, label, total, ad, gc, ctr, ws, byProject };
+      return { ym, label, total, ad, gc, ctr, ws, trips, travelCost, byProject };
     });
+  }
+
+  /* ====================================================
+     TRAVEL CALCULATIONS — Phase 5
+  ==================================================== */
+
+  // Compute per-trip and total travel cost/trips for a single role.
+  // Returns null if travel is not required or not configured.
+  // Formula:
+  //   perTripCost = airfare + rentalCar + misc
+  //               + (lodging * avgDays) + (perDiem * avgDays)
+  //   totalTrips  = travelers * tripsPerPerson
+  //   totalCost   = totalTrips * perTripCost
+  function calcRoleTravel(role) {
+    if (!role.travelRequired) return null;
+    const travelers   = role.tvlTravelers      ?? role.qty ?? 0;
+    const tripsPerPax = role.tvlTripsPerPerson ?? 0;
+    const avgDays     = role.tvlAvgDays        ?? 0;
+    const airfare     = role.tvlAirfare        ?? 0;
+    const lodging     = role.tvlLodging        ?? 0;
+    const rentalCar   = role.tvlRentalCar      ?? 0;
+    const perDiem     = role.tvlPerDiem        ?? 0;
+    const misc        = role.tvlMisc           ?? 0;
+
+    const perTripCost     = airfare + rentalCar + misc
+                          + (lodging * avgDays) + (perDiem * avgDays);
+    const totalTrips      = travelers * tripsPerPax;
+    const totalTravelCost = totalTrips * perTripCost;
+
+    return { travelers, tripsPerPax, avgDays, perTripCost, totalTrips, totalTravelCost };
+  }
+
+  // How many months is a role active? Used for even monthly distribution of travel.
+  function roleActiveMonthCount(role) {
+    const s = dateToYM(role.start);
+    const e = dateToYM(role.end);
+    if (!s || !e) return 1;
+    return monthRange(s, e).length || 1;
+  }
+
+  // Portfolio-level travel totals (static sums, not monthly)
+  function computePortfolioTravel() {
+    let totalTrips = 0, totalCost = 0;
+    projects.forEach(p => {
+      (p.roles || []).forEach(r => {
+        const tv = calcRoleTravel(r);
+        if (!tv) return;
+        totalTrips += tv.totalTrips;
+        totalCost  += tv.totalTravelCost;
+      });
+    });
+    return { totalTrips, totalCost };
   }
 
   // Derive summary stats from the monthly data for the header cards
@@ -1742,10 +2078,11 @@
   }
 
   /* ====================================================
-     SUMMARY CARDS — Phase 4: all values now real
+     SUMMARY CARDS — Phase 5: travel cards now real
   ==================================================== */
   function updateSummaryCards() {
     const { totalPersonnel, peakPersonnel, peakWs } = computeSummaryStats();
+    const { totalTrips, totalCost } = computePortfolioTravel();
 
     document.getElementById('sc-projects').textContent = projects.length;
 
@@ -1755,18 +2092,20 @@
     document.getElementById('sc-peak').textContent =
       peakPersonnel > 0 ? peakPersonnel : '—';
 
-    // Trips and travel cost — still future phases
-    document.getElementById('sc-trips').textContent = '—';
-    document.getElementById('sc-cost').textContent  = '—';
+    document.getElementById('sc-trips').textContent =
+      totalTrips > 0 ? totalTrips : '—';
+
+    document.getElementById('sc-cost').textContent =
+      totalCost > 0 ? fmtCurrency(totalCost) : '—';
 
     document.getElementById('sc-ws').textContent =
       peakWs > 0 ? peakWs : '—';
 
-    // Re-render dashboard if it is the active tab (keeps it live after edits)
-    const dashSection = document.getElementById('section-dashboard');
-    if (dashSection && dashSection.classList.contains('active')) {
-      renderDashboard();
-    }
+    // Re-render active tab content live after any data change
+    const dashSection   = document.getElementById('section-dashboard');
+    const travelSection = document.getElementById('section-travel');
+    if (dashSection   && dashSection.classList.contains('active'))   renderDashboard();
+    if (travelSection && travelSection.classList.contains('active')) renderTravelSection();
   }
 
   /* ====================================================
@@ -1785,9 +2124,8 @@
           populateStaffingProjectSelect();
           renderStaffingContent();
         }
-        if (target === 'dashboard') {
-          renderDashboard();
-        }
+        if (target === 'travel')    renderTravelSection();
+        if (target === 'dashboard') renderDashboard();
       });
     });
   }
@@ -2313,10 +2651,20 @@
       document.getElementById('rf-ad').value       = r.activeDuty  ?? 0;
       document.getElementById('rf-gc').value       = r.govCivilian ?? 0;
       document.getElementById('rf-ctr').value      = r.contractor  ?? 0;
+      // Travel assumption fields
+      document.getElementById('rf-tvl-travelers').value = r.tvlTravelers      ?? r.qty ?? 1;
+      document.getElementById('rf-tvl-trips').value     = r.tvlTripsPerPerson ?? 4;
+      document.getElementById('rf-tvl-days').value      = r.tvlAvgDays        ?? 5;
+      document.getElementById('rf-tvl-airfare').value   = r.tvlAirfare        ?? 800;
+      document.getElementById('rf-tvl-lodging').value   = r.tvlLodging        ?? 149;
+      document.getElementById('rf-tvl-rental').value    = r.tvlRentalCar      ?? 55;
+      document.getElementById('rf-tvl-perdiem').value   = r.tvlPerDiem        ?? 157;
+      document.getElementById('rf-tvl-misc').value      = r.tvlMisc           ?? 100;
 
       // Show/hide conditional fields
       onRoleSelectChange();
       onWsCheck();
+      onTravelCheck();
       onMixInput();
     }
 
@@ -2347,8 +2695,18 @@
     document.getElementById('rf-ad').value        = '0';
     document.getElementById('rf-gc').value        = '0';
     document.getElementById('rf-ctr').value       = '0';
+    // Reset travel assumption fields to sensible defaults
+    document.getElementById('rf-tvl-travelers').value = '1';
+    document.getElementById('rf-tvl-trips').value     = '4';
+    document.getElementById('rf-tvl-days').value      = '5';
+    document.getElementById('rf-tvl-airfare').value   = '800';
+    document.getElementById('rf-tvl-lodging').value   = '149';
+    document.getElementById('rf-tvl-rental').value    = '55';
+    document.getElementById('rf-tvl-perdiem').value   = '157';
+    document.getElementById('rf-tvl-misc').value      = '100';
     onRoleSelectChange();
     onWsCheck();
+    onTravelCheck();
     onMixInput();
   }
 
@@ -2371,6 +2729,42 @@
       grp.style.opacity = '0.35';
       grp.style.pointerEvents = 'none';
     }
+  }
+
+  /* Show/hide travel assumptions section when travel checkbox toggled */
+  function onTravelCheck() {
+    const checked = document.getElementById('rf-travel').checked;
+    const sec = document.getElementById('rf-travel-section');
+    sec.style.display = checked ? 'block' : 'none';
+    if (checked) {
+      // Default travelers to current qty if not yet set
+      const qtyEl = document.getElementById('rf-qty');
+      const travelersEl = document.getElementById('rf-tvl-travelers');
+      if (travelersEl.value === '1' && qtyEl.value && parseInt(qtyEl.value) > 1) {
+        travelersEl.value = qtyEl.value;
+      }
+      onTravelCalc();
+    }
+  }
+
+  /* Update the live cost preview inside the travel assumptions section */
+  function onTravelCalc() {
+    const travelers   = parseInt(document.getElementById('rf-tvl-travelers').value, 10) || 0;
+    const tripsPerPax = parseFloat(document.getElementById('rf-tvl-trips').value)       || 0;
+    const avgDays     = parseFloat(document.getElementById('rf-tvl-days').value)        || 0;
+    const airfare     = parseFloat(document.getElementById('rf-tvl-airfare').value)     || 0;
+    const lodging     = parseFloat(document.getElementById('rf-tvl-lodging').value)     || 0;
+    const rental      = parseFloat(document.getElementById('rf-tvl-rental').value)      || 0;
+    const perDiem     = parseFloat(document.getElementById('rf-tvl-perdiem').value)     || 0;
+    const misc        = parseFloat(document.getElementById('rf-tvl-misc').value)        || 0;
+
+    const perTrip  = airfare + rental + misc + (lodging * avgDays) + (perDiem * avgDays);
+    const total    = travelers * tripsPerPax;
+    const totalCst = total * perTrip;
+
+    document.getElementById('tcp-trips').textContent    = total;
+    document.getElementById('tcp-per-trip').textContent = fmtCurrency(perTrip);
+    document.getElementById('tcp-total').textContent    = fmtCurrency(totalCst);
   }
 
   /* Live workforce mix reconciliation — updates the status bar in the modal */
@@ -2460,6 +2854,15 @@
       activeDuty:     Math.max(0, parseInt(document.getElementById('rf-ad').value,  10) || 0),
       govCivilian:    Math.max(0, parseInt(document.getElementById('rf-gc').value,  10) || 0),
       contractor:     Math.max(0, parseInt(document.getElementById('rf-ctr').value, 10) || 0),
+      // Travel assumptions (only meaningful when travelRequired = true)
+      tvlTravelers:      Math.max(0, parseFloat(document.getElementById('rf-tvl-travelers').value) || 0),
+      tvlTripsPerPerson: Math.max(0, parseFloat(document.getElementById('rf-tvl-trips').value)    || 0),
+      tvlAvgDays:        Math.max(0, parseFloat(document.getElementById('rf-tvl-days').value)     || 0),
+      tvlAirfare:        Math.max(0, parseFloat(document.getElementById('rf-tvl-airfare').value)  || 0),
+      tvlLodging:        Math.max(0, parseFloat(document.getElementById('rf-tvl-lodging').value)  || 0),
+      tvlRentalCar:      Math.max(0, parseFloat(document.getElementById('rf-tvl-rental').value)   || 0),
+      tvlPerDiem:        Math.max(0, parseFloat(document.getElementById('rf-tvl-perdiem').value)  || 0),
+      tvlMisc:           Math.max(0, parseFloat(document.getElementById('rf-tvl-misc').value)     || 0),
     };
 
     const p = projects.find(x => x.id === staffingProjectId);
@@ -2575,6 +2978,15 @@
         ? `<span class="${cls}">${n}</span>`
         : `<span class="col-zero">—</span>`;
 
+      const tripsRounded = Math.round(m.trips);
+      const tripsCell = tripsRounded > 0
+        ? `<span class="col-trips">${tripsRounded}</span>`
+        : `<span class="col-zero">—</span>`;
+
+      const costCell = m.travelCost > 0
+        ? `<span class="col-cost">${fmtCurrency(m.travelCost)}</span>`
+        : `<span class="col-zero">—</span>`;
+
       return `
         <tr${isPeak ? ' class="peak-row"' : ''}>
           <td>${m.label}</td>
@@ -2586,6 +2998,8 @@
           <td>${fmtNum(m.gc,  'col-gc')}</td>
           <td>${fmtNum(m.ctr, 'col-ctr')}</td>
           <td>${fmtNum(m.ws,  'col-ws')}</td>
+          <td>${tripsCell}</td>
+          <td>${costCell}</td>
         </tr>`;
     }).join('');
 
@@ -2610,6 +3024,8 @@
                 <th style="color:#38d9a9">Gov Civilian</th>
                 <th style="color:#f7a745">Contractor</th>
                 <th>Workstations</th>
+                <th style="color:var(--accent)">Trips</th>
+                <th style="color:var(--accent2)">Travel Cost</th>
               </tr>
             </thead>
             <tbody>${tableRows}</tbody>
@@ -2656,6 +3072,153 @@
       </div>` : '';
 
     container.innerHTML = statsHTML + tableHTML + projectTableHTML;
+  }
+
+  /* ====================================================
+     UTILITY — currency formatter
+  ==================================================== */
+  function fmtCurrency(n) {
+    if (!n || n === 0) return '$0';
+    if (n >= 1_000_000) return '$' + (n / 1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000)     return '$' + Math.round(n).toLocaleString('en-US');
+    return '$' + n.toFixed(0);
+  }
+
+  /* ====================================================
+     TRAVEL SECTION — Phase 5
+     Renders the Travel & Infrastructure tab content.
+  ==================================================== */
+  function renderTravelSection() {
+    const container = document.getElementById('travel-content');
+    if (!container) return;
+
+    // Collect all travel roles across all projects
+    const travelRoles = [];
+    projects.forEach(p => {
+      (p.roles || []).forEach(r => {
+        if (!r.travelRequired) return;
+        const tv = calcRoleTravel(r);
+        travelRoles.push({ project: p, role: r, tv });
+      });
+    });
+
+    if (travelRoles.length === 0) {
+      container.innerHTML = `
+        <div id="travel-empty">
+          <div class="emp-icon">✈</div>
+          <p>No travel-required roles defined yet.<br/>
+             Mark a role as <strong>Travel required</strong> in the Staffing section to begin planning travel costs.</p>
+        </div>`;
+      return;
+    }
+
+    // ── Portfolio travel summary ───────────────────────
+    const { totalTrips, totalCost } = computePortfolioTravel();
+    const travelRoleCount = travelRoles.length;
+    const configured = travelRoles.filter(x => x.tv && x.tv.totalTrips > 0).length;
+
+    const summaryHTML = `
+      <div class="travel-summary-row">
+        <div class="travel-stat accent">
+          <div class="ts-label">Travel Roles</div>
+          <div class="ts-value">${travelRoleCount}</div>
+          <div class="ts-sub">${configured} with assumptions configured</div>
+        </div>
+        <div class="travel-stat">
+          <div class="ts-label">Total Projected Trips</div>
+          <div class="ts-value">${totalTrips.toLocaleString('en-US')}</div>
+          <div class="ts-sub">across all projects</div>
+        </div>
+        <div class="travel-stat accent2">
+          <div class="ts-label">Est. Total Travel Cost</div>
+          <div class="ts-value">${fmtCurrency(totalCost)}</div>
+          <div class="ts-sub">all roles · all projects</div>
+        </div>
+        <div class="travel-stat">
+          <div class="ts-label">Avg Cost per Trip</div>
+          <div class="ts-value">${totalTrips > 0 ? fmtCurrency(totalCost / totalTrips) : '—'}</div>
+          <div class="ts-sub">portfolio average</div>
+        </div>
+      </div>`;
+
+    // ── Per-project tables ─────────────────────────────
+    const projectsWithTravel = projects.filter(p =>
+      (p.roles || []).some(r => r.travelRequired)
+    );
+
+    const tablesHTML = projectsWithTravel.map(p => {
+      const pRoles = (p.roles || []).filter(r => r.travelRequired);
+      const pTrips = pRoles.reduce((s, r) => {
+        const tv = calcRoleTravel(r);
+        return s + (tv ? tv.totalTrips : 0);
+      }, 0);
+      const pCost = pRoles.reduce((s, r) => {
+        const tv = calcRoleTravel(r);
+        return s + (tv ? tv.totalTravelCost : 0);
+      }, 0);
+
+      const rows = pRoles.map(r => {
+        const tv = calcRoleTravel(r);
+        const displayName = r.role === 'Custom' ? (r.customRole || 'Custom') : r.role;
+        const configured  = tv && tv.totalTrips > 0;
+
+        const tripCell = configured
+          ? `<span class="col-trips">${tv.totalTrips}</span>` : '—';
+        const perTripCell = configured
+          ? fmtCurrency(tv.perTripCost) : '—';
+        const totalCell = configured
+          ? `<span class="col-cost">${fmtCurrency(tv.totalTravelCost)}</span>` : '—';
+
+        // Assumption details shown as small subtitle
+        const details = configured
+          ? `<div style="font-size:10px;color:var(--text-subtle);margin-top:2px;">
+               ${tv.travelers} pax · ${tv.tripsPerPax} trips/pax · ${tv.avgDays} days/trip
+             </div>` : '';
+
+        return `
+          <tr>
+            <td>
+              <div class="travel-role-name">${escHtml(displayName)}</div>
+              ${details}
+            </td>
+            <td>${tv ? tv.travelers : r.qty}</td>
+            <td>${tv ? tv.tripsPerPax : '—'}</td>
+            <td>${tv ? tv.avgDays : '—'}</td>
+            <td>${perTripCell}</td>
+            <td>${tripCell}</td>
+            <td>${totalCell}</td>
+            <td>
+              <button class="btn-icon" title="Edit travel assumptions"
+                      onclick="openRoleModal('${r.id}');document.getElementById('section-staffing').classList.remove('active');document.getElementById('section-travel').classList.remove('active');">✎</button>
+            </td>
+          </tr>`;
+      }).join('');
+
+      return `
+        <div class="travel-block">
+          <div class="travel-block-header">
+            <span class="tbh-name">${escHtml(p.name)}</span>
+            <span class="tbh-badge">${pRoles.length} role${pRoles.length !== 1 ? 's' : ''} · ${pTrips} trips · ${fmtCurrency(pCost)}</span>
+          </div>
+          <table id="travel-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Role</th>
+                <th>Travelers</th>
+                <th>Trips / Pax</th>
+                <th>Avg Days</th>
+                <th>Per-Trip Cost</th>
+                <th>Total Trips</th>
+                <th>Total Cost</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }).join('');
+
+    container.innerHTML = summaryHTML + tablesHTML;
   }
 
   /* ====================================================
