@@ -1552,6 +1552,76 @@
     }
 
     /* =========================================================
+       DATA TOOLBAR — PHASE 8
+    ========================================================= */
+    #data-toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 5px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    #data-toolbar .tb-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-subtle);
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
+
+    #data-toolbar .tb-sep {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .btn-sm {
+      font-size: 11px;
+      padding: 5px 11px;
+      gap: 4px;
+    }
+
+    .btn-danger {
+      background: rgba(224,92,92,0.12);
+      color: var(--danger);
+      border: 1px solid rgba(224,92,92,0.28);
+    }
+    .btn-danger:hover { background: rgba(224,92,92,0.22); }
+
+    /* Toast notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      z-index: 3000;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      pointer-events: none;
+      max-width: 340px;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.toast-success { border-color: rgba(56,217,169,0.45);  color: var(--accent2); background: rgba(56,217,169,0.07); }
+    #toast.toast-error   { border-color: rgba(224,92,92,0.45);   color: var(--danger);  background: rgba(224,92,92,0.07);  }
+    #toast.toast-warn    { border-color: rgba(247,167,69,0.45);   color: var(--warn);    background: rgba(247,167,69,0.07); }
+
+    /* =========================================================
        SCROLLBAR STYLING
     ========================================================= */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1615,6 +1685,20 @@
       <div class="sc-value" id="sc-ws">—</div>
       <div class="sc-sub">peak demand</div>
     </div>
+  </div>
+
+  <!-- ===================================================
+       DATA TOOLBAR  (Phase 8)
+  =================================================== -->
+  <div id="data-toolbar">
+    <span class="tb-label">Data</span>
+    <button class="btn btn-ghost btn-sm" onclick="loadSampleData()" title="Load built-in sample flight test dataset">⊕ Sample Data</button>
+    <div class="tb-sep"></div>
+    <button class="btn btn-ghost btn-sm" onclick="exportJSON()" title="Download all projects as JSON">⬇ Export JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file-input').click()" title="Load projects from a JSON file">⬆ Import JSON</button>
+    <input type="file" id="import-file-input" accept=".json,application/json" style="display:none" onchange="handleImport(event)" />
+    <div class="tb-sep"></div>
+    <button class="btn btn-danger btn-sm" onclick="resetApp()" title="Clear all data and start fresh">↺ Reset</button>
   </div>
 
   <!-- ===================================================
@@ -2010,6 +2094,9 @@
   </div>
 </div>
 
+<!-- Toast notification (Phase 8) -->
+<div id="toast"></div>
+
 <!-- ===================================================
      JAVASCRIPT
 =================================================== -->
@@ -2021,8 +2108,15 @@
   let _nextId = 100;
   function newId() { return String(++_nextId); }
 
-  /* ── Sample dataset with roles ─────────────────────── */
-  let projects = [
+  /* ── localStorage key ───────────────────────────────── */
+  const LS_KEY = 'ftRPData_v1';
+
+  /* ── Active dataset (populated on DOMContentLoaded) ── */
+  let projects = [];
+
+  /* ── Built-in sample dataset ────────────────────────── */
+  function getSampleData() {
+   return [
     {
       id: '1',
       name: 'Alpha-7 High-Altitude Envelope Expansion',
@@ -2089,7 +2183,8 @@
         { id: 'r21', role: 'Custom',                customRole: 'Chase Aircraft Pilot',qty: 1, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Coordinate with 40 FTS for availability.', activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
       ],
     },
-  ];
+   ]; // end getSampleData
+  }
 
   /* ── UI state ────────────────────────────────────────── */
   let editingProjectId = null;
@@ -2105,6 +2200,12 @@
   ==================================================== */
   document.addEventListener('DOMContentLoaded', () => {
     setHeaderDate();
+    // Load persisted state; fall back to sample data on first visit
+    if (!loadState()) {
+      projects = getSampleData();
+      _nextId  = 200;
+      saveState(); // persist the sample data immediately
+    }
     renderProjects();
     updateSummaryCards();
     initTabs();
@@ -2549,6 +2650,7 @@
     renderProjects();
     updateSummaryCards();
     populateStaffingProjectSelect();
+    saveState();
   }
 
   function deleteProject(id) {
@@ -2564,6 +2666,7 @@
     updateSummaryCards();
     populateStaffingProjectSelect();
     renderStaffingContent();
+    saveState();
   }
 
   function duplicateProject(id) {
@@ -2575,6 +2678,7 @@
     renderProjects();
     updateSummaryCards();
     populateStaffingProjectSelect();
+    saveState();
   }
 
   /* ====================================================
@@ -3058,6 +3162,7 @@
     closeRoleModal();
     renderStaffingContent();
     updateSummaryCards();
+    saveState();
   }
 
   /* ====================================================
@@ -3073,6 +3178,7 @@
     p.roles = p.roles.filter(x => x.id !== roleId);
     renderStaffingContent();
     updateSummaryCards();
+    saveState();
   }
 
   /* ====================================================
@@ -3902,6 +4008,209 @@
     }).join('');
 
     container.innerHTML = summaryHTML + tablesHTML;
+  }
+
+  /* ====================================================
+     PERSISTENCE — Phase 8
+  ==================================================== */
+
+  // Serialize app state to localStorage
+  function saveState() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        version:  1,
+        savedAt:  new Date().toISOString(),
+        nextId:   _nextId,
+        projects,
+      }));
+    } catch (_) {
+      // localStorage unavailable or quota exceeded — fail silently
+    }
+  }
+
+  // Restore app state from localStorage.
+  // Returns true if valid state was found and applied.
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || !Array.isArray(data.projects)) return false;
+      projects = data.projects;
+      if (typeof data.nextId === 'number' && data.nextId > _nextId) {
+        _nextId = data.nextId;
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Full UI refresh after bulk data change
+  function fullRefresh() {
+    renderProjects();
+    updateSummaryCards();
+    populateStaffingProjectSelect();
+    staffingProjectId = null;
+    if (document.getElementById('staffing-project-select')) {
+      document.getElementById('staffing-project-select').value = '';
+    }
+    renderStaffingContent();
+  }
+
+  /* ====================================================
+     SAMPLE DATA — Phase 8
+  ==================================================== */
+  function loadSampleData() {
+    if (projects.length > 0) {
+      if (!confirm(
+        'Load sample data?\n\nThis will replace your current ' +
+        projects.length + ' project(s) with the built-in flight test dataset.\n\nContinue?'
+      )) return;
+    }
+    projects = getSampleData();
+    _nextId  = 200;
+    saveState();
+    fullRefresh();
+    showToast('Sample data loaded — 3 projects, 21 roles', 'success');
+  }
+
+  /* ====================================================
+     RESET — Phase 8
+  ==================================================== */
+  function resetApp() {
+    if (!confirm(
+      'Reset app?\n\nThis will delete ALL current data and cannot be undone.\n\nContinue?'
+    )) return;
+    projects = [];
+    _nextId  = 100;
+    try { localStorage.removeItem(LS_KEY); } catch (_) {}
+    fullRefresh();
+    showToast('App reset — all data cleared', 'warn');
+  }
+
+  /* ====================================================
+     EXPORT JSON — Phase 8
+  ==================================================== */
+  function exportJSON() {
+    if (projects.length === 0) {
+      showToast('Nothing to export — add projects first', 'warn');
+      return;
+    }
+    const payload = JSON.stringify({
+      version:    1,
+      exportedAt: new Date().toISOString(),
+      nextId:     _nextId,
+      projects,
+    }, null, 2);
+
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'ft-resource-plan-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(
+      'Exported ' + projects.length + ' project' + (projects.length !== 1 ? 's' : ''),
+      'success'
+    );
+  }
+
+  /* ====================================================
+     IMPORT JSON — Phase 8
+  ==================================================== */
+  function handleImport(event) {
+    const file = event.target.files[0];
+    event.target.value = ''; // reset so the same file can be re-imported
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onerror = () => showToast('Could not read file', 'error');
+
+    reader.onload = (e) => {
+      try {
+        // ── Parse ──────────────────────────────────────
+        let data;
+        try {
+          data = JSON.parse(e.target.result);
+        } catch (_) {
+          throw new Error('File is not valid JSON');
+        }
+
+        // ── Validate structure ──────────────────────────
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+          throw new Error('Expected a JSON object at the top level');
+        }
+        if (!Array.isArray(data.projects)) {
+          throw new Error('Missing required "projects" array');
+        }
+        if (data.projects.length === 0) {
+          showToast('Imported file contains no projects', 'warn');
+          return;
+        }
+        // Each project must have at least id + name
+        const bad = data.projects.find(p => !p || !p.id || !p.name);
+        if (bad !== undefined) {
+          throw new Error('One or more projects is missing required id/name fields');
+        }
+
+        // ── Confirm overwrite if data exists ────────────
+        if (projects.length > 0) {
+          if (!confirm(
+            'Import ' + data.projects.length + ' project(s) from "' + file.name + '"?\n\n' +
+            'This will replace your current ' + projects.length + ' project(s).\n\nContinue?'
+          )) return;
+        }
+
+        // ── Apply ───────────────────────────────────────
+        projects = data.projects;
+        // Ensure _nextId won't collide with any imported IDs
+        if (typeof data.nextId === 'number') {
+          _nextId = Math.max(_nextId, data.nextId);
+        } else {
+          // Derive a safe nextId from the IDs present in imported data
+          projects.forEach(p => {
+            const n = parseInt(p.id, 10);
+            if (!isNaN(n) && n >= _nextId) _nextId = n + 1;
+            (p.roles || []).forEach(r => {
+              const rn = parseInt(r.id?.replace(/\D/g,''), 10);
+              if (!isNaN(rn) && rn >= _nextId) _nextId = rn + 1;
+            });
+          });
+        }
+
+        saveState();
+        fullRefresh();
+        showToast(
+          'Imported ' + projects.length + ' project' + (projects.length !== 1 ? 's' : '') +
+          ' from ' + file.name,
+          'success'
+        );
+
+      } catch (err) {
+        showToast('Import failed: ' + err.message, 'error');
+      }
+    };
+
+    reader.readAsText(file);
+  }
+
+  /* ====================================================
+     TOAST — Phase 8
+  ==================================================== */
+  let _toastTimer = null;
+
+  function showToast(msg, type) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'show' + (type ? ' toast-' + type : '');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => { el.className = ''; }, 3800);
   }
 
   /* ====================================================
