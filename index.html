@@ -100,9 +100,7 @@
       text-align: right;
     }
 
-    .header-meta span {
-      display: block;
-    }
+    .header-meta span { display: block; }
 
     /* =========================================================
        SUMMARY CARDS STRIP
@@ -310,7 +308,7 @@
     .btn-icon.danger:hover { background: rgba(224,92,92,0.15); color: var(--danger); }
 
     /* =========================================================
-       PROJECT GRID + CARDS
+       PROJECT GRID + CARDS  (Phase 1 — unchanged)
     ========================================================= */
     #project-grid {
       display: grid;
@@ -335,7 +333,6 @@
       box-shadow: 0 0 0 1px var(--accent), var(--shadow);
     }
 
-    /* Card header row */
     .card-header {
       display: flex;
       align-items: flex-start;
@@ -370,31 +367,21 @@
       text-transform: uppercase;
     }
 
-    /* Status badges */
-    .badge-planning   { background: rgba(79,126,248,0.18); color: #7aa8ff; }
-    .badge-execution  { background: rgba(56,217,169,0.18); color: #38d9a9; }
+    .badge-planning   { background: rgba(79,126,248,0.18);  color: #7aa8ff; }
+    .badge-execution  { background: rgba(56,217,169,0.18);  color: #38d9a9; }
     .badge-complete   { background: rgba(124,132,163,0.18); color: #9aa0b8; }
     .badge-on-hold    { background: rgba(247,167,69,0.18);  color: #f7a745; }
+    .badge-high       { background: rgba(224,92,92,0.18);   color: #e07c7c; }
+    .badge-medium     { background: rgba(247,167,69,0.18);  color: #f7a745; }
+    .badge-low        { background: rgba(56,217,169,0.18);  color: #38d9a9; }
 
-    /* Priority badges */
-    .badge-high   { background: rgba(224,92,92,0.18);  color: #e07c7c; }
-    .badge-medium { background: rgba(247,167,69,0.18); color: #f7a745; }
-    .badge-low    { background: rgba(56,217,169,0.18); color: #38d9a9; }
+    .card-actions { display: flex; gap: 2px; flex-shrink: 0; }
 
-    .card-actions {
-      display: flex;
-      gap: 2px;
-      flex-shrink: 0;
-    }
-
-    /* Date rows */
     .card-dates {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
-
-    .date-block { }
 
     .date-label {
       font-size: 10px;
@@ -404,17 +391,9 @@
       margin-bottom: 2px;
     }
 
-    .date-range {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
+    .date-range { font-size: 12px; color: var(--text-muted); }
+    .date-range strong { color: var(--text); font-weight: 500; }
 
-    .date-range strong {
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    /* Phase timeline bar */
     .phase-bar-wrap {
       background: var(--surface2);
       border-radius: 4px;
@@ -423,18 +402,9 @@
       display: flex;
     }
 
-    .phase-bar-planning {
-      background: var(--accent);
-      height: 100%;
-    }
+    .phase-bar-planning  { background: var(--accent); height: 100%; }
+    .phase-bar-execution { background: var(--accent2); height: 100%; margin-left: 2px; }
 
-    .phase-bar-execution {
-      background: var(--accent2);
-      height: 100%;
-      margin-left: 2px;
-    }
-
-    /* Notes row */
     .card-notes {
       font-size: 12px;
       color: var(--text-muted);
@@ -443,23 +413,19 @@
       line-height: 1.5;
     }
 
-    .card-notes.empty { display: none; }
-
-    /* Empty state */
     #project-empty {
       grid-column: 1 / -1;
       text-align: center;
       padding: 80px 32px;
       color: var(--text-subtle);
     }
-
     #project-empty .emp-icon { font-size: 40px; opacity: 0.3; margin-bottom: 12px; }
     #project-empty p { font-size: 13px; }
 
     /* =========================================================
-       MODAL OVERLAY
+       MODAL OVERLAY  (shared base styles — used by both modals)
     ========================================================= */
-    #modal-overlay {
+    .modal-overlay {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.65);
@@ -473,12 +439,12 @@
       transition: opacity var(--transition);
     }
 
-    #modal-overlay.open {
+    .modal-overlay.open {
       opacity: 1;
       pointer-events: all;
     }
 
-    #modal {
+    .modal-box {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -491,9 +457,7 @@
       transition: transform var(--transition);
     }
 
-    #modal-overlay.open #modal {
-      transform: translateY(0);
-    }
+    .modal-overlay.open .modal-box { transform: translateY(0); }
 
     .modal-header {
       padding: 20px 24px 16px;
@@ -503,14 +467,9 @@
       justify-content: space-between;
     }
 
-    .modal-header h3 {
-      font-size: 15px;
-      font-weight: 700;
-    }
+    .modal-header h3 { font-size: 15px; font-weight: 700; }
 
-    .modal-body {
-      padding: 20px 24px;
-    }
+    .modal-body  { padding: 20px 24px; }
 
     .modal-footer {
       padding: 16px 24px;
@@ -535,9 +494,7 @@
       gap: 6px;
     }
 
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
+    .form-group.full-width { grid-column: 1 / -1; }
 
     .form-group label {
       font-size: 11px;
@@ -568,14 +525,8 @@
       outline: none;
     }
 
-    .form-group textarea {
-      resize: vertical;
-      min-height: 72px;
-    }
-
-    .form-group select option {
-      background: var(--surface2);
-    }
+    .form-group textarea { resize: vertical; min-height: 72px; }
+    .form-group select option { background: var(--surface2); }
 
     .form-section-label {
       grid-column: 1 / -1;
@@ -587,6 +538,278 @@
       padding-top: 14px;
       margin-top: 2px;
     }
+
+    /* Toggle / checkbox row */
+    .form-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-toggle-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .form-toggle-row label {
+      font-size: 13px;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    /* =========================================================
+       STAFFING SECTION  (Phase 2)
+    ========================================================= */
+
+    /* Project selector bar */
+    #staffing-selector-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    #staffing-selector-bar label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    #staffing-project-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 12px;
+      flex: 1;
+      max-width: 420px;
+      cursor: pointer;
+      transition: border-color var(--transition);
+    }
+    #staffing-project-select:focus { border-color: var(--accent); outline: none; }
+    #staffing-project-select option { background: var(--surface2); }
+
+    /* Selected project context banner */
+    #staffing-project-context {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .ctx-block { }
+
+    .ctx-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-subtle);
+      margin-bottom: 2px;
+    }
+
+    .ctx-value {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .ctx-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* Role summary chips inside context banner */
+    .ctx-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ctx-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ctx-chip strong { color: var(--text); }
+
+    /* Role table container */
+    #role-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .role-table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .role-table-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .role-table-header p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* The actual table */
+    #role-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #role-table thead tr {
+      background: var(--surface2);
+    }
+
+    #role-table th {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      padding: 10px 14px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    #role-table th:last-child { text-align: right; }
+
+    #role-table td {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    #role-table td:last-child { text-align: right; }
+
+    #role-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+    /* Role name cell */
+    .role-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .role-custom-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Quantity cell */
+    .role-qty {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    /* Phase badge */
+    .badge-both      { background: rgba(124,132,163,0.18); color: #b0b8d8; }
+
+    /* Flag chips (workstation / travel) */
+    .flag-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+
+    .flag-chip {
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+    }
+
+    .flag-ws     { background: rgba(79,126,248,0.18); color: #7aa8ff; }
+    .flag-travel { background: rgba(56,217,169,0.18); color: #38d9a9; }
+
+    /* Date range in table */
+    .role-dates {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Out-of-bounds warning */
+    .role-warn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(247,167,69,0.12);
+      border: 1px solid rgba(247,167,69,0.3);
+      border-radius: 4px;
+      font-size: 10px;
+      color: var(--warn);
+      padding: 2px 7px;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+
+    /* Notes cell */
+    .role-notes-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Empty role state */
+    #role-empty {
+      padding: 56px 24px;
+      text-align: center;
+      color: var(--text-subtle);
+    }
+    #role-empty .emp-icon { font-size: 36px; opacity: 0.3; margin-bottom: 10px; }
+    #role-empty p { font-size: 13px; }
+
+    /* No-project-selected state */
+    #staffing-no-project {
+      padding: 80px 32px;
+      text-align: center;
+      color: var(--text-subtle);
+    }
+    #staffing-no-project .emp-icon { font-size: 40px; opacity: 0.3; margin-bottom: 12px; }
+    #staffing-no-project p { font-size: 13px; }
+
+    /* Workstation ratio sub-field (conditionally shown) */
+    #rf-ws-ratio-group { transition: opacity var(--transition); }
+    #rf-ws-ratio-group.hidden { opacity: 0.3; pointer-events: none; }
 
     /* =========================================================
        SCROLLBAR STYLING
@@ -629,7 +852,7 @@
     <div class="summary-card">
       <div class="sc-label">Total Personnel</div>
       <div class="sc-value" id="sc-personnel">—</div>
-      <div class="sc-sub">across all projects</div>
+      <div class="sc-sub">sum of all role requirements</div>
     </div>
     <div class="summary-card warn">
       <div class="sc-label">Peak Personnel</div>
@@ -668,7 +891,7 @@
   =================================================== -->
   <div id="main">
 
-    <!-- PROJECTS SECTION -->
+    <!-- ── PROJECTS SECTION (Phase 1 — unchanged) ── -->
     <div id="section-projects" class="section active">
       <div class="section-header">
         <div>
@@ -677,26 +900,36 @@
         </div>
         <div class="toolbar-actions">
           <button class="btn btn-ghost" onclick="sortProjects()">⇅ Sort</button>
-          <button class="btn btn-primary" onclick="openModal()">+ Add Project</button>
+          <button class="btn btn-primary" onclick="openProjectModal()">+ Add Project</button>
+        </div>
+      </div>
+      <div id="project-grid"></div>
+    </div>
+
+    <!-- ── STAFFING SECTION (Phase 2) ── -->
+    <div id="section-staffing" class="section">
+
+      <div class="section-header">
+        <div>
+          <h2>Staffing &amp; Role Requirements</h2>
+          <p>Define personnel requirements by role for each project</p>
         </div>
       </div>
 
-      <div id="project-grid">
-        <!-- Cards injected by JS -->
+      <!-- Project selector -->
+      <div id="staffing-selector-bar">
+        <label for="staffing-project-select">View Project</label>
+        <select id="staffing-project-select" onchange="onStaffingProjectChange()">
+          <option value="">— Select a project —</option>
+        </select>
       </div>
+
+      <!-- Dynamic area: no-selection state OR project context + table -->
+      <div id="staffing-content"></div>
+
     </div>
 
-    <!-- STAFFING SECTION (placeholder) -->
-    <div id="section-staffing" class="section">
-      <div class="placeholder-section">
-        <div class="ph-icon">👥</div>
-        <h2>Staffing &amp; Workforce Mix</h2>
-        <p>Role-based staffing requirements, active duty vs. civilian vs. contractor breakdown, and personnel demand over time will appear here.</p>
-        <div class="ph-badge">Coming in a future phase</div>
-      </div>
-    </div>
-
-    <!-- TRAVEL / INFRASTRUCTURE SECTION (placeholder) -->
+    <!-- ── TRAVEL / INFRASTRUCTURE (placeholder) ── -->
     <div id="section-travel" class="section">
       <div class="placeholder-section">
         <div class="ph-icon">🗺️</div>
@@ -706,7 +939,7 @@
       </div>
     </div>
 
-    <!-- DASHBOARD SECTION (placeholder) -->
+    <!-- ── DASHBOARD (placeholder) ── -->
     <div id="section-dashboard" class="section">
       <div class="placeholder-section">
         <div class="ph-icon">📊</div>
@@ -717,29 +950,26 @@
     </div>
 
   </div><!-- /#main -->
-
 </div><!-- /#app -->
 
 <!-- ===================================================
-     MODAL — ADD / EDIT PROJECT
+     MODAL 1 — ADD / EDIT PROJECT
 =================================================== -->
-<div id="modal-overlay" onclick="handleOverlayClick(event)">
-  <div id="modal">
+<div id="project-modal-overlay" class="modal-overlay" onclick="handleProjectOverlayClick(event)">
+  <div class="modal-box">
     <div class="modal-header">
-      <h3 id="modal-title">Add Project</h3>
-      <button class="btn-icon" onclick="closeModal()" title="Close">✕</button>
+      <h3 id="project-modal-title">Add Project</h3>
+      <button class="btn-icon" onclick="closeProjectModal()" title="Close">✕</button>
     </div>
     <div class="modal-body">
       <form id="project-form" onsubmit="return false;">
         <div class="form-grid">
 
-          <!-- Project name — full width -->
           <div class="form-group full-width">
             <label for="f-name">Project Name *</label>
             <input type="text" id="f-name" placeholder="e.g., XYZ-99 Flight Envelope Expansion" required />
           </div>
 
-          <!-- Status / Priority -->
           <div class="form-group">
             <label for="f-status">Status</label>
             <select id="f-status">
@@ -759,7 +989,6 @@
             </select>
           </div>
 
-          <!-- ── Project span ── -->
           <div class="form-section-label">Project Span</div>
 
           <div class="form-group">
@@ -772,7 +1001,6 @@
             <input type="date" id="f-end" />
           </div>
 
-          <!-- ── Planning phase ── -->
           <div class="form-section-label">Planning Phase</div>
 
           <div class="form-group">
@@ -785,7 +1013,6 @@
             <input type="date" id="f-plan-end" />
           </div>
 
-          <!-- ── Execution phase ── -->
           <div class="form-section-label">Execution Phase</div>
 
           <div class="form-group">
@@ -798,7 +1025,6 @@
             <input type="date" id="f-exec-end" />
           </div>
 
-          <!-- ── Notes ── -->
           <div class="form-section-label">Additional Information</div>
 
           <div class="form-group full-width">
@@ -810,8 +1036,120 @@
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-ghost" onclick="closeProjectModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================
+     MODAL 2 — ADD / EDIT ROLE REQUIREMENT
+=================================================== -->
+<div id="role-modal-overlay" class="modal-overlay" onclick="handleRoleOverlayClick(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="role-modal-title">Add Role Requirement</h3>
+      <button class="btn-icon" onclick="closeRoleModal()" title="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="role-form" onsubmit="return false;">
+        <div class="form-grid">
+
+          <!-- Role selector -->
+          <div class="form-group">
+            <label for="rf-role">Role *</label>
+            <select id="rf-role" onchange="onRoleSelectChange()">
+              <option value="Test Lead">Test Lead</option>
+              <option value="Flight Test Engineer">Flight Test Engineer</option>
+              <option value="Test Engineer">Test Engineer</option>
+              <option value="Data Analyst">Data Analyst</option>
+              <option value="Mission Planner">Mission Planner</option>
+              <option value="Safety Officer">Safety Officer</option>
+              <option value="Range Support">Range Support</option>
+              <option value="Aircraft Maintainer">Aircraft Maintainer</option>
+              <option value="Data Systems Engineer">Data Systems Engineer</option>
+              <option value="Logistics Coordinator">Logistics Coordinator</option>
+              <option value="Avionics Engineer">Avionics Engineer</option>
+              <option value="Instrumentation Engineer">Instrumentation Engineer</option>
+              <option value="Chase Pilot">Chase Pilot</option>
+              <option value="Quality Assurance">Quality Assurance</option>
+              <option value="Program Manager">Program Manager</option>
+              <option value="Custom">Custom…</option>
+            </select>
+          </div>
+
+          <!-- Custom role name (shown when "Custom" selected) -->
+          <div class="form-group" id="rf-custom-group" style="display:none;">
+            <label for="rf-custom">Custom Role Name *</label>
+            <input type="text" id="rf-custom" placeholder="Enter role title" />
+          </div>
+
+          <!-- Quantity -->
+          <div class="form-group" id="rf-qty-group">
+            <label for="rf-qty">Quantity *</label>
+            <input type="number" id="rf-qty" min="1" max="999" value="1" placeholder="# of personnel" />
+          </div>
+
+          <!-- Phase applicability -->
+          <div class="form-group full-width">
+            <label for="rf-phase">Phase Applicability</label>
+            <select id="rf-phase">
+              <option value="Both">Both (Planning &amp; Execution)</option>
+              <option value="Planning">Planning only</option>
+              <option value="Execution">Execution only</option>
+            </select>
+          </div>
+
+          <!-- Date range -->
+          <div class="form-section-label">Date Range</div>
+
+          <div class="form-group">
+            <label for="rf-start">Start Date</label>
+            <input type="date" id="rf-start" />
+          </div>
+
+          <div class="form-group">
+            <label for="rf-end">End Date</label>
+            <input type="date" id="rf-end" />
+          </div>
+
+          <!-- Workstation & travel flags -->
+          <div class="form-section-label">Requirements &amp; Flags</div>
+
+          <div class="form-group">
+            <div class="form-toggle-row">
+              <input type="checkbox" id="rf-ws" onchange="onWsCheck()" />
+              <label for="rf-ws">Workstation required</label>
+            </div>
+          </div>
+
+          <div class="form-group" id="rf-ws-ratio-group" class="hidden">
+            <label for="rf-ws-ratio">Workstation Ratio</label>
+            <input type="number" id="rf-ws-ratio" min="0.1" max="4" step="0.1" value="1.0"
+                   placeholder="e.g. 1.0" />
+          </div>
+
+          <div class="form-group full-width">
+            <div class="form-toggle-row">
+              <input type="checkbox" id="rf-travel" />
+              <label for="rf-travel">Travel required</label>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-section-label">Notes</div>
+
+          <div class="form-group full-width">
+            <label for="rf-notes">Notes</label>
+            <textarea id="rf-notes" placeholder="Add role-specific notes, clearance requirements, availability constraints…"></textarea>
+          </div>
+
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeRoleModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRole()">Save Role</button>
     </div>
   </div>
 </div>
@@ -821,14 +1159,28 @@
 =================================================== -->
 <script>
   /* ====================================================
-     DATA MODEL — projects array
+     DATA MODEL
+     Each project carries a `roles` array.
+     Role shape:
+     {
+       id:            string,
+       role:          string,   // preset label or "Custom"
+       customRole:    string,   // used when role === "Custom"
+       qty:           number,
+       phase:         'Planning' | 'Execution' | 'Both',
+       start:         string,   // YYYY-MM-DD
+       end:           string,
+       wsRequired:    boolean,
+       wsRatio:       number,   // default 1.0
+       travelRequired: boolean,
+       notes:         string,
+     }
   ==================================================== */
 
-  // Unique ID counter
   let _nextId = 100;
   function newId() { return String(++_nextId); }
 
-  // Sample starter dataset
+  /* ── Sample dataset with roles ─────────────────────── */
   let projects = [
     {
       id: '1',
@@ -842,6 +1194,17 @@
       execStart: '2025-05-01',
       execEnd: '2026-03-31',
       notes: 'Coordinating with Edwards AFB range scheduling. Key dependency on sensor integration milestone in Q2.',
+      roles: [
+        { id: 'r1',  role: 'Test Lead',                customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for Edwards coordination.' },
+        { id: 'r2',  role: 'Flight Test Engineer',      customRole: '', qty: 3, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
+        { id: 'r3',  role: 'Data Analyst',              customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time data review during test points.' },
+        { id: 'r4',  role: 'Mission Planner',           customRole: '', qty: 1, phase: 'Planning',  start: '2025-01-15', end: '2025-04-30', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: '' },
+        { id: 'r5',  role: 'Safety Officer',            customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie.' },
+        { id: 'r6',  role: 'Range Support',             customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '' },
+        { id: 'r7',  role: 'Aircraft Maintainer',       customRole: '', qty: 4, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Includes crew chief and two specialists.' },
+        { id: 'r8',  role: 'Data Systems Engineer',     customRole: '', qty: 2, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Instrumentation setup and real-time telemetry.' },
+        { id: 'r9',  role: 'Logistics Coordinator',     customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '' },
+      ],
     },
     {
       id: '2',
@@ -855,6 +1218,13 @@
       execStart: '2025-06-01',
       execEnd: '2025-12-15',
       notes: 'Hardware-in-the-loop testing complete. Awaiting final software build from contractor.',
+      roles: [
+        { id: 'r10', role: 'Test Lead',                customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
+        { id: 'r11', role: 'Test Engineer',             customRole: '', qty: 3, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
+        { id: 'r12', role: 'Avionics Engineer',         customRole: '', qty: 2, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: 'Contractor-provided; GFE laptop required.' },
+        { id: 'r13', role: 'Data Systems Engineer',     customRole: '', qty: 1, phase: 'Execution', start: '2025-06-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
+        { id: 'r14', role: 'Logistics Coordinator',     customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '' },
+      ],
     },
     {
       id: '3',
@@ -868,13 +1238,22 @@
       execStart: '2025-09-01',
       execEnd: '2026-01-31',
       notes: 'Requires dedicated chase aircraft. Risk: weather windows at Eglin may compress schedule.',
+      roles: [
+        { id: 'r15', role: 'Test Lead',                customRole: '', qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
+        { id: 'r16', role: 'Test Engineer',             customRole: '', qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Structural instrumentation monitoring.' },
+        { id: 'r17', role: 'Safety Officer',            customRole: '', qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '' },
+        { id: 'r18', role: 'Range Support',             customRole: '', qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range coordination required.' },
+        { id: 'r19', role: 'Aircraft Maintainer',       customRole: '', qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '' },
+        { id: 'r20', role: 'Logistics Coordinator',     customRole: '', qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '' },
+        { id: 'r21', role: 'Custom',                   customRole: 'Chase Aircraft Pilot', qty: 1, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true, notes: 'Coordinate with 40 FTS for availability.' },
+      ],
     },
   ];
 
-  // Currently edited project ID (null = new)
-  let editingId = null;
-
-  // Current sort: 'name' | 'start' | 'priority' | 'status'
+  /* ── UI state ────────────────────────────────────────── */
+  let editingProjectId = null;   // project modal
+  let editingRoleId    = null;   // role modal
+  let staffingProjectId = null;  // currently viewed project in Staffing tab
   let sortMode = 'start';
 
   /* ====================================================
@@ -885,6 +1264,8 @@
     renderProjects();
     updateSummaryCards();
     initTabs();
+    populateStaffingProjectSelect();
+    renderStaffingContent();
   });
 
   /* ====================================================
@@ -900,16 +1281,34 @@
 
   /* ====================================================
      SUMMARY CARDS
-     (Phase 1: only project count is real; others are placeholders)
+     Phase 2: Total Personnel and workstations are real.
+     Peak personnel and travel cost remain placeholders.
   ==================================================== */
   function updateSummaryCards() {
+    // Total projects
     document.getElementById('sc-projects').textContent = projects.length;
-    // Placeholder values until staffing/travel phases are added
-    document.getElementById('sc-personnel').textContent = '—';
-    document.getElementById('sc-peak').textContent     = '—';
-    document.getElementById('sc-trips').textContent    = '—';
-    document.getElementById('sc-cost').textContent     = '—';
-    document.getElementById('sc-ws').textContent       = '—';
+
+    // Total personnel = sum of all role quantities across all projects
+    const totalPersonnel = projects.reduce((sum, p) =>
+      sum + (p.roles || []).reduce((s, r) => s + (r.qty || 0), 0), 0);
+    document.getElementById('sc-personnel').textContent =
+      totalPersonnel > 0 ? totalPersonnel : '—';
+
+    // Peak personnel — requires time-bucketing (future phase)
+    document.getElementById('sc-peak').textContent = '—';
+
+    // Total trips — future phase
+    document.getElementById('sc-trips').textContent = '—';
+
+    // Travel cost — future phase
+    document.getElementById('sc-cost').textContent = '—';
+
+    // Peak workstations = sum of ws-required roles * ratio (simple total for now)
+    const totalWs = projects.reduce((sum, p) =>
+      sum + (p.roles || []).reduce((s, r) =>
+        s + (r.wsRequired ? Math.ceil(r.qty * (r.wsRatio || 1)) : 0), 0), 0);
+    document.getElementById('sc-ws').textContent =
+      totalWs > 0 ? totalWs : '—';
   }
 
   /* ====================================================
@@ -919,20 +1318,23 @@
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const target = btn.dataset.section;
-        // Update tab buttons
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Update sections
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById('section-' + target).classList.add('active');
+        // Refresh staffing selector when switching to that tab
+        if (target === 'staffing') {
+          populateStaffingProjectSelect();
+          renderStaffingContent();
+        }
       });
     });
   }
 
   /* ====================================================
-     SORT
+     SORT (Projects)
   ==================================================== */
-  const SORT_MODES = ['start', 'name', 'priority', 'status'];
+  const SORT_MODES  = ['start', 'name', 'priority', 'status'];
   const SORT_LABELS = { start: 'Start Date', name: 'Name', priority: 'Priority', status: 'Status' };
   const PRIORITY_ORDER = { High: 0, Medium: 1, Low: 2 };
   const STATUS_ORDER   = { Execution: 0, Planning: 1, 'On Hold': 2, Complete: 3 };
@@ -941,8 +1343,7 @@
     const idx = SORT_MODES.indexOf(sortMode);
     sortMode = SORT_MODES[(idx + 1) % SORT_MODES.length];
     renderProjects();
-    // Brief visual feedback
-    const btn = document.querySelector('.toolbar-actions .btn-ghost');
+    const btn = document.querySelector('#section-projects .toolbar-actions .btn-ghost');
     btn.textContent = `⇅ Sort: ${SORT_LABELS[sortMode]}`;
   }
 
@@ -952,7 +1353,6 @@
         case 'name':     return a.name.localeCompare(b.name);
         case 'priority': return (PRIORITY_ORDER[a.priority] ?? 9) - (PRIORITY_ORDER[b.priority] ?? 9);
         case 'status':   return (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9);
-        case 'start':
         default:         return (a.start || '').localeCompare(b.start || '');
       }
     });
@@ -977,19 +1377,14 @@
     grid.innerHTML = sorted.map(p => buildCard(p)).join('');
   }
 
-  /* Build a single project card HTML string */
   function buildCard(p) {
     const statusClass = {
-      'Planning':  'badge-planning',
-      'Execution': 'badge-execution',
-      'Complete':  'badge-complete',
-      'On Hold':   'badge-on-hold',
+      Planning: 'badge-planning', Execution: 'badge-execution',
+      Complete: 'badge-complete', 'On Hold': 'badge-on-hold',
     }[p.status] || 'badge-planning';
 
     const priorityClass = {
-      'High':   'badge-high',
-      'Medium': 'badge-medium',
-      'Low':    'badge-low',
+      High: 'badge-high', Medium: 'badge-medium', Low: 'badge-low',
     }[p.priority] || 'badge-medium';
 
     function fmt(d) {
@@ -998,7 +1393,7 @@
       return `<strong>${dt.toLocaleDateString('en-US', { month: 'short', year: 'numeric', day: 'numeric' })}</strong>`;
     }
 
-    // Phase timeline bar: compute rough widths
+    // Phase bar widths
     const pStart = p.start ? new Date(p.start) : null;
     const pEnd   = p.end   ? new Date(p.end)   : null;
     let planPct = 40, execPct = 55;
@@ -1006,11 +1401,21 @@
       const total = pEnd - pStart || 1;
       const planS = p.planStart ? new Date(p.planStart) : pStart;
       const planE = p.planEnd   ? new Date(p.planEnd)   : pStart;
-      const execS = p.execStart ? new Date(p.execStart) : pEnd;
       const execE = p.execEnd   ? new Date(p.execEnd)   : pEnd;
+      const execS = p.execStart ? new Date(p.execStart) : pEnd;
       planPct = Math.min(55, Math.max(5, Math.round(((planE - planS) / total) * 100)));
       execPct = Math.min(90, Math.max(5, Math.round(((execE - execS) / total) * 100)));
     }
+
+    // Role count chip
+    const roleCount = (p.roles || []).length;
+    const roleChip = roleCount > 0
+      ? `<span style="font-size:11px;color:var(--text-subtle);margin-top:4px;display:inline-block;">
+           👥 ${roleCount} role${roleCount !== 1 ? 's' : ''} defined
+         </span>`
+      : `<span style="font-size:11px;color:var(--text-subtle);margin-top:4px;display:inline-block;opacity:0.5;">
+           No roles defined
+         </span>`;
 
     const notes = p.notes ? `<div class="card-notes">${escHtml(p.notes)}</div>` : '';
 
@@ -1023,9 +1428,10 @@
             <span class="badge ${statusClass}">${escHtml(p.status)}</span>
             <span class="badge ${priorityClass}">${escHtml(p.priority)}</span>
           </div>
+          ${roleChip}
         </div>
         <div class="card-actions">
-          <button class="btn-icon" title="Edit"      onclick="openModal('${p.id}')">✎</button>
+          <button class="btn-icon" title="Edit"      onclick="openProjectModal('${p.id}')">✎</button>
           <button class="btn-icon" title="Duplicate" onclick="duplicateProject('${p.id}')">⧉</button>
           <button class="btn-icon danger" title="Delete" onclick="deleteProject('${p.id}')">🗑</button>
         </div>
@@ -1060,46 +1466,42 @@
   }
 
   /* ====================================================
-     MODAL OPEN / CLOSE
+     PROJECT MODAL — open / close / save / delete / duplicate
   ==================================================== */
-  function openModal(id) {
-    editingId = id || null;
-    document.getElementById('modal-title').textContent = id ? 'Edit Project' : 'Add Project';
-
-    // Reset form
-    clearForm();
+  function openProjectModal(id) {
+    editingProjectId = id || null;
+    document.getElementById('project-modal-title').textContent = id ? 'Edit Project' : 'Add Project';
+    clearProjectForm();
 
     if (id) {
       const p = projects.find(x => x.id === id);
       if (!p) return;
-      document.getElementById('f-name').value       = p.name       || '';
-      document.getElementById('f-status').value     = p.status     || 'Planning';
-      document.getElementById('f-priority').value   = p.priority   || 'Medium';
-      document.getElementById('f-start').value      = p.start      || '';
-      document.getElementById('f-end').value        = p.end        || '';
-      document.getElementById('f-plan-start').value = p.planStart  || '';
-      document.getElementById('f-plan-end').value   = p.planEnd    || '';
-      document.getElementById('f-exec-start').value = p.execStart  || '';
-      document.getElementById('f-exec-end').value   = p.execEnd    || '';
-      document.getElementById('f-notes').value      = p.notes      || '';
+      document.getElementById('f-name').value       = p.name      || '';
+      document.getElementById('f-status').value     = p.status    || 'Planning';
+      document.getElementById('f-priority').value   = p.priority  || 'Medium';
+      document.getElementById('f-start').value      = p.start     || '';
+      document.getElementById('f-end').value        = p.end       || '';
+      document.getElementById('f-plan-start').value = p.planStart || '';
+      document.getElementById('f-plan-end').value   = p.planEnd   || '';
+      document.getElementById('f-exec-start').value = p.execStart || '';
+      document.getElementById('f-exec-end').value   = p.execEnd   || '';
+      document.getElementById('f-notes').value      = p.notes     || '';
     }
 
-    document.getElementById('modal-overlay').classList.add('open');
-    // Focus name field
+    document.getElementById('project-modal-overlay').classList.add('open');
     setTimeout(() => document.getElementById('f-name').focus(), 80);
   }
 
-  function closeModal() {
-    document.getElementById('modal-overlay').classList.remove('open');
-    editingId = null;
+  function closeProjectModal() {
+    document.getElementById('project-modal-overlay').classList.remove('open');
+    editingProjectId = null;
   }
 
-  // Close modal if clicking on the dark overlay (not the modal itself)
-  function handleOverlayClick(e) {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  function handleProjectOverlayClick(e) {
+    if (e.target === document.getElementById('project-modal-overlay')) closeProjectModal();
   }
 
-  function clearForm() {
+  function clearProjectForm() {
     ['f-name','f-start','f-end','f-plan-start','f-plan-end',
      'f-exec-start','f-exec-end','f-notes'].forEach(id => {
       document.getElementById(id).value = '';
@@ -1108,9 +1510,6 @@
     document.getElementById('f-priority').value = 'Medium';
   }
 
-  /* ====================================================
-     SAVE (add or update)
-  ==================================================== */
   function saveProject() {
     const name = document.getElementById('f-name').value.trim();
     if (!name) {
@@ -1133,54 +1532,389 @@
       notes:     document.getElementById('f-notes').value.trim(),
     };
 
-    if (editingId) {
-      // Update existing
-      const idx = projects.findIndex(p => p.id === editingId);
+    if (editingProjectId) {
+      const idx = projects.findIndex(p => p.id === editingProjectId);
       if (idx !== -1) projects[idx] = { ...projects[idx], ...data };
     } else {
-      // New project
-      projects.push({ id: newId(), ...data });
+      projects.push({ id: newId(), roles: [], ...data });
     }
 
-    closeModal();
+    closeProjectModal();
     renderProjects();
     updateSummaryCards();
+    populateStaffingProjectSelect();
   }
 
-  /* ====================================================
-     DELETE
-  ==================================================== */
   function deleteProject(id) {
     const p = projects.find(x => x.id === id);
     if (!p) return;
     if (!confirm(`Delete project "${p.name}"?\n\nThis cannot be undone.`)) return;
     projects = projects.filter(x => x.id !== id);
+    if (staffingProjectId === id) {
+      staffingProjectId = null;
+      document.getElementById('staffing-project-select').value = '';
+    }
     renderProjects();
     updateSummaryCards();
+    populateStaffingProjectSelect();
+    renderStaffingContent();
   }
 
-  /* ====================================================
-     DUPLICATE
-  ==================================================== */
   function duplicateProject(id) {
     const p = projects.find(x => x.id === id);
     if (!p) return;
-    const copy = {
-      ...p,
-      id: newId(),
-      name: p.name + ' (Copy)',
-      status: 'Planning',
-    };
+    // Deep-copy roles with new IDs
+    const newRoles = (p.roles || []).map(r => ({ ...r, id: newId() }));
+    const copy = { ...p, id: newId(), name: p.name + ' (Copy)', status: 'Planning', roles: newRoles };
     projects.push(copy);
     renderProjects();
+    updateSummaryCards();
+    populateStaffingProjectSelect();
+  }
+
+  /* ====================================================
+     STAFFING — project selector
+  ==================================================== */
+  function populateStaffingProjectSelect() {
+    const sel = document.getElementById('staffing-project-select');
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">— Select a project —</option>';
+    projects.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      sel.appendChild(opt);
+    });
+    // Restore selection if still valid
+    if (prev && projects.find(p => p.id === prev)) {
+      sel.value = prev;
+    }
+  }
+
+  function onStaffingProjectChange() {
+    staffingProjectId = document.getElementById('staffing-project-select').value || null;
+    renderStaffingContent();
+  }
+
+  /* ====================================================
+     STAFFING — render main content area
+  ==================================================== */
+  function renderStaffingContent() {
+    const container = document.getElementById('staffing-content');
+
+    if (!staffingProjectId) {
+      container.innerHTML = `
+        <div id="staffing-no-project">
+          <div class="emp-icon">👆</div>
+          <p>Select a project above to view and manage its role requirements.</p>
+        </div>`;
+      return;
+    }
+
+    const p = projects.find(x => x.id === staffingProjectId);
+    if (!p) { container.innerHTML = ''; return; }
+
+    const roles  = p.roles || [];
+    const totalPax = roles.reduce((s, r) => s + r.qty, 0);
+    const totalWs  = roles.filter(r => r.wsRequired)
+                          .reduce((s, r) => s + Math.ceil(r.qty * (r.wsRatio || 1)), 0);
+    const travelRoles = roles.filter(r => r.travelRequired).length;
+
+    // Context banner
+    const fmtCtx = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US',
+      { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+    const contextHTML = `
+      <div id="staffing-project-context">
+        <div class="ctx-block">
+          <div class="ctx-label">Project</div>
+          <div class="ctx-value">${escHtml(p.name)}</div>
+        </div>
+        <div class="ctx-divider"></div>
+        <div class="ctx-block">
+          <div class="ctx-label">Status</div>
+          <div class="ctx-value">${escHtml(p.status)}</div>
+        </div>
+        <div class="ctx-divider"></div>
+        <div class="ctx-block">
+          <div class="ctx-label">Project Span</div>
+          <div class="ctx-value">${fmtCtx(p.start)} – ${fmtCtx(p.end)}</div>
+        </div>
+        <div class="ctx-divider"></div>
+        <div class="ctx-chips">
+          <div class="ctx-chip">👥 <strong>${totalPax}</strong> personnel</div>
+          <div class="ctx-chip">🖥 <strong>${totalWs}</strong> workstations</div>
+          <div class="ctx-chip">✈ <strong>${travelRoles}</strong> travel role${travelRoles !== 1 ? 's' : ''}</div>
+        </div>
+      </div>`;
+
+    // Role table
+    const tableHTML = `
+      <div id="role-table-wrap">
+        <div class="role-table-header">
+          <div>
+            <h3>Role Requirements</h3>
+            <p>${roles.length} role${roles.length !== 1 ? 's' : ''} defined for this project</p>
+          </div>
+          <button class="btn btn-primary" onclick="openRoleModal()">+ Add Role</button>
+        </div>
+        ${roles.length === 0 ? buildRoleEmpty() : buildRoleTable(p, roles)}
+      </div>`;
+
+    container.innerHTML = contextHTML + tableHTML;
+  }
+
+  function buildRoleEmpty() {
+    return `
+      <div id="role-empty">
+        <div class="emp-icon">👥</div>
+        <p>No role requirements yet.<br/>Click <strong>+ Add Role</strong> to define the first one.</p>
+      </div>`;
+  }
+
+  /* Build the role <table> */
+  function buildRoleTable(project, roles) {
+    const rows = roles.map(r => buildRoleRow(project, r)).join('');
+    return `
+      <table id="role-table">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Qty</th>
+            <th>Phase</th>
+            <th>Date Range</th>
+            <th>Flags</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function buildRoleRow(project, r) {
+    // Display name
+    const displayName = r.role === 'Custom' ? (r.customRole || 'Custom') : r.role;
+    const customLabel = r.role === 'Custom' && r.customRole
+      ? `<div class="role-custom-label">(custom role)</div>` : '';
+
+    // Phase badge
+    const phaseClass = { Planning: 'badge-planning', Execution: 'badge-execution', Both: 'badge-both' }[r.phase] || 'badge-both';
+
+    // Date display + out-of-bounds warning
+    const fmtShort = d => d
+      ? new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
+      : '—';
+
+    const dateDisplay = `${fmtShort(r.start)} – ${fmtShort(r.end)}`;
+
+    // Check if role dates extend outside project span
+    let warnHTML = '';
+    if (project.start && r.start && r.start < project.start) {
+      warnHTML += `<div class="role-warn">⚠ Starts before project</div>`;
+    }
+    if (project.end && r.end && r.end > project.end) {
+      warnHTML += `<div class="role-warn">⚠ Ends after project</div>`;
+    }
+
+    // Flag chips
+    const wsLabel = r.wsRequired
+      ? `<span class="flag-chip flag-ws">🖥 WS ×${r.wsRatio || 1}</span>` : '';
+    const travelLabel = r.travelRequired
+      ? `<span class="flag-chip flag-travel">✈ Travel</span>` : '';
+    const flags = (wsLabel || travelLabel)
+      ? `<div class="flag-chips">${wsLabel}${travelLabel}</div>`
+      : `<span style="color:var(--text-subtle);font-size:12px;">—</span>`;
+
+    const notesCell = r.notes
+      ? `<div class="role-notes-text" title="${escHtml(r.notes)}">${escHtml(r.notes)}</div>`
+      : `<span style="color:var(--text-subtle);font-size:12px;">—</span>`;
+
+    return `
+      <tr data-role-id="${r.id}">
+        <td>
+          <div class="role-name">${escHtml(displayName)}</div>
+          ${customLabel}
+        </td>
+        <td><div class="role-qty">${r.qty}</div></td>
+        <td><span class="badge ${phaseClass}">${escHtml(r.phase)}</span></td>
+        <td>
+          <div class="role-dates">${dateDisplay}</div>
+          ${warnHTML}
+        </td>
+        <td>${flags}</td>
+        <td>${notesCell}</td>
+        <td>
+          <div class="card-actions">
+            <button class="btn-icon" title="Edit"   onclick="openRoleModal('${r.id}')">✎</button>
+            <button class="btn-icon danger" title="Delete" onclick="deleteRole('${r.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  /* ====================================================
+     ROLE MODAL — open / close / save
+  ==================================================== */
+  function openRoleModal(roleId) {
+    editingRoleId = roleId || null;
+    document.getElementById('role-modal-title').textContent =
+      roleId ? 'Edit Role Requirement' : 'Add Role Requirement';
+
+    clearRoleForm();
+
+    if (roleId) {
+      const p = projects.find(x => x.id === staffingProjectId);
+      if (!p) return;
+      const r = (p.roles || []).find(x => x.id === roleId);
+      if (!r) return;
+
+      document.getElementById('rf-role').value     = r.role      || 'Test Lead';
+      document.getElementById('rf-custom').value   = r.customRole || '';
+      document.getElementById('rf-qty').value      = r.qty        ?? 1;
+      document.getElementById('rf-phase').value    = r.phase      || 'Both';
+      document.getElementById('rf-start').value    = r.start      || '';
+      document.getElementById('rf-end').value      = r.end        || '';
+      document.getElementById('rf-ws').checked     = !!r.wsRequired;
+      document.getElementById('rf-ws-ratio').value = r.wsRatio    ?? 1.0;
+      document.getElementById('rf-travel').checked = !!r.travelRequired;
+      document.getElementById('rf-notes').value    = r.notes      || '';
+
+      // Show/hide conditional fields
+      onRoleSelectChange();
+      onWsCheck();
+    }
+
+    document.getElementById('role-modal-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('rf-role').focus(), 80);
+  }
+
+  function closeRoleModal() {
+    document.getElementById('role-modal-overlay').classList.remove('open');
+    editingRoleId = null;
+  }
+
+  function handleRoleOverlayClick(e) {
+    if (e.target === document.getElementById('role-modal-overlay')) closeRoleModal();
+  }
+
+  function clearRoleForm() {
+    document.getElementById('rf-role').value      = 'Test Lead';
+    document.getElementById('rf-custom').value    = '';
+    document.getElementById('rf-qty').value       = '1';
+    document.getElementById('rf-phase').value     = 'Both';
+    document.getElementById('rf-start').value     = '';
+    document.getElementById('rf-end').value       = '';
+    document.getElementById('rf-ws').checked      = false;
+    document.getElementById('rf-ws-ratio').value  = '1.0';
+    document.getElementById('rf-travel').checked  = false;
+    document.getElementById('rf-notes').value     = '';
+    onRoleSelectChange();
+    onWsCheck();
+  }
+
+  /* Show/hide custom role name field */
+  function onRoleSelectChange() {
+    const val = document.getElementById('rf-role').value;
+    const grp = document.getElementById('rf-custom-group');
+    grp.style.display = (val === 'Custom') ? 'flex' : 'none';
+  }
+
+  /* Dim/enable workstation ratio based on checkbox */
+  function onWsCheck() {
+    const checked = document.getElementById('rf-ws').checked;
+    const grp = document.getElementById('rf-ws-ratio-group');
+    if (checked) {
+      grp.classList.remove('hidden');
+      grp.style.opacity = '1';
+      grp.style.pointerEvents = 'auto';
+    } else {
+      grp.style.opacity = '0.35';
+      grp.style.pointerEvents = 'none';
+    }
+  }
+
+  function saveRole() {
+    // Validate quantity
+    const qtyRaw = document.getElementById('rf-qty').value;
+    const qty = parseInt(qtyRaw, 10);
+    const qtyEl = document.getElementById('rf-qty');
+    if (!qtyRaw || isNaN(qty) || qty < 1) {
+      qtyEl.style.borderColor = 'var(--danger)';
+      qtyEl.focus();
+      return;
+    }
+    qtyEl.style.borderColor = '';
+
+    const roleVal  = document.getElementById('rf-role').value;
+    const customEl = document.getElementById('rf-custom');
+
+    // Validate custom role name if needed
+    if (roleVal === 'Custom') {
+      const cname = customEl.value.trim();
+      if (!cname) {
+        customEl.style.borderColor = 'var(--danger)';
+        customEl.focus();
+        return;
+      }
+      customEl.style.borderColor = '';
+    }
+
+    const wsRatioRaw = parseFloat(document.getElementById('rf-ws-ratio').value);
+    const wsRatio = isNaN(wsRatioRaw) || wsRatioRaw <= 0 ? 1.0 : wsRatioRaw;
+
+    const data = {
+      role:           roleVal,
+      customRole:     roleVal === 'Custom' ? customEl.value.trim() : '',
+      qty,
+      phase:          document.getElementById('rf-phase').value,
+      start:          document.getElementById('rf-start').value,
+      end:            document.getElementById('rf-end').value,
+      wsRequired:     document.getElementById('rf-ws').checked,
+      wsRatio,
+      travelRequired: document.getElementById('rf-travel').checked,
+      notes:          document.getElementById('rf-notes').value.trim(),
+    };
+
+    const p = projects.find(x => x.id === staffingProjectId);
+    if (!p) return;
+    if (!p.roles) p.roles = [];
+
+    if (editingRoleId) {
+      const idx = p.roles.findIndex(r => r.id === editingRoleId);
+      if (idx !== -1) p.roles[idx] = { ...p.roles[idx], ...data };
+    } else {
+      p.roles.push({ id: newId(), ...data });
+    }
+
+    closeRoleModal();
+    renderStaffingContent();
     updateSummaryCards();
   }
 
   /* ====================================================
-     KEYBOARD SHORTCUT — Esc closes modal
+     ROLE — delete
+  ==================================================== */
+  function deleteRole(roleId) {
+    const p = projects.find(x => x.id === staffingProjectId);
+    if (!p) return;
+    const r = (p.roles || []).find(x => x.id === roleId);
+    if (!r) return;
+    const displayName = r.role === 'Custom' ? (r.customRole || 'Custom') : r.role;
+    if (!confirm(`Remove the "${displayName}" role requirement?\n\nThis cannot be undone.`)) return;
+    p.roles = p.roles.filter(x => x.id !== roleId);
+    renderStaffingContent();
+    updateSummaryCards();
+  }
+
+  /* ====================================================
+     KEYBOARD — Esc closes whichever modal is open
   ==================================================== */
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') {
+      closeProjectModal();
+      closeRoleModal();
+    }
   });
 
   /* ====================================================
