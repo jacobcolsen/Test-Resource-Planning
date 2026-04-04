@@ -812,6 +812,121 @@
     #rf-ws-ratio-group.hidden { opacity: 0.3; pointer-events: none; }
 
     /* =========================================================
+       WORKFORCE MIX  (Phase 3)
+    ========================================================= */
+
+    /* Three-column mix inputs in modal */
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Colour-coded labels for the three categories */
+    .label-ad  { color: #7aa8ff !important; }  /* active duty  — accent blue  */
+    .label-gc  { color: #38d9a9 !important; }  /* gov civilian — accent green  */
+    .label-ctr { color: #f7a745 !important; }  /* contractor   — warm amber    */
+
+    /* Live reconciliation status bar (inside modal, below the three inputs) */
+    .mix-recon-bar {
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      border: 1px solid transparent;
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+      margin-top: 4px;
+    }
+
+    .mix-recon-bar.unset {
+      background: var(--surface2);
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+
+    .mix-recon-bar.valid {
+      background: rgba(56,217,169,0.08);
+      border-color: rgba(56,217,169,0.28);
+      color: var(--accent2);
+    }
+
+    .mix-recon-bar.invalid {
+      background: rgba(224,92,92,0.08);
+      border-color: rgba(224,92,92,0.28);
+      color: var(--danger);
+    }
+
+    .mix-recon-icon { font-size: 15px; flex-shrink: 0; line-height: 1; }
+    .mix-recon-msg  { flex: 1; font-weight: 500; }
+    .mix-recon-tally {
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Mix breakdown cell inside the role table */
+    .mix-cell { min-width: 160px; }
+
+    .mix-breakdown {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .mix-part {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+    }
+
+    .mix-part-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mix-part-value {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Row-level reconciliation badge in table */
+    .mix-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      margin-top: 5px;
+      letter-spacing: 0.03em;
+    }
+
+    .mix-badge.valid {
+      background: rgba(56,217,169,0.12);
+      border: 1px solid rgba(56,217,169,0.28);
+      color: var(--accent2);
+    }
+
+    .mix-badge.invalid {
+      background: rgba(224,92,92,0.12);
+      border: 1px solid rgba(224,92,92,0.28);
+      color: var(--danger);
+    }
+
+    .mix-badge.unset {
+      background: rgba(77,83,116,0.2);
+      border: 1px solid var(--border);
+      color: var(--text-subtle);
+    }
+
+    /* =========================================================
        SCROLLBAR STYLING
     ========================================================= */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1087,7 +1202,8 @@
           <!-- Quantity -->
           <div class="form-group" id="rf-qty-group">
             <label for="rf-qty">Quantity *</label>
-            <input type="number" id="rf-qty" min="1" max="999" value="1" placeholder="# of personnel" />
+            <input type="number" id="rf-qty" min="1" max="999" value="1"
+                   placeholder="# of personnel" oninput="onMixInput()" />
           </div>
 
           <!-- Phase applicability -->
@@ -1136,6 +1252,37 @@
             </div>
           </div>
 
+          <!-- ── Workforce Mix ── -->
+          <div class="form-section-label">Workforce Mix</div>
+
+          <!-- Three side-by-side inputs: AD / GC / CTR -->
+          <div class="form-group full-width">
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label for="rf-ad" class="label-ad">Active Duty</label>
+                <input type="number" id="rf-ad" min="0" max="999" value="0"
+                       oninput="onMixInput()" placeholder="0" />
+              </div>
+              <div class="form-group">
+                <label for="rf-gc" class="label-gc">Gov Civilian</label>
+                <input type="number" id="rf-gc" min="0" max="999" value="0"
+                       oninput="onMixInput()" placeholder="0" />
+              </div>
+              <div class="form-group">
+                <label for="rf-ctr" class="label-ctr">Contractor</label>
+                <input type="number" id="rf-ctr" min="0" max="999" value="0"
+                       oninput="onMixInput()" placeholder="0" />
+              </div>
+            </div>
+
+            <!-- Live reconciliation status bar -->
+            <div class="mix-recon-bar unset" id="rf-mix-status">
+              <span class="mix-recon-icon">—</span>
+              <span class="mix-recon-msg">Workforce mix not configured</span>
+              <span class="mix-recon-tally" id="rf-mix-tally">0 / 0</span>
+            </div>
+          </div>
+
           <!-- Notes -->
           <div class="form-section-label">Notes</div>
 
@@ -1163,18 +1310,27 @@
      Each project carries a `roles` array.
      Role shape:
      {
-       id:            string,
-       role:          string,   // preset label or "Custom"
-       customRole:    string,   // used when role === "Custom"
-       qty:           number,
-       phase:         'Planning' | 'Execution' | 'Both',
-       start:         string,   // YYYY-MM-DD
-       end:           string,
-       wsRequired:    boolean,
-       wsRatio:       number,   // default 1.0
+       id:             string,
+       role:           string,   // preset label or "Custom"
+       customRole:     string,   // used when role === "Custom"
+       qty:            number,
+       phase:          'Planning' | 'Execution' | 'Both',
+       start:          string,   // YYYY-MM-DD
+       end:            string,
+       wsRequired:     boolean,
+       wsRatio:        number,   // default 1.0
        travelRequired: boolean,
-       notes:         string,
+       notes:          string,
+       // Phase 3 — workforce mix
+       activeDuty:     number,   // must sum with govCivilian + contractor === qty
+       govCivilian:    number,
+       contractor:     number,
      }
+
+     Mix reconciliation rule:
+       activeDuty + govCivilian + contractor === qty  →  valid
+       all three === 0                                →  unset (not yet configured)
+       anything else                                  →  invalid
   ==================================================== */
 
   let _nextId = 100;
@@ -1195,15 +1351,15 @@
       execEnd: '2026-03-31',
       notes: 'Coordinating with Edwards AFB range scheduling. Key dependency on sensor integration milestone in Q2.',
       roles: [
-        { id: 'r1',  role: 'Test Lead',                customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for Edwards coordination.' },
-        { id: 'r2',  role: 'Flight Test Engineer',      customRole: '', qty: 3, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
-        { id: 'r3',  role: 'Data Analyst',              customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time data review during test points.' },
-        { id: 'r4',  role: 'Mission Planner',           customRole: '', qty: 1, phase: 'Planning',  start: '2025-01-15', end: '2025-04-30', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: '' },
-        { id: 'r5',  role: 'Safety Officer',            customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie.' },
-        { id: 'r6',  role: 'Range Support',             customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '' },
-        { id: 'r7',  role: 'Aircraft Maintainer',       customRole: '', qty: 4, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Includes crew chief and two specialists.' },
-        { id: 'r8',  role: 'Data Systems Engineer',     customRole: '', qty: 2, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Instrumentation setup and real-time telemetry.' },
-        { id: 'r9',  role: 'Logistics Coordinator',     customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '' },
+        { id: 'r1',  role: 'Test Lead',            customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for Edwards coordination.',          activeDuty: 1, govCivilian: 0, contractor: 0 },
+        { id: 'r2',  role: 'Flight Test Engineer', customRole: '', qty: 3, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 2, govCivilian: 0, contractor: 1 },
+        { id: 'r3',  role: 'Data Analyst',         customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time data review during test points.',       activeDuty: 0, govCivilian: 1, contractor: 1 },
+        { id: 'r4',  role: 'Mission Planner',      customRole: '', qty: 1, phase: 'Planning',  start: '2025-01-15', end: '2025-04-30', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r5',  role: 'Safety Officer',       customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie.', activeDuty: 1, govCivilian: 0, contractor: 0 },
+        { id: 'r6',  role: 'Range Support',        customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 0, govCivilian: 2, contractor: 0 },
+        { id: 'r7',  role: 'Aircraft Maintainer',  customRole: '', qty: 4, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Includes crew chief and two specialists.',        activeDuty: 4, govCivilian: 0, contractor: 0 },
+        { id: 'r8',  role: 'Data Systems Engineer',customRole: '', qty: 2, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Instrumentation setup and real-time telemetry.',  activeDuty: 0, govCivilian: 1, contractor: 1 },
+        { id: 'r9',  role: 'Logistics Coordinator',customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
       ],
     },
     {
@@ -1219,11 +1375,11 @@
       execEnd: '2025-12-15',
       notes: 'Hardware-in-the-loop testing complete. Awaiting final software build from contractor.',
       roles: [
-        { id: 'r10', role: 'Test Lead',                customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
-        { id: 'r11', role: 'Test Engineer',             customRole: '', qty: 3, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
-        { id: 'r12', role: 'Avionics Engineer',         customRole: '', qty: 2, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: 'Contractor-provided; GFE laptop required.' },
-        { id: 'r13', role: 'Data Systems Engineer',     customRole: '', qty: 1, phase: 'Execution', start: '2025-06-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
-        { id: 'r14', role: 'Logistics Coordinator',     customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '' },
+        { id: 'r10', role: 'Test Lead',             customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 1, govCivilian: 0, contractor: 0 },
+        { id: 'r11', role: 'Test Engineer',         customRole: '', qty: 3, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 2, govCivilian: 1, contractor: 0 },
+        { id: 'r12', role: 'Avionics Engineer',     customRole: '', qty: 2, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: 'Contractor-provided; GFE laptop required.', activeDuty: 0, govCivilian: 0, contractor: 2 },
+        { id: 'r13', role: 'Data Systems Engineer', customRole: '', qty: 1, phase: 'Execution', start: '2025-06-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r14', role: 'Logistics Coordinator', customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0 },
       ],
     },
     {
@@ -1239,13 +1395,13 @@
       execEnd: '2026-01-31',
       notes: 'Requires dedicated chase aircraft. Risk: weather windows at Eglin may compress schedule.',
       roles: [
-        { id: 'r15', role: 'Test Lead',                customRole: '', qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '' },
-        { id: 'r16', role: 'Test Engineer',             customRole: '', qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Structural instrumentation monitoring.' },
-        { id: 'r17', role: 'Safety Officer',            customRole: '', qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '' },
-        { id: 'r18', role: 'Range Support',             customRole: '', qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range coordination required.' },
-        { id: 'r19', role: 'Aircraft Maintainer',       customRole: '', qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '' },
-        { id: 'r20', role: 'Logistics Coordinator',     customRole: '', qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '' },
-        { id: 'r21', role: 'Custom',                   customRole: 'Chase Aircraft Pilot', qty: 1, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true, notes: 'Coordinate with 40 FTS for availability.' },
+        { id: 'r15', role: 'Test Lead',             customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                  activeDuty: 1, govCivilian: 0, contractor: 0 },
+        { id: 'r16', role: 'Test Engineer',         customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Structural instrumentation monitoring.', activeDuty: 2, govCivilian: 0, contractor: 0 },
+        { id: 'r17', role: 'Safety Officer',        customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                  activeDuty: 1, govCivilian: 0, contractor: 0 },
+        { id: 'r18', role: 'Range Support',         customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range coordination required.',    activeDuty: 0, govCivilian: 2, contractor: 0 },
+        { id: 'r19', role: 'Aircraft Maintainer',   customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                  activeDuty: 2, govCivilian: 0, contractor: 0 },
+        { id: 'r20', role: 'Logistics Coordinator', customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                  activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r21', role: 'Custom',                customRole: 'Chase Aircraft Pilot',qty: 1, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Coordinate with 40 FTS for availability.', activeDuty: 1, govCivilian: 0, contractor: 0 },
       ],
     },
   ];
@@ -1620,6 +1776,23 @@
                           .reduce((s, r) => s + Math.ceil(r.qty * (r.wsRatio || 1)), 0);
     const travelRoles = roles.filter(r => r.travelRequired).length;
 
+    // Workforce mix totals across all roles for this project
+    const totalAD  = roles.reduce((s, r) => s + (r.activeDuty  ?? 0), 0);
+    const totalGC  = roles.reduce((s, r) => s + (r.govCivilian ?? 0), 0);
+    const totalCTR = roles.reduce((s, r) => s + (r.contractor  ?? 0), 0);
+
+    // Count how many roles have an invalid mix
+    const invalidMixCount = roles.filter(r => {
+      const sum = (r.activeDuty ?? 0) + (r.govCivilian ?? 0) + (r.contractor ?? 0);
+      return sum !== 0 && sum !== r.qty;  // unset (0) roles are excluded from the warning count
+    }).length;
+
+    const mixWarningChip = invalidMixCount > 0
+      ? `<div class="ctx-chip" style="border-color:rgba(224,92,92,0.3);color:var(--danger);">
+           ✗ <strong>${invalidMixCount}</strong> mix conflict${invalidMixCount !== 1 ? 's' : ''}
+         </div>`
+      : '';
+
     // Context banner
     const fmtCtx = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US',
       { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
@@ -1642,9 +1815,19 @@
         </div>
         <div class="ctx-divider"></div>
         <div class="ctx-chips">
-          <div class="ctx-chip">👥 <strong>${totalPax}</strong> personnel</div>
-          <div class="ctx-chip">🖥 <strong>${totalWs}</strong> workstations</div>
+          <div class="ctx-chip">👥 <strong>${totalPax}</strong> total</div>
+          <div class="ctx-chip" title="Active Duty">
+            <span style="color:#7aa8ff;font-weight:700;">AD</span> <strong>${totalAD}</strong>
+          </div>
+          <div class="ctx-chip" title="Gov Civilian">
+            <span style="color:#38d9a9;font-weight:700;">GC</span> <strong>${totalGC}</strong>
+          </div>
+          <div class="ctx-chip" title="Contractor">
+            <span style="color:#f7a745;font-weight:700;">CTR</span> <strong>${totalCTR}</strong>
+          </div>
+          <div class="ctx-chip">🖥 <strong>${totalWs}</strong> WS</div>
           <div class="ctx-chip">✈ <strong>${travelRoles}</strong> travel role${travelRoles !== 1 ? 's' : ''}</div>
+          ${mixWarningChip}
         </div>
       </div>`;
 
@@ -1681,6 +1864,7 @@
           <tr>
             <th>Role</th>
             <th>Qty</th>
+            <th>Workforce Mix</th>
             <th>Phase</th>
             <th>Date Range</th>
             <th>Flags</th>
@@ -1730,6 +1914,47 @@
       ? `<div class="role-notes-text" title="${escHtml(r.notes)}">${escHtml(r.notes)}</div>`
       : `<span style="color:var(--text-subtle);font-size:12px;">—</span>`;
 
+    // ── Workforce mix cell ──────────────────────────────
+    const ad  = r.activeDuty  ?? 0;
+    const gc  = r.govCivilian ?? 0;
+    const ctr = r.contractor  ?? 0;
+    const mixSum = ad + gc + ctr;
+
+    // Reconciliation state
+    let mixState, mixBadgeText;
+    if (mixSum === 0) {
+      mixState = 'unset';
+      mixBadgeText = '○ Not configured';
+    } else if (mixSum === r.qty) {
+      mixState = 'valid';
+      mixBadgeText = '✓ Reconciled';
+    } else {
+      mixState = 'invalid';
+      const diff = r.qty - mixSum;
+      mixBadgeText = diff > 0
+        ? `✗ Under by ${diff}`
+        : `✗ Over by ${Math.abs(diff)}`;
+    }
+
+    const mixCell = `
+      <td class="mix-cell">
+        <div class="mix-breakdown">
+          <div class="mix-part">
+            <span class="mix-part-label label-ad">AD</span>
+            <span class="mix-part-value" style="color:#7aa8ff">${ad}</span>
+          </div>
+          <div class="mix-part">
+            <span class="mix-part-label label-gc">GC</span>
+            <span class="mix-part-value" style="color:#38d9a9">${gc}</span>
+          </div>
+          <div class="mix-part">
+            <span class="mix-part-label label-ctr">CTR</span>
+            <span class="mix-part-value" style="color:#f7a745">${ctr}</span>
+          </div>
+        </div>
+        <div class="mix-badge ${mixState}">${mixBadgeText}</div>
+      </td>`;
+
     return `
       <tr data-role-id="${r.id}">
         <td>
@@ -1737,6 +1962,7 @@
           ${customLabel}
         </td>
         <td><div class="role-qty">${r.qty}</div></td>
+        ${mixCell}
         <td><span class="badge ${phaseClass}">${escHtml(r.phase)}</span></td>
         <td>
           <div class="role-dates">${dateDisplay}</div>
@@ -1769,20 +1995,24 @@
       const r = (p.roles || []).find(x => x.id === roleId);
       if (!r) return;
 
-      document.getElementById('rf-role').value     = r.role      || 'Test Lead';
-      document.getElementById('rf-custom').value   = r.customRole || '';
-      document.getElementById('rf-qty').value      = r.qty        ?? 1;
-      document.getElementById('rf-phase').value    = r.phase      || 'Both';
-      document.getElementById('rf-start').value    = r.start      || '';
-      document.getElementById('rf-end').value      = r.end        || '';
+      document.getElementById('rf-role').value     = r.role        || 'Test Lead';
+      document.getElementById('rf-custom').value   = r.customRole  || '';
+      document.getElementById('rf-qty').value      = r.qty         ?? 1;
+      document.getElementById('rf-phase').value    = r.phase       || 'Both';
+      document.getElementById('rf-start').value    = r.start       || '';
+      document.getElementById('rf-end').value      = r.end         || '';
       document.getElementById('rf-ws').checked     = !!r.wsRequired;
-      document.getElementById('rf-ws-ratio').value = r.wsRatio    ?? 1.0;
+      document.getElementById('rf-ws-ratio').value = r.wsRatio     ?? 1.0;
       document.getElementById('rf-travel').checked = !!r.travelRequired;
-      document.getElementById('rf-notes').value    = r.notes      || '';
+      document.getElementById('rf-notes').value    = r.notes       || '';
+      document.getElementById('rf-ad').value       = r.activeDuty  ?? 0;
+      document.getElementById('rf-gc').value       = r.govCivilian ?? 0;
+      document.getElementById('rf-ctr').value      = r.contractor  ?? 0;
 
       // Show/hide conditional fields
       onRoleSelectChange();
       onWsCheck();
+      onMixInput();
     }
 
     document.getElementById('role-modal-overlay').classList.add('open');
@@ -1809,8 +2039,12 @@
     document.getElementById('rf-ws-ratio').value  = '1.0';
     document.getElementById('rf-travel').checked  = false;
     document.getElementById('rf-notes').value     = '';
+    document.getElementById('rf-ad').value        = '0';
+    document.getElementById('rf-gc').value        = '0';
+    document.getElementById('rf-ctr').value       = '0';
     onRoleSelectChange();
     onWsCheck();
+    onMixInput();
   }
 
   /* Show/hide custom role name field */
@@ -1831,6 +2065,50 @@
     } else {
       grp.style.opacity = '0.35';
       grp.style.pointerEvents = 'none';
+    }
+  }
+
+  /* Live workforce mix reconciliation — updates the status bar in the modal */
+  function onMixInput() {
+    const qty = parseInt(document.getElementById('rf-qty').value, 10) || 0;
+    const ad  = parseInt(document.getElementById('rf-ad').value,  10) || 0;
+    const gc  = parseInt(document.getElementById('rf-gc').value,  10) || 0;
+    const ctr = parseInt(document.getElementById('rf-ctr').value, 10) || 0;
+    const sum = ad + gc + ctr;
+
+    const bar    = document.getElementById('rf-mix-status');
+    const tally  = document.getElementById('rf-mix-tally');
+
+    tally.textContent = `${sum} / ${qty}`;
+
+    // Remove all state classes then apply the correct one
+    bar.classList.remove('valid', 'invalid', 'unset');
+
+    if (qty === 0) {
+      bar.classList.add('unset');
+      bar.querySelector('.mix-recon-icon').textContent = '—';
+      bar.querySelector('.mix-recon-msg').textContent  = 'Set a quantity first';
+      return;
+    }
+
+    if (sum === 0) {
+      bar.classList.add('unset');
+      bar.querySelector('.mix-recon-icon').textContent = '○';
+      bar.querySelector('.mix-recon-msg').textContent  = 'Workforce mix not configured — enter values above';
+    } else if (sum === qty) {
+      bar.classList.add('valid');
+      bar.querySelector('.mix-recon-icon').textContent = '✓';
+      bar.querySelector('.mix-recon-msg').textContent  = 'Mix reconciles — all personnel accounted for';
+    } else if (sum < qty) {
+      bar.classList.add('invalid');
+      bar.querySelector('.mix-recon-icon').textContent = '✗';
+      bar.querySelector('.mix-recon-msg').textContent  =
+        `Mix under by ${qty - sum} — Active Duty + Gov Civilian + Contractor must equal ${qty}`;
+    } else {
+      bar.classList.add('invalid');
+      bar.querySelector('.mix-recon-icon').textContent = '✗';
+      bar.querySelector('.mix-recon-msg').textContent  =
+        `Mix over by ${sum - qty} — total ${sum} exceeds required ${qty}`;
     }
   }
 
@@ -1874,6 +2152,9 @@
       wsRatio,
       travelRequired: document.getElementById('rf-travel').checked,
       notes:          document.getElementById('rf-notes').value.trim(),
+      activeDuty:     Math.max(0, parseInt(document.getElementById('rf-ad').value,  10) || 0),
+      govCivilian:    Math.max(0, parseInt(document.getElementById('rf-gc').value,  10) || 0),
+      contractor:     Math.max(0, parseInt(document.getElementById('rf-ctr').value, 10) || 0),
     };
 
     const p = projects.find(x => x.id === staffingProjectId);
