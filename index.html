@@ -927,6 +927,181 @@
     }
 
     /* =========================================================
+       DASHBOARD — PHASE 4
+    ========================================================= */
+
+    /* Portfolio summary stat strip */
+    .dash-stat-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .dash-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .dash-stat .ds-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-subtle);
+      margin-bottom: 4px;
+    }
+
+    .dash-stat .ds-value {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    .dash-stat .ds-sub {
+      font-size: 11px;
+      color: var(--text-subtle);
+      margin-top: 3px;
+    }
+
+    .dash-stat.accent  .ds-value { color: var(--accent); }
+    .dash-stat.accent2 .ds-value { color: var(--accent2); }
+    .dash-stat.warn    .ds-value { color: var(--warn); }
+
+    /* Section block inside dashboard */
+    .dash-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .dash-block-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dash-block-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .dash-block-header p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* Monthly data table */
+    .monthly-table-wrap {
+      overflow-x: auto;
+    }
+
+    #monthly-table,
+    #project-monthly-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #monthly-table thead tr,
+    #project-monthly-table thead tr {
+      background: var(--surface2);
+    }
+
+    #monthly-table th,
+    #project-monthly-table th {
+      padding: 9px 16px;
+      text-align: right;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    #monthly-table th:first-child,
+    #project-monthly-table th:first-child { text-align: left; }
+
+    #monthly-table td,
+    #project-monthly-table td {
+      padding: 9px 16px;
+      border-top: 1px solid var(--border);
+      text-align: right;
+      font-size: 13px;
+    }
+
+    #monthly-table td:first-child,
+    #project-monthly-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    #monthly-table tbody tr:hover,
+    #project-monthly-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+    /* Peak row highlight */
+    #monthly-table tbody tr.peak-row {
+      background: rgba(247,167,69,0.07);
+    }
+
+    #monthly-table tbody tr.peak-row td:first-child::after {
+      content: ' ▲ peak';
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--warn);
+      margin-left: 6px;
+    }
+
+    /* Colored column values */
+    .col-total { color: var(--text); font-weight: 700; }
+    .col-ad    { color: #7aa8ff; font-weight: 600; }
+    .col-gc    { color: #38d9a9; font-weight: 600; }
+    .col-ctr   { color: #f7a745; font-weight: 600; }
+    .col-ws    { color: var(--text-muted); font-weight: 500; }
+
+    /* Zero value — dimmed */
+    .col-zero  { color: var(--text-subtle); }
+
+    /* Bar column (inline mini bar) */
+    .bar-cell { min-width: 100px; }
+
+    .inline-bar-wrap {
+      background: var(--surface3);
+      border-radius: 2px;
+      height: 6px;
+      overflow: hidden;
+      display: flex;
+      margin-top: 2px;
+    }
+
+    .inline-bar-ad  { background: #4f7ef8; height: 100%; }
+    .inline-bar-gc  { background: #38d9a9; height: 100%; }
+    .inline-bar-ctr { background: #f7a745; height: 100%; }
+
+    /* Dashboard empty state */
+    #dash-empty {
+      padding: 64px 24px;
+      text-align: center;
+      color: var(--text-subtle);
+    }
+
+    #dash-empty .emp-icon { font-size: 40px; opacity: 0.3; margin-bottom: 12px; }
+    #dash-empty p { font-size: 13px; }
+
+    /* =========================================================
        SCROLLBAR STYLING
     ========================================================= */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1054,14 +1229,16 @@
       </div>
     </div>
 
-    <!-- ── DASHBOARD (placeholder) ── -->
+    <!-- ── DASHBOARD (Phase 4) ── -->
     <div id="section-dashboard" class="section">
-      <div class="placeholder-section">
-        <div class="ph-icon">📊</div>
-        <h2>Dashboard &amp; Charts</h2>
-        <p>Graphical timelines, stacked personnel charts, cost burn-down charts, and briefing-quality summary visuals will appear here.</p>
-        <div class="ph-badge">Coming in a future phase</div>
+      <div class="section-header">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Monthly portfolio resource demand across all projects &amp; roles · Graphical charts coming in a future phase</p>
+        </div>
       </div>
+      <!-- Content rendered by renderDashboard() -->
+      <div id="dashboard-content"></div>
     </div>
 
   </div><!-- /#main -->
@@ -1422,6 +1599,8 @@
     initTabs();
     populateStaffingProjectSelect();
     renderStaffingContent();
+    // Dashboard is not the active tab on load, but pre-compute is harmless;
+    // it will render properly the first time the user clicks the tab.
   });
 
   /* ====================================================
@@ -1436,35 +1615,158 @@
   }
 
   /* ====================================================
-     SUMMARY CARDS
-     Phase 2: Total Personnel and workstations are real.
-     Peak personnel and travel cost remain placeholders.
+     TIME ENGINE — Phase 4
+     All bucketing uses "YYYY-MM" month strings.
   ==================================================== */
-  function updateSummaryCards() {
-    // Total projects
-    document.getElementById('sc-projects').textContent = projects.length;
 
-    // Total personnel = sum of all role quantities across all projects
+  // Slice a date string to its YYYY-MM prefix
+  function dateToYM(dateStr) {
+    if (!dateStr) return null;
+    return dateStr.slice(0, 7);
+  }
+
+  // Advance a YYYY-MM string by exactly one month
+  function nextYM(ym) {
+    const y = parseInt(ym.slice(0, 4), 10);
+    const m = parseInt(ym.slice(5, 7), 10);
+    return m === 12
+      ? `${y + 1}-01`
+      : `${y}-${String(m + 1).padStart(2, '0')}`;
+  }
+
+  // Build an inclusive array of YYYY-MM strings from startYM to endYM
+  function monthRange(startYM, endYM) {
+    if (!startYM || !endYM || startYM > endYM) return [];
+    const months = [];
+    let cur = startYM;
+    while (cur <= endYM) {
+      months.push(cur);
+      cur = nextYM(cur);
+    }
+    return months;
+  }
+
+  // Find the earliest and latest YYYY-MM across all project and role dates
+  function portfolioExtents() {
+    let minYM = null, maxYM = null;
+
+    function consider(ym) {
+      if (!ym) return;
+      if (!minYM || ym < minYM) minYM = ym;
+      if (!maxYM || ym > maxYM) maxYM = ym;
+    }
+
+    projects.forEach(p => {
+      consider(dateToYM(p.start));
+      consider(dateToYM(p.end));
+      (p.roles || []).forEach(r => {
+        consider(dateToYM(r.start));
+        consider(dateToYM(r.end));
+      });
+    });
+
+    return { minYM, maxYM };
+  }
+
+  // Returns true if a role's date range overlaps the given YYYY-MM month.
+  // Uses YYYY-MM prefix comparison — a role is active if:
+  //   role.start <= ym   (role has begun by the end of this month)
+  //   role.end   >= ym   (role hasn't ended before this month)
+  // If a role has no date constraints, it is always considered active.
+  function roleActiveInMonth(role, ym) {
+    const rStart = dateToYM(role.start);
+    const rEnd   = dateToYM(role.end);
+    if (!rStart && !rEnd) return true;         // unconstrained
+    if (rStart && rStart > ym) return false;   // hasn't started
+    if (rEnd   && rEnd   < ym) return false;   // already ended
+    return true;
+  }
+
+  // Core aggregation: one entry per month in the portfolio span.
+  // Each entry: { ym, label, total, ad, gc, ctr, ws, byProject }
+  function computeMonthlyData() {
+    const { minYM, maxYM } = portfolioExtents();
+    if (!minYM || !maxYM) return [];
+
+    return monthRange(minYM, maxYM).map(ym => {
+      let total = 0, ad = 0, gc = 0, ctr = 0, ws = 0;
+      const byProject = {};   // projectId → personnel count this month
+
+      projects.forEach(p => {
+        let pCount = 0;
+        (p.roles || []).forEach(r => {
+          if (!roleActiveInMonth(r, ym)) return;
+          const qty = r.qty || 0;
+          pCount += qty;
+          total  += qty;
+          ad     += r.activeDuty  ?? 0;
+          gc     += r.govCivilian ?? 0;
+          ctr    += r.contractor  ?? 0;
+          if (r.wsRequired) {
+            ws += Math.ceil(qty * (r.wsRatio || 1));
+          }
+        });
+        if (pCount > 0) byProject[p.id] = pCount;
+      });
+
+      // Human-readable label: "Jan '25"
+      const [yr, mo] = ym.split('-').map(Number);
+      const label = new Date(yr, mo - 1, 1)
+        .toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+
+      return { ym, label, total, ad, gc, ctr, ws, byProject };
+    });
+  }
+
+  // Derive summary stats from the monthly data for the header cards
+  function computeSummaryStats() {
+    const monthly = computeMonthlyData();
+
     const totalPersonnel = projects.reduce((sum, p) =>
       sum + (p.roles || []).reduce((s, r) => s + (r.qty || 0), 0), 0);
+
+    if (monthly.length === 0) {
+      return { totalPersonnel, peakPersonnel: 0, peakWs: 0, peakYM: null };
+    }
+
+    let peakPersonnel = 0, peakWs = 0, peakYM = null;
+    monthly.forEach(m => {
+      if (m.total > peakPersonnel) {
+        peakPersonnel = m.total;
+        peakYM = m.ym;
+      }
+      if (m.ws > peakWs) peakWs = m.ws;
+    });
+
+    return { totalPersonnel, peakPersonnel, peakWs, peakYM };
+  }
+
+  /* ====================================================
+     SUMMARY CARDS — Phase 4: all values now real
+  ==================================================== */
+  function updateSummaryCards() {
+    const { totalPersonnel, peakPersonnel, peakWs } = computeSummaryStats();
+
+    document.getElementById('sc-projects').textContent = projects.length;
+
     document.getElementById('sc-personnel').textContent =
       totalPersonnel > 0 ? totalPersonnel : '—';
 
-    // Peak personnel — requires time-bucketing (future phase)
-    document.getElementById('sc-peak').textContent = '—';
+    document.getElementById('sc-peak').textContent =
+      peakPersonnel > 0 ? peakPersonnel : '—';
 
-    // Total trips — future phase
+    // Trips and travel cost — still future phases
     document.getElementById('sc-trips').textContent = '—';
+    document.getElementById('sc-cost').textContent  = '—';
 
-    // Travel cost — future phase
-    document.getElementById('sc-cost').textContent = '—';
-
-    // Peak workstations = sum of ws-required roles * ratio (simple total for now)
-    const totalWs = projects.reduce((sum, p) =>
-      sum + (p.roles || []).reduce((s, r) =>
-        s + (r.wsRequired ? Math.ceil(r.qty * (r.wsRatio || 1)) : 0), 0), 0);
     document.getElementById('sc-ws').textContent =
-      totalWs > 0 ? totalWs : '—';
+      peakWs > 0 ? peakWs : '—';
+
+    // Re-render dashboard if it is the active tab (keeps it live after edits)
+    const dashSection = document.getElementById('section-dashboard');
+    if (dashSection && dashSection.classList.contains('active')) {
+      renderDashboard();
+    }
   }
 
   /* ====================================================
@@ -1478,10 +1780,13 @@
         btn.classList.add('active');
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById('section-' + target).classList.add('active');
-        // Refresh staffing selector when switching to that tab
+        // Refresh tab-specific content on switch
         if (target === 'staffing') {
           populateStaffingProjectSelect();
           renderStaffingContent();
+        }
+        if (target === 'dashboard') {
+          renderDashboard();
         }
       });
     });
@@ -2186,6 +2491,171 @@
     p.roles = p.roles.filter(x => x.id !== roleId);
     renderStaffingContent();
     updateSummaryCards();
+  }
+
+  /* ====================================================
+     DASHBOARD — Phase 4
+     Builds the monthly demand table and portfolio stats.
+  ==================================================== */
+  function renderDashboard() {
+    const container = document.getElementById('dashboard-content');
+    if (!container) return;
+
+    const monthly = computeMonthlyData();
+    const { totalPersonnel, peakPersonnel, peakWs, peakYM } = computeSummaryStats();
+
+    // ── No data state ──────────────────────────────────
+    if (monthly.length === 0) {
+      container.innerHTML = `
+        <div id="dash-empty">
+          <div class="emp-icon">📊</div>
+          <p>No projects with dates defined yet.<br/>
+             Add projects and role requirements with date ranges to see monthly data.</p>
+        </div>`;
+      return;
+    }
+
+    // Find peak total for bar scaling
+    const maxTotal = Math.max(...monthly.map(m => m.total), 1);
+
+    // Format the peak month label
+    const peakLabel = peakYM
+      ? new Date(peakYM + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      : '—';
+
+    // ── Portfolio summary stat row ─────────────────────
+    const spanLabel = (() => {
+      const first = monthly[0];
+      const last  = monthly[monthly.length - 1];
+      return `${first.label} – ${last.label}  (${monthly.length} months)`;
+    })();
+
+    const totalAD  = monthly.reduce((s, m) => Math.max(s, m.ad),  0);
+    const totalGC  = monthly.reduce((s, m) => Math.max(s, m.gc),  0);
+    const totalCTR = monthly.reduce((s, m) => Math.max(s, m.ctr), 0);
+
+    const statsHTML = `
+      <div class="dash-stat-row">
+        <div class="dash-stat accent">
+          <div class="ds-label">Portfolio Span</div>
+          <div class="ds-value" style="font-size:16px;margin-top:2px;">${spanLabel}</div>
+          <div class="ds-sub">${projects.length} project${projects.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="dash-stat warn">
+          <div class="ds-label">Peak Personnel</div>
+          <div class="ds-value">${peakPersonnel}</div>
+          <div class="ds-sub">${peakLabel}</div>
+        </div>
+        <div class="dash-stat">
+          <div class="ds-label">Peak Workstations</div>
+          <div class="ds-value">${peakWs}</div>
+          <div class="ds-sub">highest monthly demand</div>
+        </div>
+        <div class="dash-stat">
+          <div class="ds-label">Total Role-Slots</div>
+          <div class="ds-value">${totalPersonnel}</div>
+          <div class="ds-sub">sum of all defined requirements</div>
+        </div>
+      </div>`;
+
+    // ── Monthly demand table ───────────────────────────
+    const tableRows = monthly.map(m => {
+      const isPeak = m.total === peakPersonnel && m.total > 0;
+
+      // Inline bar: AD + GC + CTR segments scaled to maxTotal
+      const scale = pct => Math.max(0, Math.min(100, Math.round((pct / maxTotal) * 100)));
+      const barHTML = m.total > 0 ? `
+        <div class="inline-bar-wrap">
+          <div class="inline-bar-ad"  style="width:${scale(m.ad)}%"></div>
+          <div class="inline-bar-gc"  style="width:${scale(m.gc)}%"></div>
+          <div class="inline-bar-ctr" style="width:${scale(m.ctr)}%"></div>
+        </div>` : '';
+
+      const fmtNum = (n, cls) => n > 0
+        ? `<span class="${cls}">${n}</span>`
+        : `<span class="col-zero">—</span>`;
+
+      return `
+        <tr${isPeak ? ' class="peak-row"' : ''}>
+          <td>${m.label}</td>
+          <td class="bar-cell">
+            ${fmtNum(m.total, 'col-total')}
+            ${barHTML}
+          </td>
+          <td>${fmtNum(m.ad,  'col-ad')}</td>
+          <td>${fmtNum(m.gc,  'col-gc')}</td>
+          <td>${fmtNum(m.ctr, 'col-ctr')}</td>
+          <td>${fmtNum(m.ws,  'col-ws')}</td>
+        </tr>`;
+    }).join('');
+
+    const tableHTML = `
+      <div class="dash-block">
+        <div class="dash-block-header">
+          <div>
+            <h3>Monthly Resource Demand</h3>
+            <p>All active role requirements aggregated by month ·
+               <span style="color:#7aa8ff">■</span> Active Duty &nbsp;
+               <span style="color:#38d9a9">■</span> Gov Civilian &nbsp;
+               <span style="color:#f7a745">■</span> Contractor</p>
+          </div>
+        </div>
+        <div class="monthly-table-wrap">
+          <table id="monthly-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Total Personnel</th>
+                <th style="color:#7aa8ff">Active Duty</th>
+                <th style="color:#38d9a9">Gov Civilian</th>
+                <th style="color:#f7a745">Contractor</th>
+                <th>Workstations</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+      </div>`;
+
+    // ── Per-project breakdown table ────────────────────
+    const projectRows = monthly.map(m => {
+      const cells = projects.map(p => {
+        const n = m.byProject[p.id] || 0;
+        return n > 0
+          ? `<td style="text-align:right;font-weight:600;color:var(--text)">${n}</td>`
+          : `<td style="text-align:right;color:var(--text-subtle)">—</td>`;
+      }).join('');
+      return `<tr><td>${m.label}</td>${cells}</tr>`;
+    }).join('');
+
+    const projectHeaders = projects.map(p =>
+      `<th title="${escHtml(p.name)}" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;">
+         ${escHtml(p.name.length > 18 ? p.name.slice(0, 16) + '…' : p.name)}
+       </th>`
+    ).join('');
+
+    const projectTableHTML = projects.length > 0 ? `
+      <div class="dash-block">
+        <div class="dash-block-header">
+          <div>
+            <h3>Personnel by Project</h3>
+            <p>Monthly headcount for each project</p>
+          </div>
+        </div>
+        <div class="monthly-table-wrap">
+          <table id="project-monthly-table" style="margin:0">
+            <thead>
+              <tr>
+                <th>Month</th>
+                ${projectHeaders}
+              </tr>
+            </thead>
+            <tbody>${projectRows}</tbody>
+          </table>
+        </div>
+      </div>` : '';
+
+    container.innerHTML = statsHTML + tableHTML + projectTableHTML;
   }
 
   /* ====================================================
