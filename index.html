@@ -1354,6 +1354,204 @@
     }
 
     /* =========================================================
+       TIMELINE — PHASE 7
+    ========================================================= */
+
+    .tl-container {
+      padding: 12px 20px 16px;
+    }
+
+    /* Month axis header row — info spacer + axis track */
+    .tl-axis-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2px;
+    }
+
+    .tl-info-spacer {
+      width: 244px;
+      flex-shrink: 0;
+    }
+
+    .tl-axis-track {
+      flex: 1;
+      position: relative;
+      height: 26px;
+      overflow: visible;
+    }
+
+    .tl-axis-label {
+      position: absolute;
+      bottom: 2px;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--text-subtle);
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    /* Tick mark above each axis label */
+    .tl-axis-label::before {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 2px);
+      left: 50%;
+      width: 1px;
+      height: 5px;
+      background: var(--border);
+    }
+
+    .tl-today-axis {
+      position: absolute;
+      bottom: 2px;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--danger);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    /* Project rows */
+    .tl-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(46,51,80,0.45);
+    }
+
+    .tl-row:last-child {
+      border-bottom: none;
+      padding-bottom: 4px;
+    }
+
+    .tl-info {
+      width: 244px;
+      flex-shrink: 0;
+    }
+
+    .tl-project-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tl-meta {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .tl-pax-chip {
+      font-size: 10px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 6px;
+      line-height: 1.6;
+    }
+
+    .tl-pax-plan {
+      color: #7aa8ff;
+      background: rgba(79,126,248,0.1);
+      border-color: rgba(79,126,248,0.25);
+    }
+
+    .tl-pax-exec {
+      color: #38d9a9;
+      background: rgba(56,217,169,0.1);
+      border-color: rgba(56,217,169,0.25);
+    }
+
+    /* Horizontal bar track */
+    .tl-track {
+      flex: 1;
+      position: relative;
+      height: 40px;
+      background: var(--surface2);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    /* Dim highlight for the overall project span */
+    .tl-project-span {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: rgba(255,255,255,0.035);
+      border-left:  1px solid rgba(255,255,255,0.07);
+      border-right: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* Planning bar — top 44% of track */
+    .tl-phase {
+      position: absolute;
+      height: 44%;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .tl-phase-plan {
+      top: 6%;
+      background: rgba(79,126,248,0.82);
+      border: 1px solid rgba(122,168,255,0.9);
+    }
+
+    /* Execution bar — bottom 44% of track */
+    .tl-phase-exec {
+      top: 52%;
+      background: rgba(56,217,169,0.72);
+      border: 1px solid rgba(56,217,169,0.95);
+    }
+
+    .tl-phase-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.92);
+      padding: 0 5px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    /* Today vertical line inside each track */
+    .tl-today-mark {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background: var(--danger);
+      opacity: 0.85;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Legend colour swatch */
+    .tl-legend-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-right: 3px;
+    }
+
+    /* =========================================================
        SCROLLBAR STYLING
     ========================================================= */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1489,7 +1687,7 @@
       <div class="section-header">
         <div>
           <h2>Dashboard</h2>
-          <p>Monthly portfolio resource demand — staffing, workforce mix, workstations, and travel over time</p>
+          <p>Phase timelines, monthly resource demand, workforce mix, workstations, and travel over time</p>
         </div>
       </div>
       <!-- Content rendered by renderDashboard() -->
@@ -3119,6 +3317,181 @@
   }
 
   /* ====================================================
+     TIMELINE — Phase 7
+     Builds a CSS/HTML Gantt-style phase timeline block.
+     Returns an HTML string ready for insertion into the
+     dashboard.  No Chart.js required.
+  ==================================================== */
+  function buildTimelineHTML() {
+    if (projects.length === 0) return '';
+
+    // ── Collect date extents from projects (not roles) ──
+    let rawMin = null, rawMax = null;
+
+    function considerD(dStr) {
+      if (!dStr) return;
+      const d = new Date(dStr + 'T00:00:00');
+      if (!rawMin || d < rawMin) rawMin = d;
+      if (!rawMax || d > rawMax) rawMax = d;
+    }
+
+    projects.forEach(p => {
+      [p.start, p.end, p.planStart, p.planEnd, p.execStart, p.execEnd]
+        .forEach(considerD);
+    });
+
+    if (!rawMin || !rawMax) return '';
+
+    // Pad 3 weeks before and 6 weeks after for visual breathing room
+    const tMin = new Date(rawMin); tMin.setDate(tMin.getDate() - 21);
+    const tMax = new Date(rawMax); tMax.setDate(tMax.getDate() + 42);
+    const totalMs = tMax - tMin;
+
+    // Convert a date string to a % position along [tMin, tMax]
+    function toPct(dStr) {
+      if (!dStr) return null;
+      const d = new Date(dStr + 'T00:00:00');
+      return Math.max(0, Math.min(100, ((d - tMin) / totalMs) * 100));
+    }
+
+    // Return { left, width } in % for a start–end range, or null if either missing
+    function toRange(s, e) {
+      if (!s || !e) return null;
+      const l = toPct(s), r = toPct(e);
+      if (l === null || r === null) return null;
+      return { left: l, width: Math.max(0.4, r - l) };
+    }
+
+    // ── Month axis labels ──────────────────────────────
+    const allMonths = [];
+    const axCur = new Date(tMin);
+    axCur.setDate(1);
+    // advance to the first full month inside the window
+    if (axCur < tMin) axCur.setMonth(axCur.getMonth() + 1);
+
+    while (axCur <= tMax) {
+      const pct = ((axCur - tMin) / totalMs) * 100;
+      allMonths.push({
+        pct,
+        label: axCur.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+      });
+      axCur.setMonth(axCur.getMonth() + 1);
+    }
+
+    // Thin out labels to avoid crowding
+    const spanMos = Math.round(totalMs / (30.44 * 24 * 3600 * 1000));
+    const step = spanMos <= 8 ? 1 : spanMos <= 18 ? 2 : spanMos <= 30 ? 3 : 6;
+    const axisLabels = allMonths.filter((_, i) => i % step === 0);
+
+    const axisHTML = axisLabels
+      .map(m => `<div class="tl-axis-label" style="left:${m.pct.toFixed(2)}%">${m.label}</div>`)
+      .join('');
+
+    // ── Today marker ───────────────────────────────────
+    const today    = new Date();
+    const todayPct = ((today - tMin) / totalMs) * 100;
+    const showToday = todayPct >= 0 && todayPct <= 100;
+
+    const todayAxisHTML = showToday
+      ? `<div class="tl-today-axis" style="left:${todayPct.toFixed(2)}%">Today</div>`
+      : '';
+
+    // ── Project rows ────────────────────────────────────
+    const rowsHTML = projects.map(p => {
+      const roles    = p.roles || [];
+      const totalPax = roles.reduce((s, r) => s + r.qty, 0);
+
+      // People active during planning phase (phase = Planning or Both)
+      const planPax  = roles
+        .filter(r => r.phase === 'Planning' || r.phase === 'Both')
+        .reduce((s, r) => s + r.qty, 0);
+
+      // People active during execution phase (phase = Execution or Both)
+      const execPax  = roles
+        .filter(r => r.phase === 'Execution' || r.phase === 'Both')
+        .reduce((s, r) => s + r.qty, 0);
+
+      const statusClass = {
+        Planning:  'badge-planning',
+        Execution: 'badge-execution',
+        Complete:  'badge-complete',
+        'On Hold': 'badge-on-hold',
+      }[p.status] || 'badge-planning';
+
+      const spanR = toRange(p.start, p.end);
+      const planR = (p.planStart && p.planEnd) ? toRange(p.planStart, p.planEnd) : null;
+      const execR = (p.execStart && p.execEnd) ? toRange(p.execStart, p.execEnd) : null;
+
+      // Only show phase label text if bar is wide enough (≥ 6.5%) to hold it
+      const planLabel = planR && planR.width >= 6.5
+        ? '<span class="tl-phase-label">Plan</span>' : '';
+      const execLabel = execR && execR.width >= 6.5
+        ? '<span class="tl-phase-label">Exec</span>' : '';
+
+      const todayMark = showToday
+        ? `<div class="tl-today-mark" style="left:${todayPct.toFixed(2)}%"></div>`
+        : '';
+
+      const paxChips = [
+        totalPax > 0 ? `<span class="tl-pax-chip">👥 ${totalPax}</span>` : '',
+        planPax  > 0 ? `<span class="tl-pax-chip tl-pax-plan">📋 ${planPax} plan</span>` : '',
+        execPax  > 0 ? `<span class="tl-pax-chip tl-pax-exec">▶ ${execPax} exec</span>` : '',
+      ].join('');
+
+      return `
+        <div class="tl-row">
+          <div class="tl-info">
+            <div class="tl-project-name" title="${escHtml(p.name)}">${escHtml(
+              p.name.length > 30 ? p.name.slice(0, 28) + '…' : p.name
+            )}</div>
+            <div class="tl-meta">
+              <span class="badge ${statusClass}" style="font-size:9px;padding:1px 6px;">${escHtml(p.status)}</span>
+              ${paxChips}
+            </div>
+          </div>
+          <div class="tl-track">
+            ${spanR ? `<div class="tl-project-span" style="left:${spanR.left.toFixed(2)}%;width:${spanR.width.toFixed(2)}%"></div>` : ''}
+            ${planR ? `<div class="tl-phase tl-phase-plan" style="left:${planR.left.toFixed(2)}%;width:${planR.width.toFixed(2)}%">${planLabel}</div>` : ''}
+            ${execR ? `<div class="tl-phase tl-phase-exec" style="left:${execR.left.toFixed(2)}%;width:${execR.width.toFixed(2)}%">${execLabel}</div>` : ''}
+            ${todayMark}
+          </div>
+        </div>`;
+    }).join('');
+
+    // ── Legend ──────────────────────────────────────────
+    const todayLegend = showToday
+      ? `<span class="tl-legend-swatch" style="background:var(--danger)"></span> Today &nbsp;`
+      : '';
+
+    return `
+      <div class="dash-block">
+        <div class="dash-block-header">
+          <div>
+            <h3>Project Phase Timelines</h3>
+            <p>
+              <span class="tl-legend-swatch" style="background:#4f7ef8"></span> Planning &nbsp;
+              <span class="tl-legend-swatch" style="background:#38d9a9"></span> Execution &nbsp;
+              ${todayLegend}
+              <span style="color:var(--text-subtle);">· 👥 total &nbsp; 📋 planning-phase pax &nbsp; ▶ execution-phase pax</span>
+            </p>
+          </div>
+        </div>
+        <div class="tl-container">
+          <div class="tl-axis-row">
+            <div class="tl-info-spacer"></div>
+            <div class="tl-axis-track">
+              ${axisHTML}
+              ${todayAxisHTML}
+            </div>
+          </div>
+          <div class="tl-rows">
+            ${rowsHTML}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* ====================================================
      DASHBOARD — Phase 4 + 6
   ==================================================== */
   function renderDashboard() {
@@ -3384,7 +3757,9 @@
         </div>
       </div>` : '';
 
-    container.innerHTML = statsHTML + chartsHTML + tableHTML + projectTableHTML;
+    const timelineHTML = buildTimelineHTML();
+
+    container.innerHTML = statsHTML + timelineHTML + chartsHTML + tableHTML + projectTableHTML;
 
     // Render charts now that canvas elements exist in the DOM
     renderCharts(monthly, peakYM);
