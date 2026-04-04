@@ -1287,6 +1287,73 @@
     #dash-empty p { font-size: 13px; }
 
     /* =========================================================
+       CHARTS — PHASE 6
+    ========================================================= */
+
+    .chart-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .chart-block-header {
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .chart-block-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .chart-block-header p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .chart-canvas-wrap {
+      padding: 16px 20px 14px;
+      position: relative;
+      height: 280px;
+    }
+
+    /* Side-by-side chart pairs */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-grid .chart-block {
+      margin-bottom: 0;
+    }
+
+    /* Peak callout badge in chart header */
+    .peak-callout {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(247,167,69,0.12);
+      border: 1px solid rgba(247,167,69,0.3);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 11px;
+      color: var(--warn);
+      font-weight: 600;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+
+    /* =========================================================
        SCROLLBAR STYLING
     ========================================================= */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1294,6 +1361,7 @@
     ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div id="app">
@@ -1416,12 +1484,12 @@
       <div id="travel-content"></div>
     </div>
 
-    <!-- ── DASHBOARD (Phase 4) ── -->
+    <!-- ── DASHBOARD (Phase 4 + 6) ── -->
     <div id="section-dashboard" class="section">
       <div class="section-header">
         <div>
           <h2>Dashboard</h2>
-          <p>Monthly portfolio resource demand across all projects &amp; roles · Graphical charts coming in a future phase</p>
+          <p>Monthly portfolio resource demand — staffing, workforce mix, workstations, and travel over time</p>
         </div>
       </div>
       <!-- Content rendered by renderDashboard() -->
@@ -1750,30 +1818,6 @@
 <script>
   /* ====================================================
      DATA MODEL
-     Each project carries a `roles` array.
-     Role shape:
-     {
-       id:             string,
-       role:           string,   // preset label or "Custom"
-       customRole:     string,   // used when role === "Custom"
-       qty:            number,
-       phase:          'Planning' | 'Execution' | 'Both',
-       start:          string,   // YYYY-MM-DD
-       end:            string,
-       wsRequired:     boolean,
-       wsRatio:        number,   // default 1.0
-       travelRequired: boolean,
-       notes:          string,
-       // Phase 3 — workforce mix
-       activeDuty:     number,   // must sum with govCivilian + contractor === qty
-       govCivilian:    number,
-       contractor:     number,
-     }
-
-     Mix reconciliation rule:
-       activeDuty + govCivilian + contractor === qty  →  valid
-       all three === 0                                →  unset (not yet configured)
-       anything else                                  →  invalid
   ==================================================== */
 
   let _nextId = 100;
@@ -1850,10 +1894,13 @@
   ];
 
   /* ── UI state ────────────────────────────────────────── */
-  let editingProjectId = null;   // project modal
-  let editingRoleId    = null;   // role modal
-  let staffingProjectId = null;  // currently viewed project in Staffing tab
+  let editingProjectId = null;
+  let editingRoleId    = null;
+  let staffingProjectId = null;
   let sortMode = 'start';
+
+  /* ── Chart instance registry (Phase 6) ──────────────── */
+  const chartInstances = {};
 
   /* ====================================================
      INIT
@@ -1865,8 +1912,6 @@
     initTabs();
     populateStaffingProjectSelect();
     renderStaffingContent();
-    // Dashboard is not the active tab on load, but pre-compute is harmless;
-    // it will render properly the first time the user clicks the tab.
   });
 
   /* ====================================================
@@ -1882,16 +1927,13 @@
 
   /* ====================================================
      TIME ENGINE — Phase 4
-     All bucketing uses "YYYY-MM" month strings.
   ==================================================== */
 
-  // Slice a date string to its YYYY-MM prefix
   function dateToYM(dateStr) {
     if (!dateStr) return null;
     return dateStr.slice(0, 7);
   }
 
-  // Advance a YYYY-MM string by exactly one month
   function nextYM(ym) {
     const y = parseInt(ym.slice(0, 4), 10);
     const m = parseInt(ym.slice(5, 7), 10);
@@ -1900,7 +1942,6 @@
       : `${y}-${String(m + 1).padStart(2, '0')}`;
   }
 
-  // Build an inclusive array of YYYY-MM strings from startYM to endYM
   function monthRange(startYM, endYM) {
     if (!startYM || !endYM || startYM > endYM) return [];
     const months = [];
@@ -1912,7 +1953,6 @@
     return months;
   }
 
-  // Find the earliest and latest YYYY-MM across all project and role dates
   function portfolioExtents() {
     let minYM = null, maxYM = null;
 
@@ -1934,30 +1974,15 @@
     return { minYM, maxYM };
   }
 
-  // Returns true if a role's date range overlaps the given YYYY-MM month.
-  // Uses YYYY-MM prefix comparison — a role is active if:
-  //   role.start <= ym   (role has begun by the end of this month)
-  //   role.end   >= ym   (role hasn't ended before this month)
-  // If a role has no date constraints, it is always considered active.
   function roleActiveInMonth(role, ym) {
     const rStart = dateToYM(role.start);
     const rEnd   = dateToYM(role.end);
-    if (!rStart && !rEnd) return true;         // unconstrained
-    if (rStart && rStart > ym) return false;   // hasn't started
-    if (rEnd   && rEnd   < ym) return false;   // already ended
+    if (!rStart && !rEnd) return true;
+    if (rStart && rStart > ym) return false;
+    if (rEnd   && rEnd   < ym) return false;
     return true;
   }
 
-  // Core aggregation: one entry per month in the portfolio span.
-  // Each entry: { ym, label, total, ad, gc, ctr, ws, trips, travelCost, byProject }
-  //
-  // TRAVEL DISTRIBUTION METHOD:
-  //   Travel is spread evenly across the active months of each role.
-  //   For a role active in N months:
-  //     tripsThisMonth     = role.totalTrips     / N
-  //     travelCostThisMonth = role.totalTravelCost / N
-  //   This treats travel as uniformly distributed across the role's full date
-  //   range — simple and suitable for long-range planning estimates.
   function computeMonthlyData() {
     const { minYM, maxYM } = portfolioExtents();
     if (!minYM || !maxYM) return [];
@@ -1965,7 +1990,7 @@
     return monthRange(minYM, maxYM).map(ym => {
       let total = 0, ad = 0, gc = 0, ctr = 0, ws = 0;
       let trips = 0, travelCost = 0;
-      const byProject = {};   // projectId → personnel count this month
+      const byProject = {};
 
       projects.forEach(p => {
         let pCount = 0;
@@ -1980,7 +2005,6 @@
           if (r.wsRequired) {
             ws += Math.ceil(qty * (r.wsRatio || 1));
           }
-          // Spread travel evenly across active months
           if (r.travelRequired) {
             const tv = calcRoleTravel(r);
             if (tv && tv.totalTrips > 0) {
@@ -1993,7 +2017,6 @@
         if (pCount > 0) byProject[p.id] = pCount;
       });
 
-      // Human-readable label: "Jan '25"
       const [yr, mo] = ym.split('-').map(Number);
       const label = new Date(yr, mo - 1, 1)
         .toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
@@ -2006,13 +2029,6 @@
      TRAVEL CALCULATIONS — Phase 5
   ==================================================== */
 
-  // Compute per-trip and total travel cost/trips for a single role.
-  // Returns null if travel is not required or not configured.
-  // Formula:
-  //   perTripCost = airfare + rentalCar + misc
-  //               + (lodging * avgDays) + (perDiem * avgDays)
-  //   totalTrips  = travelers * tripsPerPerson
-  //   totalCost   = totalTrips * perTripCost
   function calcRoleTravel(role) {
     if (!role.travelRequired) return null;
     const travelers   = role.tvlTravelers      ?? role.qty ?? 0;
@@ -2032,7 +2048,6 @@
     return { travelers, tripsPerPax, avgDays, perTripCost, totalTrips, totalTravelCost };
   }
 
-  // How many months is a role active? Used for even monthly distribution of travel.
   function roleActiveMonthCount(role) {
     const s = dateToYM(role.start);
     const e = dateToYM(role.end);
@@ -2040,7 +2055,6 @@
     return monthRange(s, e).length || 1;
   }
 
-  // Portfolio-level travel totals (static sums, not monthly)
   function computePortfolioTravel() {
     let totalTrips = 0, totalCost = 0;
     projects.forEach(p => {
@@ -2054,7 +2068,6 @@
     return { totalTrips, totalCost };
   }
 
-  // Derive summary stats from the monthly data for the header cards
   function computeSummaryStats() {
     const monthly = computeMonthlyData();
 
@@ -2078,7 +2091,7 @@
   }
 
   /* ====================================================
-     SUMMARY CARDS — Phase 5: travel cards now real
+     SUMMARY CARDS
   ==================================================== */
   function updateSummaryCards() {
     const { totalPersonnel, peakPersonnel, peakWs } = computeSummaryStats();
@@ -2101,7 +2114,6 @@
     document.getElementById('sc-ws').textContent =
       peakWs > 0 ? peakWs : '—';
 
-    // Re-render active tab content live after any data change
     const dashSection   = document.getElementById('section-dashboard');
     const travelSection = document.getElementById('section-travel');
     if (dashSection   && dashSection.classList.contains('active'))   renderDashboard();
@@ -2119,7 +2131,6 @@
         btn.classList.add('active');
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById('section-' + target).classList.add('active');
-        // Refresh tab-specific content on switch
         if (target === 'staffing') {
           populateStaffingProjectSelect();
           renderStaffingContent();
@@ -2192,7 +2203,6 @@
       return `<strong>${dt.toLocaleDateString('en-US', { month: 'short', year: 'numeric', day: 'numeric' })}</strong>`;
     }
 
-    // Phase bar widths
     const pStart = p.start ? new Date(p.start) : null;
     const pEnd   = p.end   ? new Date(p.end)   : null;
     let planPct = 40, execPct = 55;
@@ -2206,7 +2216,6 @@
       execPct = Math.min(90, Math.max(5, Math.round(((execE - execS) / total) * 100)));
     }
 
-    // Role count chip
     const roleCount = (p.roles || []).length;
     const roleChip = roleCount > 0
       ? `<span style="font-size:11px;color:var(--text-subtle);margin-top:4px;display:inline-block;">
@@ -2362,7 +2371,6 @@
   function duplicateProject(id) {
     const p = projects.find(x => x.id === id);
     if (!p) return;
-    // Deep-copy roles with new IDs
     const newRoles = (p.roles || []).map(r => ({ ...r, id: newId() }));
     const copy = { ...p, id: newId(), name: p.name + ' (Copy)', status: 'Planning', roles: newRoles };
     projects.push(copy);
@@ -2384,7 +2392,6 @@
       opt.textContent = p.name;
       sel.appendChild(opt);
     });
-    // Restore selection if still valid
     if (prev && projects.find(p => p.id === prev)) {
       sel.value = prev;
     }
@@ -2419,15 +2426,13 @@
                           .reduce((s, r) => s + Math.ceil(r.qty * (r.wsRatio || 1)), 0);
     const travelRoles = roles.filter(r => r.travelRequired).length;
 
-    // Workforce mix totals across all roles for this project
     const totalAD  = roles.reduce((s, r) => s + (r.activeDuty  ?? 0), 0);
     const totalGC  = roles.reduce((s, r) => s + (r.govCivilian ?? 0), 0);
     const totalCTR = roles.reduce((s, r) => s + (r.contractor  ?? 0), 0);
 
-    // Count how many roles have an invalid mix
     const invalidMixCount = roles.filter(r => {
       const sum = (r.activeDuty ?? 0) + (r.govCivilian ?? 0) + (r.contractor ?? 0);
-      return sum !== 0 && sum !== r.qty;  // unset (0) roles are excluded from the warning count
+      return sum !== 0 && sum !== r.qty;
     }).length;
 
     const mixWarningChip = invalidMixCount > 0
@@ -2436,7 +2441,6 @@
          </div>`
       : '';
 
-    // Context banner
     const fmtCtx = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US',
       { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
@@ -2474,7 +2478,6 @@
         </div>
       </div>`;
 
-    // Role table
     const tableHTML = `
       <div id="role-table-wrap">
         <div class="role-table-header">
@@ -2498,7 +2501,6 @@
       </div>`;
   }
 
-  /* Build the role <table> */
   function buildRoleTable(project, roles) {
     const rows = roles.map(r => buildRoleRow(project, r)).join('');
     return `
@@ -2520,22 +2522,18 @@
   }
 
   function buildRoleRow(project, r) {
-    // Display name
     const displayName = r.role === 'Custom' ? (r.customRole || 'Custom') : r.role;
     const customLabel = r.role === 'Custom' && r.customRole
       ? `<div class="role-custom-label">(custom role)</div>` : '';
 
-    // Phase badge
     const phaseClass = { Planning: 'badge-planning', Execution: 'badge-execution', Both: 'badge-both' }[r.phase] || 'badge-both';
 
-    // Date display + out-of-bounds warning
     const fmtShort = d => d
       ? new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
       : '—';
 
     const dateDisplay = `${fmtShort(r.start)} – ${fmtShort(r.end)}`;
 
-    // Check if role dates extend outside project span
     let warnHTML = '';
     if (project.start && r.start && r.start < project.start) {
       warnHTML += `<div class="role-warn">⚠ Starts before project</div>`;
@@ -2544,7 +2542,6 @@
       warnHTML += `<div class="role-warn">⚠ Ends after project</div>`;
     }
 
-    // Flag chips
     const wsLabel = r.wsRequired
       ? `<span class="flag-chip flag-ws">🖥 WS ×${r.wsRatio || 1}</span>` : '';
     const travelLabel = r.travelRequired
@@ -2557,13 +2554,11 @@
       ? `<div class="role-notes-text" title="${escHtml(r.notes)}">${escHtml(r.notes)}</div>`
       : `<span style="color:var(--text-subtle);font-size:12px;">—</span>`;
 
-    // ── Workforce mix cell ──────────────────────────────
     const ad  = r.activeDuty  ?? 0;
     const gc  = r.govCivilian ?? 0;
     const ctr = r.contractor  ?? 0;
     const mixSum = ad + gc + ctr;
 
-    // Reconciliation state
     let mixState, mixBadgeText;
     if (mixSum === 0) {
       mixState = 'unset';
@@ -2651,7 +2646,6 @@
       document.getElementById('rf-ad').value       = r.activeDuty  ?? 0;
       document.getElementById('rf-gc').value       = r.govCivilian ?? 0;
       document.getElementById('rf-ctr').value      = r.contractor  ?? 0;
-      // Travel assumption fields
       document.getElementById('rf-tvl-travelers').value = r.tvlTravelers      ?? r.qty ?? 1;
       document.getElementById('rf-tvl-trips').value     = r.tvlTripsPerPerson ?? 4;
       document.getElementById('rf-tvl-days').value      = r.tvlAvgDays        ?? 5;
@@ -2661,7 +2655,6 @@
       document.getElementById('rf-tvl-perdiem').value   = r.tvlPerDiem        ?? 157;
       document.getElementById('rf-tvl-misc').value      = r.tvlMisc           ?? 100;
 
-      // Show/hide conditional fields
       onRoleSelectChange();
       onWsCheck();
       onTravelCheck();
@@ -2695,7 +2688,6 @@
     document.getElementById('rf-ad').value        = '0';
     document.getElementById('rf-gc').value        = '0';
     document.getElementById('rf-ctr').value       = '0';
-    // Reset travel assumption fields to sensible defaults
     document.getElementById('rf-tvl-travelers').value = '1';
     document.getElementById('rf-tvl-trips').value     = '4';
     document.getElementById('rf-tvl-days').value      = '5';
@@ -2710,14 +2702,12 @@
     onMixInput();
   }
 
-  /* Show/hide custom role name field */
   function onRoleSelectChange() {
     const val = document.getElementById('rf-role').value;
     const grp = document.getElementById('rf-custom-group');
     grp.style.display = (val === 'Custom') ? 'flex' : 'none';
   }
 
-  /* Dim/enable workstation ratio based on checkbox */
   function onWsCheck() {
     const checked = document.getElementById('rf-ws').checked;
     const grp = document.getElementById('rf-ws-ratio-group');
@@ -2731,13 +2721,11 @@
     }
   }
 
-  /* Show/hide travel assumptions section when travel checkbox toggled */
   function onTravelCheck() {
     const checked = document.getElementById('rf-travel').checked;
     const sec = document.getElementById('rf-travel-section');
     sec.style.display = checked ? 'block' : 'none';
     if (checked) {
-      // Default travelers to current qty if not yet set
       const qtyEl = document.getElementById('rf-qty');
       const travelersEl = document.getElementById('rf-tvl-travelers');
       if (travelersEl.value === '1' && qtyEl.value && parseInt(qtyEl.value) > 1) {
@@ -2747,7 +2735,6 @@
     }
   }
 
-  /* Update the live cost preview inside the travel assumptions section */
   function onTravelCalc() {
     const travelers   = parseInt(document.getElementById('rf-tvl-travelers').value, 10) || 0;
     const tripsPerPax = parseFloat(document.getElementById('rf-tvl-trips').value)       || 0;
@@ -2767,7 +2754,6 @@
     document.getElementById('tcp-total').textContent    = fmtCurrency(totalCst);
   }
 
-  /* Live workforce mix reconciliation — updates the status bar in the modal */
   function onMixInput() {
     const qty = parseInt(document.getElementById('rf-qty').value, 10) || 0;
     const ad  = parseInt(document.getElementById('rf-ad').value,  10) || 0;
@@ -2779,8 +2765,6 @@
     const tally  = document.getElementById('rf-mix-tally');
 
     tally.textContent = `${sum} / ${qty}`;
-
-    // Remove all state classes then apply the correct one
     bar.classList.remove('valid', 'invalid', 'unset');
 
     if (qty === 0) {
@@ -2812,7 +2796,6 @@
   }
 
   function saveRole() {
-    // Validate quantity
     const qtyRaw = document.getElementById('rf-qty').value;
     const qty = parseInt(qtyRaw, 10);
     const qtyEl = document.getElementById('rf-qty');
@@ -2826,7 +2809,6 @@
     const roleVal  = document.getElementById('rf-role').value;
     const customEl = document.getElementById('rf-custom');
 
-    // Validate custom role name if needed
     if (roleVal === 'Custom') {
       const cname = customEl.value.trim();
       if (!cname) {
@@ -2854,7 +2836,6 @@
       activeDuty:     Math.max(0, parseInt(document.getElementById('rf-ad').value,  10) || 0),
       govCivilian:    Math.max(0, parseInt(document.getElementById('rf-gc').value,  10) || 0),
       contractor:     Math.max(0, parseInt(document.getElementById('rf-ctr').value, 10) || 0),
-      // Travel assumptions (only meaningful when travelRequired = true)
       tvlTravelers:      Math.max(0, parseFloat(document.getElementById('rf-tvl-travelers').value) || 0),
       tvlTripsPerPerson: Math.max(0, parseFloat(document.getElementById('rf-tvl-trips').value)    || 0),
       tvlAvgDays:        Math.max(0, parseFloat(document.getElementById('rf-tvl-days').value)     || 0),
@@ -2897,12 +2878,255 @@
   }
 
   /* ====================================================
-     DASHBOARD — Phase 4
-     Builds the monthly demand table and portfolio stats.
+     CHARTS — Phase 6
+  ==================================================== */
+
+  // Destroy all Chart.js instances before wiping canvas DOM nodes
+  function destroyAllCharts() {
+    Object.keys(chartInstances).forEach(key => {
+      if (chartInstances[key]) {
+        chartInstances[key].destroy();
+        delete chartInstances[key];
+      }
+    });
+  }
+
+  // Toggle a chart panel's visibility
+  function toggleChartBlock(wrapId, btn) {
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+    const isHidden = wrap.style.display === 'none';
+    wrap.style.display = isHidden ? '' : 'none';
+    btn.textContent = isHidden ? '▾ Hide' : '▸ Show';
+  }
+
+  // Create all six charts after DOM is ready
+  function renderCharts(monthly, peakYM) {
+    if (!window.Chart || monthly.length === 0) return;
+
+    const labels  = monthly.map(m => m.label);
+    const peakIdx = monthly.findIndex(m => m.ym === peakYM);
+
+    // Shared tooltip style
+    const tip = {
+      backgroundColor: '#1a1d27',
+      borderColor:     '#2e3350',
+      borderWidth:     1,
+      titleColor:      '#e8eaf0',
+      bodyColor:       '#7c84a3',
+      padding:         10,
+      cornerRadius:    6,
+      boxWidth:        10,
+      boxHeight:       10,
+    };
+
+    // Scale factories — return fresh objects each call
+    const scX = (stacked) => ({
+      grid:   { color: 'rgba(46,51,80,0.5)' },
+      border: { display: false },
+      ticks:  { color: '#7c84a3', font: { size: 11 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 20 },
+      ...(stacked ? { stacked: true } : {})
+    });
+
+    const scY = (stacked, fmtCb) => ({
+      grid:        { color: 'rgba(46,51,80,0.5)' },
+      border:      { display: false },
+      ticks:       { color: '#7c84a3', font: { size: 11 }, ...(fmtCb ? { callback: fmtCb } : {}) },
+      beginAtZero: true,
+      ...(stacked ? { stacked: true } : {})
+    });
+
+    const legOpts = {
+      labels: { color: '#7c84a3', boxWidth: 12, padding: 14, font: { size: 11 } }
+    };
+
+    // ── 1. Total Personnel — Line ─────────────────────
+    {
+      const pointBg = monthly.map((_, i) => i === peakIdx ? '#f7a745' : '#4f7ef8');
+      const pointR  = monthly.map((_, i) => i === peakIdx ? 7 : 3);
+      const el = document.getElementById('chart-personnel');
+      if (el) chartInstances.personnel = new Chart(el, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Total Personnel',
+            data:  monthly.map(m => m.total),
+            borderColor:         '#4f7ef8',
+            backgroundColor:     'rgba(79,126,248,0.1)',
+            fill:                true,
+            tension:             0.35,
+            borderWidth:         2.5,
+            pointBackgroundColor: pointBg,
+            pointBorderColor:    pointBg,
+            pointRadius:         pointR,
+            pointHoverRadius:    7,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend:  { labels: legOpts.labels },
+            tooltip: { ...tip },
+          },
+          scales: { x: scX(), y: scY() }
+        }
+      });
+    }
+
+    // ── 2. Personnel by Project — Stacked Bar ─────────
+    {
+      const palette = ['#4f7ef8','#38d9a9','#f7a745','#e05c5c','#b57bee','#5bc4d9','#ff9f43','#a29bfe'];
+      const el = document.getElementById('chart-by-project');
+      if (el) chartInstances.byProject = new Chart(el, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: projects.map((p, i) => ({
+            label:           p.name.length > 24 ? p.name.slice(0, 22) + '…' : p.name,
+            data:            monthly.map(m => m.byProject[p.id] || 0),
+            backgroundColor: palette[i % palette.length] + 'b0',
+            borderColor:     palette[i % palette.length],
+            borderWidth:     1,
+          }))
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: legOpts.labels }, tooltip: { ...tip } },
+          scales:  { x: scX(true), y: scY(true) }
+        }
+      });
+    }
+
+    // ── 3. Workforce Mix — Stacked Bar ────────────────
+    {
+      const el = document.getElementById('chart-mix');
+      if (el) chartInstances.mix = new Chart(el, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Active Duty',  data: monthly.map(m => m.ad),  backgroundColor: 'rgba(122,168,255,0.78)', borderColor: '#7aa8ff', borderWidth: 1 },
+            { label: 'Gov Civilian', data: monthly.map(m => m.gc),  backgroundColor: 'rgba(56,217,169,0.72)',  borderColor: '#38d9a9', borderWidth: 1 },
+            { label: 'Contractor',   data: monthly.map(m => m.ctr), backgroundColor: 'rgba(247,167,69,0.78)',  borderColor: '#f7a745', borderWidth: 1 },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: legOpts.labels }, tooltip: { ...tip } },
+          scales:  { x: scX(true), y: scY(true) }
+        }
+      });
+    }
+
+    // ── 4. Workstations — Line ────────────────────────
+    {
+      const wsMax = Math.max(...monthly.map(m => m.ws), 0);
+      const wsIdx = monthly.findIndex(m => m.ws === wsMax);
+      const pointBg = monthly.map((_, i) => i === wsIdx && wsMax > 0 ? '#f7a745' : '#c8753a');
+      const pointR  = monthly.map((_, i) => i === wsIdx && wsMax > 0 ? 7 : 3);
+      const el = document.getElementById('chart-ws');
+      if (el) chartInstances.ws = new Chart(el, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label:               'Workstations Required',
+            data:                monthly.map(m => m.ws),
+            borderColor:         '#f7a745',
+            backgroundColor:     'rgba(247,167,69,0.1)',
+            fill:                true,
+            tension:             0.3,
+            borderWidth:         2.5,
+            pointBackgroundColor: pointBg,
+            pointBorderColor:    pointBg,
+            pointRadius:         pointR,
+            pointHoverRadius:    7,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: legOpts.labels }, tooltip: { ...tip } },
+          scales:  { x: scX(), y: scY() }
+        }
+      });
+    }
+
+    // ── 5. Travel Cost — Bar ──────────────────────────
+    {
+      const el = document.getElementById('chart-travel-cost');
+      if (el) chartInstances.travelCost = new Chart(el, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label:           'Est. Travel Cost',
+            data:            monthly.map(m => Math.round(m.travelCost)),
+            backgroundColor: 'rgba(56,217,169,0.6)',
+            borderColor:     '#38d9a9',
+            borderWidth:     1,
+            borderRadius:    3,
+            borderSkipped:   false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: legOpts.labels },
+            tooltip: {
+              ...tip,
+              callbacks: { label: c => ` ${c.dataset.label}: ${fmtCurrency(c.parsed.y)}` }
+            }
+          },
+          scales: {
+            x: scX(),
+            y: scY(false, v => fmtCurrency(v))
+          }
+        }
+      });
+    }
+
+    // ── 6. Trips — Bar ───────────────────────────────
+    {
+      const el = document.getElementById('chart-trips');
+      if (el) chartInstances.trips = new Chart(el, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label:           'Projected Trips',
+            data:            monthly.map(m => Math.round(m.trips)),
+            backgroundColor: 'rgba(79,126,248,0.6)',
+            borderColor:     '#4f7ef8',
+            borderWidth:     1,
+            borderRadius:    3,
+            borderSkipped:   false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: legOpts.labels }, tooltip: { ...tip } },
+          scales:  { x: scX(), y: scY() }
+        }
+      });
+    }
+  }
+
+  /* ====================================================
+     DASHBOARD — Phase 4 + 6
   ==================================================== */
   function renderDashboard() {
     const container = document.getElementById('dashboard-content');
     if (!container) return;
+
+    // Destroy existing chart instances before wiping DOM
+    destroyAllCharts();
 
     const monthly = computeMonthlyData();
     const { totalPersonnel, peakPersonnel, peakWs, peakYM } = computeSummaryStats();
@@ -2918,25 +3142,19 @@
       return;
     }
 
-    // Find peak total for bar scaling
     const maxTotal = Math.max(...monthly.map(m => m.total), 1);
 
-    // Format the peak month label
     const peakLabel = peakYM
       ? new Date(peakYM + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       : '—';
 
-    // ── Portfolio summary stat row ─────────────────────
     const spanLabel = (() => {
       const first = monthly[0];
       const last  = monthly[monthly.length - 1];
       return `${first.label} – ${last.label}  (${monthly.length} months)`;
     })();
 
-    const totalAD  = monthly.reduce((s, m) => Math.max(s, m.ad),  0);
-    const totalGC  = monthly.reduce((s, m) => Math.max(s, m.gc),  0);
-    const totalCTR = monthly.reduce((s, m) => Math.max(s, m.ctr), 0);
-
+    // ── Portfolio summary stat row ─────────────────────
     const statsHTML = `
       <div class="dash-stat-row">
         <div class="dash-stat accent">
@@ -2961,11 +3179,106 @@
         </div>
       </div>`;
 
+    // Peak callout badge used in chart header
+    const peakCallout = peakYM
+      ? `<span class="peak-callout">▲ Peak ${peakLabel} · ${peakPersonnel} pax</span>`
+      : '';
+
+    // ── Charts ─────────────────────────────────────────
+    const chartsHTML = `
+
+      <div class="chart-block">
+        <div class="chart-block-header">
+          <div>
+            <h3>Total Personnel Over Time ${peakCallout}</h3>
+            <p>Monthly headcount across all projects and roles · <span style="color:#f7a745">●</span> peak month highlighted</p>
+          </div>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
+                  onclick="toggleChartBlock('chart-wrap-personnel',this)">▾ Hide</button>
+        </div>
+        <div class="chart-canvas-wrap" id="chart-wrap-personnel">
+          <canvas id="chart-personnel"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-block">
+          <div class="chart-block-header">
+            <div>
+              <h3>Personnel by Project</h3>
+              <p>Stacked monthly headcount per project</p>
+            </div>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
+                    onclick="toggleChartBlock('chart-wrap-by-project',this)">▾ Hide</button>
+          </div>
+          <div class="chart-canvas-wrap" id="chart-wrap-by-project">
+            <canvas id="chart-by-project"></canvas>
+          </div>
+        </div>
+        <div class="chart-block">
+          <div class="chart-block-header">
+            <div>
+              <h3>Workforce Mix Over Time</h3>
+              <p><span style="color:#7aa8ff">■</span> Active Duty &nbsp;
+                 <span style="color:#38d9a9">■</span> Gov Civilian &nbsp;
+                 <span style="color:#f7a745">■</span> Contractor</p>
+            </div>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
+                    onclick="toggleChartBlock('chart-wrap-mix',this)">▾ Hide</button>
+          </div>
+          <div class="chart-canvas-wrap" id="chart-wrap-mix">
+            <canvas id="chart-mix"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-block">
+        <div class="chart-block-header">
+          <div>
+            <h3>Workstations Required Over Time</h3>
+            <p>Monthly workstation demand — wsRequired roles × wsRatio · <span style="color:#f7a745">●</span> peak month highlighted</p>
+          </div>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
+                  onclick="toggleChartBlock('chart-wrap-ws',this)">▾ Hide</button>
+        </div>
+        <div class="chart-canvas-wrap" id="chart-wrap-ws">
+          <canvas id="chart-ws"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-block">
+          <div class="chart-block-header">
+            <div>
+              <h3>Travel Cost Over Time</h3>
+              <p>Estimated monthly travel expenditure (evenly distributed across active months)</p>
+            </div>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
+                    onclick="toggleChartBlock('chart-wrap-cost',this)">▾ Hide</button>
+          </div>
+          <div class="chart-canvas-wrap" id="chart-wrap-cost">
+            <canvas id="chart-travel-cost"></canvas>
+          </div>
+        </div>
+        <div class="chart-block">
+          <div class="chart-block-header">
+            <div>
+              <h3>Trips Over Time</h3>
+              <p>Monthly projected trip count (evenly distributed across active months)</p>
+            </div>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
+                    onclick="toggleChartBlock('chart-wrap-trips',this)">▾ Hide</button>
+          </div>
+          <div class="chart-canvas-wrap" id="chart-wrap-trips">
+            <canvas id="chart-trips"></canvas>
+          </div>
+        </div>
+      </div>`;
+
     // ── Monthly demand table ───────────────────────────
     const tableRows = monthly.map(m => {
       const isPeak = m.total === peakPersonnel && m.total > 0;
 
-      // Inline bar: AD + GC + CTR segments scaled to maxTotal
       const scale = pct => Math.max(0, Math.min(100, Math.round((pct / maxTotal) * 100)));
       const barHTML = m.total > 0 ? `
         <div class="inline-bar-wrap">
@@ -3071,7 +3384,10 @@
         </div>
       </div>` : '';
 
-    container.innerHTML = statsHTML + tableHTML + projectTableHTML;
+    container.innerHTML = statsHTML + chartsHTML + tableHTML + projectTableHTML;
+
+    // Render charts now that canvas elements exist in the DOM
+    renderCharts(monthly, peakYM);
   }
 
   /* ====================================================
@@ -3086,13 +3402,11 @@
 
   /* ====================================================
      TRAVEL SECTION — Phase 5
-     Renders the Travel & Infrastructure tab content.
   ==================================================== */
   function renderTravelSection() {
     const container = document.getElementById('travel-content');
     if (!container) return;
 
-    // Collect all travel roles across all projects
     const travelRoles = [];
     projects.forEach(p => {
       (p.roles || []).forEach(r => {
@@ -3112,7 +3426,6 @@
       return;
     }
 
-    // ── Portfolio travel summary ───────────────────────
     const { totalTrips, totalCost } = computePortfolioTravel();
     const travelRoleCount = travelRoles.length;
     const configured = travelRoles.filter(x => x.tv && x.tv.totalTrips > 0).length;
@@ -3141,7 +3454,6 @@
         </div>
       </div>`;
 
-    // ── Per-project tables ─────────────────────────────
     const projectsWithTravel = projects.filter(p =>
       (p.roles || []).some(r => r.travelRequired)
     );
@@ -3162,14 +3474,10 @@
         const displayName = r.role === 'Custom' ? (r.customRole || 'Custom') : r.role;
         const configured  = tv && tv.totalTrips > 0;
 
-        const tripCell = configured
-          ? `<span class="col-trips">${tv.totalTrips}</span>` : '—';
-        const perTripCell = configured
-          ? fmtCurrency(tv.perTripCost) : '—';
-        const totalCell = configured
-          ? `<span class="col-cost">${fmtCurrency(tv.totalTravelCost)}</span>` : '—';
+        const tripCell    = configured ? `<span class="col-trips">${tv.totalTrips}</span>` : '—';
+        const perTripCell = configured ? fmtCurrency(tv.perTripCost) : '—';
+        const totalCell   = configured ? `<span class="col-cost">${fmtCurrency(tv.totalTravelCost)}</span>` : '—';
 
-        // Assumption details shown as small subtitle
         const details = configured
           ? `<div style="font-size:10px;color:var(--text-subtle);margin-top:2px;">
                ${tv.travelers} pax · ${tv.tripsPerPax} trips/pax · ${tv.avgDays} days/trip
