@@ -4646,13 +4646,59 @@
         sub: 'Monthly trip count distributed across active role months' },
     ];
 
+    // Map canvas IDs → chartInstances keys so we can resize before capture
+    const chartKeyMap = {
+      'chart-personnel':   'personnel',
+      'chart-by-project':  'byProject',
+      'chart-mix':         'mix',
+      'chart-ws':          'ws',
+      'chart-travel-cost': 'travelCost',
+      'chart-trips':       'trips',
+    };
+
+    // PPT content area: 12.2" × 5.35"  →  ratio 2.282 : 1
+    const PPT_RATIO = 12.2 / 5.35;   // ≈ 2.282
+    const PPT_W = 12.2, PPT_H = 5.35;
+    const PPT_X = 0.55, PPT_Y = 1.25;
+
     for (const cs of chartSlides) {
       const canvas = document.getElementById(cs.id);
       if (!canvas) continue;
 
+      // Resize the chart to exactly match the PPT content area ratio,
+      // capture at that size, then restore the original dimensions.
+      const inst    = chartInstances[chartKeyMap[cs.id]];
+      const wrapper = canvas.parentElement;
       let imgData;
-      try { imgData = canvas.toDataURL('image/png', 1.0); }
-      catch (_) { continue; }
+
+      try {
+        if (inst && wrapper) {
+          // Capture at a fixed 1560 × 684 px  (= 1560/684 ≈ 2.28:1, hi-res)
+          const captureW = 1560;
+          const captureH = Math.round(captureW / PPT_RATIO);   // 684 px
+
+          const origWrapH   = wrapper.style.height;
+          const origAnim    = inst.options.animation;
+
+          inst.options.animation = false;
+          wrapper.style.height   = captureH + 'px';
+          inst.resize(captureW, captureH);
+          inst.update('none');
+
+          await new Promise(r => setTimeout(r, 100));
+          imgData = canvas.toDataURL('image/png', 1.0);
+
+          // Restore
+          inst.options.animation = origAnim;
+          wrapper.style.height   = origWrapH;
+          inst.resize();          // let Chart.js re-read the container
+          inst.update('none');
+        } else {
+          imgData = canvas.toDataURL('image/png', 1.0);
+        }
+      } catch (_) {
+        try { imgData = canvas.toDataURL('image/png', 1.0); } catch (__) { continue; }
+      }
 
       const s = pptx.addSlide();
       s.background = { color: BG };
@@ -4667,26 +4713,14 @@
         fontSize: 10, color: MUT,
       });
 
-      // Compute display size maintaining canvas aspect ratio (fit-within, no stretch)
-      const natW   = canvas.width  || 1;
-      const natH   = canvas.height || 1;
-      const areaW  = 12.2;
-      const areaH  = 5.35;
-      const areaX0 = 0.55;
-      const areaY0 = 1.25;
-      const scale  = Math.min(areaW / natW, areaH / natH);
-      const imgW   = natW * scale;
-      const imgH   = natH * scale;
-      const imgX   = areaX0 + (areaW - imgW) / 2;
-      const imgY   = areaY0 + (areaH - imgH) / 2;
-
-      // Dark background card behind the image
+      // Background card
       s.addShape(pptx.ShapeType.rect, {
         x: 0.4, y: 1.1, w: 12.5, h: 5.65,
         fill: { color: SURF }, line: { color: BDR, width: 0.5 },
         rectRadius: 0.08,
       });
-      s.addImage({ data: imgData, x: imgX, y: imgY, w: imgW, h: imgH });
+      // Image fills the full content area — ratio matches PPT_RATIO
+      s.addImage({ data: imgData, x: PPT_X, y: PPT_Y, w: PPT_W, h: PPT_H });
 
       s.addText('Created by Maj "MOAB" Olsen  ·  AI-assisted by Claude (Anthropic)', {
         x: 0.5, y: 6.9, w: 12.3, h: 0.3,
