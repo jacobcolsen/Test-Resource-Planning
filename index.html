@@ -4547,9 +4547,35 @@
       // Deep-clone chart data (arrays are JSON-safe; functions are in opts not data)
       const exportData = JSON.parse(JSON.stringify(inst.data));
 
-      // Use the original options by reference so function callbacks
-      // (e.g. ticks.callback for currency formatting) are preserved.
-      const origOpts = inst.config.options || {};
+      const origOpts    = inst.config.options || {};
+      const origPlugins = origOpts.plugins    || {};
+
+      // ── Legend — much larger for slide readability ─────
+      const exportLegend = {
+        ...(origPlugins.legend || {}),
+        labels: {
+          ...(origPlugins.legend?.labels || {}),
+          color:    '#e8eaf0',
+          boxWidth:  22,
+          boxHeight: 18,
+          padding:   28,
+          font: { size: 20, family: "'Segoe UI', system-ui, sans-serif" },
+        },
+      };
+
+      // ── Scales — larger ticks, preserve any callback fns ─
+      const exportScales = {};
+      Object.entries(origOpts.scales || {}).forEach(([key, sc]) => {
+        exportScales[key] = {
+          ...sc,
+          ticks: {
+            ...(sc.ticks || {}),
+            font:    { size: 16 },
+            color:   '#7c84a3',
+            padding: 8,
+          },
+        };
+      });
 
       const exportChart = new Chart(tc, {
         type: inst.config.type,
@@ -4557,10 +4583,14 @@
         options: {
           responsive:          false,
           maintainAspectRatio: false,
-          animation:           false,   // render synchronously
-          devicePixelRatio:    1,       // no HiDPI scaling on offscreen canvas
-          plugins:  origOpts.plugins  || {},
-          scales:   origOpts.scales   || {},
+          animation:           false,
+          devicePixelRatio:    1,
+          plugins: {
+            ...origPlugins,
+            legend:  exportLegend,
+            tooltip: origPlugins.tooltip || {},
+          },
+          scales: exportScales,
         },
       });
 
