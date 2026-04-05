@@ -1873,6 +1873,106 @@
     .flatpickr-months .flatpickr-prev-month:hover,
     .flatpickr-months .flatpickr-next-month:hover { fill: var(--text) !important; }
 
+    /* Classification banners */
+    .class-banner {
+      position: fixed;
+      left: 0; right: 0;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      z-index: 2000;
+      user-select: none;
+      cursor: default;
+    }
+    #class-banner-top    { top: 0; }
+    #class-banner-bottom { bottom: 0; }
+    .class-banner-edit {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0.5;
+      font-size: 13px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 3px;
+      transition: opacity 0.15s;
+    }
+    .class-banner-edit:hover { opacity: 1; }
+    #app { padding-top: 24px; padding-bottom: 24px; }
+
+    /* Classification editor modal */
+    #class-editor-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+    }
+    #class-editor-overlay.open { display: flex; }
+    #class-editor-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 420px;
+      max-width: 94vw;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    #class-editor-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
+    .class-presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .class-preset-btn {
+      padding: 8px 6px;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+    .class-preset-btn:hover  { transform: scale(1.04); }
+    .class-preset-btn.active { border-color: #fff; }
+    .class-custom-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .class-custom-row input[type="text"] {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .class-custom-row input[type="color"] {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: none;
+      cursor: pointer;
+      padding: 2px;
+    }
+    .class-custom-row label { font-size: 11px; color: var(--text-subtle); }
+    .class-editor-footer { display: flex; justify-content: flex-end; gap: 8px; }
+
     /* Print / briefing friendliness */
     @media print {
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -1894,6 +1994,35 @@
   <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 </head>
 <body>
+
+<!-- Classification Banners -->
+<div id="class-banner-top" class="class-banner">
+  <span id="class-label-top">UNCLASSIFIED</span>
+  <button class="class-banner-edit" onclick="openClassEditor()" title="Edit classification">✎</button>
+</div>
+<div id="class-banner-bottom" class="class-banner">
+  <span id="class-label-bottom">UNCLASSIFIED</span>
+  <button class="class-banner-edit" onclick="openClassEditor()" title="Edit classification">✎</button>
+</div>
+
+<!-- Classification Editor Modal -->
+<div id="class-editor-overlay" onclick="handleClassOverlayClick(event)">
+  <div id="class-editor-box">
+    <h3>Classification Marking</h3>
+    <div class="class-presets" id="class-presets"></div>
+    <div style="font-size:11px;color:var(--text-subtle);margin-bottom:8px;">Custom label &amp; color</div>
+    <div class="class-custom-row">
+      <input type="text" id="class-custom-text" placeholder="e.g. FOUO" maxlength="60" />
+      <input type="color" id="class-custom-bg"   title="Background color" />
+      <input type="color" id="class-custom-fg"   title="Text color" />
+    </div>
+    <div class="class-editor-footer">
+      <button class="btn btn-ghost" onclick="closeClassEditor()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClassification()">Apply</button>
+    </div>
+  </div>
+</div>
+
 <div id="app">
 
   <!-- ===================================================
@@ -2530,8 +2659,91 @@
   /* ====================================================
      INIT
   ==================================================== */
+  /* ====================================================
+     CLASSIFICATION BANNER
+  ==================================================== */
+  const CLASS_LS_KEY = 'ftRP_classification';
+
+  const CLASS_PRESETS = [
+    { label: 'UNCLASSIFIED',          bg: '#1b5e20', fg: '#ffffff' },
+    { label: 'CUI',                   bg: '#7b3f00', fg: '#ffffff' },
+    { label: 'CONFIDENTIAL',          bg: '#1a237e', fg: '#ffffff' },
+    { label: 'SECRET',                bg: '#b71c1c', fg: '#ffffff' },
+    { label: 'TOP SECRET',            bg: '#e65100', fg: '#ffffff' },
+    { label: 'TOP SECRET // SCI',     bg: '#fdd835', fg: '#000000' },
+  ];
+
+  let classState = { label: 'UNCLASSIFIED', bg: '#1b5e20', fg: '#ffffff' };
+
+  function applyClassBanner() {
+    ['top','bottom'].forEach(pos => {
+      const banner = document.getElementById(`class-banner-${pos}`);
+      const label  = document.getElementById(`class-label-${pos}`);
+      if (!banner || !label) return;
+      banner.style.background = classState.bg;
+      banner.style.color      = classState.fg;
+      label.textContent       = classState.label;
+    });
+  }
+
+  function loadClassification() {
+    try {
+      const saved = localStorage.getItem(CLASS_LS_KEY);
+      if (saved) classState = JSON.parse(saved);
+    } catch(e) {}
+    applyClassBanner();
+  }
+
+  function saveClassification() {
+    const text = document.getElementById('class-custom-text').value.trim();
+    const bg   = document.getElementById('class-custom-bg').value;
+    const fg   = document.getElementById('class-custom-fg').value;
+    if (!text) return;
+    classState = { label: text, bg, fg };
+    localStorage.setItem(CLASS_LS_KEY, JSON.stringify(classState));
+    applyClassBanner();
+    closeClassEditor();
+  }
+
+  function openClassEditor() {
+    // Build preset buttons
+    const container = document.getElementById('class-presets');
+    container.innerHTML = CLASS_PRESETS.map((p, i) => `
+      <button class="class-preset-btn${classState.label === p.label ? ' active' : ''}"
+        style="background:${p.bg};color:${p.fg};"
+        onclick="applyPreset(${i})">${p.label}</button>
+    `).join('');
+
+    // Pre-fill custom inputs with current state
+    document.getElementById('class-custom-text').value = classState.label;
+    document.getElementById('class-custom-bg').value   = classState.bg;
+    document.getElementById('class-custom-fg').value   = classState.fg;
+
+    document.getElementById('class-editor-overlay').classList.add('open');
+  }
+
+  function closeClassEditor() {
+    document.getElementById('class-editor-overlay').classList.remove('open');
+  }
+
+  function applyPreset(i) {
+    const p = CLASS_PRESETS[i];
+    document.getElementById('class-custom-text').value = p.label;
+    document.getElementById('class-custom-bg').value   = p.bg;
+    document.getElementById('class-custom-fg').value   = p.fg;
+    // Highlight active preset
+    document.querySelectorAll('.class-preset-btn').forEach((btn, idx) => {
+      btn.classList.toggle('active', idx === i);
+    });
+  }
+
+  function handleClassOverlayClick(e) {
+    if (e.target === document.getElementById('class-editor-overlay')) closeClassEditor();
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     setHeaderDate();
+    loadClassification();
     initDatePickers();
     // Load persisted state; fall back to sample data on first visit
     if (!loadState()) {
@@ -2884,7 +3096,7 @@
           <div class="card-badges">
             <span class="badge ${phaseClass}">${phaseName}</span>
             <span class="badge ${statusClass}">${escHtml(p.status || 'Active')}</span>
-            <span class="badge ${priorityClass}">${escHtml(p.priority)}</span>
+            <span class="badge ${priorityClass}">PRI: ${escHtml(p.priority)}</span>
           </div>
           ${roleChip}
         </div>
