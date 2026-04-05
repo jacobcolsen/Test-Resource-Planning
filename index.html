@@ -2158,6 +2158,8 @@
               <option value="Chase Pilot">Chase Pilot</option>
               <option value="Quality Assurance">Quality Assurance</option>
               <option value="Program Manager">Program Manager</option>
+              <option value="Cyber Test Engineer">Cyber Test Engineer</option>
+              <option value="Model & Simulation Engineer">Model &amp; Simulation Engineer</option>
               <option value="Custom">Custom…</option>
             </select>
           </div>
@@ -3244,6 +3246,15 @@
       roleId ? 'Edit Role Requirement' : 'Add Role Requirement';
 
     clearRoleForm();
+
+    // When adding a new role, default dates to the project's span
+    if (!roleId && staffingProjectId) {
+      const proj = projects.find(x => x.id === staffingProjectId);
+      if (proj) {
+        fpSet('rf-start', proj.start || '');
+        fpSet('rf-end',   proj.end   || '');
+      }
+    }
 
     if (roleId) {
       const p = projects.find(x => x.id === staffingProjectId);
