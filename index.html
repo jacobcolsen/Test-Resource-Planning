@@ -1927,25 +1927,6 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
     #class-editor-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
-    .class-presets {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .class-preset-btn {
-      padding: 8px 6px;
-      border: 2px solid transparent;
-      border-radius: 6px;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      text-align: center;
-      transition: border-color 0.15s, transform 0.1s;
-    }
-    .class-preset-btn:hover  { transform: scale(1.04); }
-    .class-preset-btn.active { border-color: #fff; }
     .class-custom-row {
       display: grid;
       grid-template-columns: 1fr auto auto;
@@ -2009,12 +1990,16 @@
 <div id="class-editor-overlay" onclick="handleClassOverlayClick(event)">
   <div id="class-editor-box">
     <h3>Classification Marking</h3>
-    <div class="class-presets" id="class-presets"></div>
-    <div style="font-size:11px;color:var(--text-subtle);margin-bottom:8px;">Custom label &amp; color</div>
     <div class="class-custom-row">
-      <input type="text" id="class-custom-text" placeholder="e.g. FOUO" maxlength="60" />
-      <input type="color" id="class-custom-bg"   title="Background color" />
-      <input type="color" id="class-custom-fg"   title="Text color" />
+      <input type="text" id="class-custom-text" placeholder="e.g. UNCLASSIFIED" maxlength="60" />
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <input type="color" id="class-custom-bg" title="Background color" />
+        <span style="font-size:9px;color:var(--text-subtle);">BG</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <input type="color" id="class-custom-fg" title="Text color" />
+        <span style="font-size:9px;color:var(--text-subtle);">TEXT</span>
+      </div>
     </div>
     <div class="class-editor-footer">
       <button class="btn btn-ghost" onclick="closeClassEditor()">Cancel</button>
@@ -2638,15 +2623,6 @@
   ==================================================== */
   const CLASS_LS_KEY = 'ftRP_classification';
 
-  const CLASS_PRESETS = [
-    { label: 'UNCLASSIFIED',          bg: '#1b5e20', fg: '#ffffff' },
-    { label: 'CUI',                   bg: '#7b3f00', fg: '#ffffff' },
-    { label: 'CONFIDENTIAL',          bg: '#1a237e', fg: '#ffffff' },
-    { label: 'SECRET',                bg: '#b71c1c', fg: '#ffffff' },
-    { label: 'TOP SECRET',            bg: '#e65100', fg: '#ffffff' },
-    { label: 'TOP SECRET // SCI',     bg: '#fdd835', fg: '#000000' },
-  ];
-
   let classState = { label: 'UNCLASSIFIED', bg: '#1b5e20', fg: '#ffffff' };
 
   function applyClassBanner() {
@@ -2680,36 +2656,18 @@
   }
 
   function openClassEditor() {
-    // Build preset buttons
-    const container = document.getElementById('class-presets');
-    container.innerHTML = CLASS_PRESETS.map((p, i) => `
-      <button class="class-preset-btn${classState.label === p.label ? ' active' : ''}"
-        style="background:${p.bg};color:${p.fg};"
-        onclick="applyPreset(${i})">${p.label}</button>
-    `).join('');
-
-    // Pre-fill custom inputs with current state
     document.getElementById('class-custom-text').value = classState.label;
     document.getElementById('class-custom-bg').value   = classState.bg;
     document.getElementById('class-custom-fg').value   = classState.fg;
-
     document.getElementById('class-editor-overlay').classList.add('open');
+    document.getElementById('class-custom-text').focus();
+    document.getElementById('class-custom-text').select();
   }
 
   function closeClassEditor() {
     document.getElementById('class-editor-overlay').classList.remove('open');
   }
 
-  function applyPreset(i) {
-    const p = CLASS_PRESETS[i];
-    document.getElementById('class-custom-text').value = p.label;
-    document.getElementById('class-custom-bg').value   = p.bg;
-    document.getElementById('class-custom-fg').value   = p.fg;
-    // Highlight active preset
-    document.querySelectorAll('.class-preset-btn').forEach((btn, idx) => {
-      btn.classList.toggle('active', idx === i);
-    });
-  }
 
   function handleClassOverlayClick(e) {
     if (e.target === document.getElementById('class-editor-overlay')) closeClassEditor();
