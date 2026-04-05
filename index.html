@@ -1910,24 +1910,12 @@
       text-transform: uppercase;
       z-index: 2000;
       user-select: none;
-      cursor: default;
+      cursor: pointer;
+      transition: filter 0.15s;
     }
+    .class-banner:hover { filter: brightness(1.15); }
     #class-banner-top    { top: 0; }
     #class-banner-bottom { bottom: 0; }
-    .class-banner-edit {
-      position: absolute;
-      right: 10px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      opacity: 0.5;
-      font-size: 13px;
-      line-height: 1;
-      padding: 2px 4px;
-      border-radius: 3px;
-      transition: opacity 0.15s;
-    }
-    .class-banner-edit:hover { opacity: 1; }
     #app { padding-top: 24px; padding-bottom: 24px; }
 
     /* Classification editor modal */
@@ -2006,6 +1994,36 @@
     .class-custom-row label { font-size: 11px; color: var(--text-subtle); }
     .class-editor-footer { display: flex; justify-content: flex-end; gap: 8px; }
 
+
+    /* Date mode toggle */
+    .date-mode-toggle { display: flex; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+    .dmt-btn {
+      background: none; border: none; padding: 4px 10px; font-size: 11px; font-weight: 600;
+      color: var(--text-subtle); cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap;
+    }
+    .dmt-btn.active { background: var(--accent); color: #fff; }
+    .dmt-btn:not(.active):hover { background: var(--surface2); color: var(--text-muted); }
+
+    /* Quarter picker */
+    .quarter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .quarter-block-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); margin-bottom: 8px; }
+    .quarter-picker-ui { display: flex; flex-direction: column; gap: 8px; }
+    .qyr-wrap { display: flex; align-items: center; gap: 8px; }
+    .qyr-val { font-size: 15px; font-weight: 700; color: var(--text); min-width: 44px; text-align: center; }
+    .qyr-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); cursor: pointer; padding: 2px 8px; font-size: 14px; transition: background 0.15s; }
+    .qyr-btn:hover { background: var(--border); }
+    .q-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .q-btn {
+      background: var(--surface2); border: 2px solid var(--border); border-radius: 6px;
+      color: var(--text-muted); cursor: pointer; padding: 7px 4px 5px;
+      font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .q-btn span { font-size: 9px; font-weight: 400; color: var(--text-subtle); }
+    .q-btn:hover { border-color: var(--accent); color: var(--text); }
+    .q-btn.active { border-color: var(--accent); background: rgba(79,126,248,0.15); color: var(--accent); }
+    .q-btn.active span { color: var(--accent); }
+
     /* Print / briefing friendliness */
     @media print {
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -2029,13 +2047,11 @@
 <body>
 
 <!-- Classification Banners -->
-<div id="class-banner-top" class="class-banner">
+<div id="class-banner-top" class="class-banner" onclick="openClassEditor()" title="Edit classification marking">
   <span id="class-label-top">UNCLASSIFIED</span>
-  <button class="class-banner-edit" onclick="openClassEditor()" title="Edit classification">✎</button>
 </div>
-<div id="class-banner-bottom" class="class-banner">
+<div id="class-banner-bottom" class="class-banner" onclick="openClassEditor()" title="Edit classification marking">
   <span id="class-label-bottom">UNCLASSIFIED</span>
-  <button class="class-banner-edit" onclick="openClassEditor()" title="Edit classification">✎</button>
 </div>
 
 <!-- Classification Editor Modal -->
@@ -2282,16 +2298,63 @@
             </select>
           </div>
 
-          <div class="form-section-label">Date Range</div>
-
-          <div class="form-group">
-            <label for="f-start">Start Date</label>
-            <input type="date" id="f-start" />
+          <div class="form-section-label" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>Date Range</span>
+            <div class="date-mode-toggle">
+              <button id="dmt-specific" class="dmt-btn active" onclick="setDateMode('specific')">📅 Specific</button>
+              <button id="dmt-quarter" class="dmt-btn" onclick="setDateMode('quarter')">Q Quarter</button>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="f-end">End Date</label>
-            <input type="date" id="f-end" />
+          <!-- Specific date mode -->
+          <div id="date-specific-wrap" style="display:contents;">
+            <div class="form-group">
+              <label for="f-start">Start Date</label>
+              <input type="date" id="f-start" />
+            </div>
+            <div class="form-group">
+              <label for="f-end">End Date</label>
+              <input type="date" id="f-end" />
+            </div>
+          </div>
+
+          <!-- Quarter mode -->
+          <div id="date-quarter-wrap" style="display:none;grid-column:1/-1;">
+            <div class="quarter-row">
+              <div class="quarter-block">
+                <div class="quarter-block-label">Start</div>
+                <div class="quarter-picker-ui">
+                  <div class="qyr-wrap">
+                    <button class="qyr-btn" onclick="shiftQYear('start',-1)">‹</button>
+                    <span id="f-start-qyr" class="qyr-val">2026</span>
+                    <button class="qyr-btn" onclick="shiftQYear('start',1)">›</button>
+                  </div>
+                  <div class="q-btns">
+                    <button class="q-btn" data-side="start" data-q="1" onclick="pickQuarter('start',1)">Q1<span>Jan–Mar</span></button>
+                    <button class="q-btn" data-side="start" data-q="2" onclick="pickQuarter('start',2)">Q2<span>Apr–Jun</span></button>
+                    <button class="q-btn" data-side="start" data-q="3" onclick="pickQuarter('start',3)">Q3<span>Jul–Sep</span></button>
+                    <button class="q-btn" data-side="start" data-q="4" onclick="pickQuarter('start',4)">Q4<span>Oct–Dec</span></button>
+                  </div>
+                </div>
+              </div>
+              <div class="quarter-block">
+                <div class="quarter-block-label">End</div>
+                <div class="quarter-picker-ui">
+                  <div class="qyr-wrap">
+                    <button class="qyr-btn" onclick="shiftQYear('end',-1)">‹</button>
+                    <span id="f-end-qyr" class="qyr-val">2026</span>
+                    <button class="qyr-btn" onclick="shiftQYear('end',1)">›</button>
+                  </div>
+                  <div class="q-btns">
+                    <button class="q-btn" data-side="end" data-q="1" onclick="pickQuarter('end',1)">Q1<span>Jan–Mar</span></button>
+                    <button class="q-btn" data-side="end" data-q="2" onclick="pickQuarter('end',2)">Q2<span>Apr–Jun</span></button>
+                    <button class="q-btn" data-side="end" data-q="3" onclick="pickQuarter('end',3)">Q3<span>Jul–Sep</span></button>
+                    <button class="q-btn" data-side="end" data-q="4" onclick="pickQuarter('end',4)">Q4<span>Oct–Dec</span></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="f-quarter-display" style="font-size:11px;color:var(--text-subtle);margin-top:8px;text-align:center;"></div>
           </div>
 
           <div class="form-section-label">Additional Information</div>
@@ -2641,6 +2704,104 @@
   /* ====================================================
      INIT
   ==================================================== */
+  /* ====================================================
+     DATE MODE TOGGLE  (Specific ↔ Quarter)
+  ==================================================== */
+  let _dateMode = 'specific';
+  const _qState = { start: { year: new Date().getFullYear(), q: null }, end: { year: new Date().getFullYear(), q: null } };
+
+  const Q_START_DATES = { 1: '-01-01', 2: '-04-01', 3: '-07-01', 4: '-10-01' };
+  const Q_END_DATES   = { 1: '-03-31', 2: '-06-30', 3: '-09-30', 4: '-12-31' };
+
+  function setDateMode(mode) {
+    _dateMode = mode;
+    const specific = document.getElementById('date-specific-wrap');
+    const quarter  = document.getElementById('date-quarter-wrap');
+    const btnS = document.getElementById('dmt-specific');
+    const btnQ = document.getElementById('dmt-quarter');
+    if (!specific || !quarter) return;
+
+    if (mode === 'specific') {
+      specific.style.display = 'contents';
+      quarter.style.display  = 'none';
+      btnS.classList.add('active'); btnQ.classList.remove('active');
+    } else {
+      specific.style.display = 'none';
+      quarter.style.display  = 'block';
+      btnS.classList.remove('active'); btnQ.classList.add('active');
+      // Try to pre-populate quarter state from existing date values
+      ['start','end'].forEach(side => {
+        const val = fpGet('f-' + side);
+        if (val) {
+          const d = new Date(val + 'T00:00:00');
+          _qState[side].year = d.getFullYear();
+          const m = d.getMonth() + 1;
+          _qState[side].q = m <= 3 ? 1 : m <= 6 ? 2 : m <= 9 ? 3 : 4;
+        }
+        syncQDisplay(side);
+      });
+      updateQDisplay();
+    }
+  }
+
+  function shiftQYear(side, delta) {
+    _qState[side].year = Math.max(2020, Math.min(2040, _qState[side].year + delta));
+    syncQDisplay(side);
+    if (_qState[side].q) applyQuarter(side);
+    updateQDisplay();
+  }
+
+  function pickQuarter(side, q) {
+    _qState[side].q = q;
+    // Ensure end year >= start year
+    if (side === 'start' && _qState.end.year < _qState.start.year) {
+      _qState.end.year = _qState.start.year;
+      syncQDisplay('end');
+    }
+    syncQDisplay(side);
+    applyQuarter(side);
+    updateQDisplay();
+  }
+
+  function applyQuarter(side) {
+    const { year, q } = _qState[side];
+    if (!q) return;
+    const suffix = side === 'start' ? Q_START_DATES[q] : Q_END_DATES[q];
+    fpSet('f-' + side, year + suffix);
+  }
+
+  function syncQDisplay(side) {
+    const el = document.getElementById('f-' + side + '-qyr');
+    if (el) el.textContent = _qState[side].year;
+    // Highlight active quarter button
+    document.querySelectorAll(`.q-btn[data-side="${side}"]`).forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.q) === _qState[side].q);
+    });
+  }
+
+  function updateQDisplay() {
+    const el = document.getElementById('f-quarter-display');
+    if (!el) return;
+    const s = _qState.start, e = _qState.end;
+    const sLabel = s.q ? `Q${s.q} ${s.year}` : '—';
+    const eLabel = e.q ? `Q${e.q} ${e.year}` : '—';
+    el.textContent = sLabel + ' → ' + eLabel;
+  }
+
+  function resetDateMode() {
+    _dateMode = 'specific';
+    _qState.start = { year: new Date().getFullYear(), q: null };
+    _qState.end   = { year: new Date().getFullYear(), q: null };
+    const specific = document.getElementById('date-specific-wrap');
+    const quarter  = document.getElementById('date-quarter-wrap');
+    const btnS = document.getElementById('dmt-specific');
+    const btnQ = document.getElementById('dmt-quarter');
+    if (specific) specific.style.display = 'contents';
+    if (quarter)  quarter.style.display  = 'none';
+    if (btnS) { btnS.classList.add('active'); }
+    if (btnQ) { btnQ.classList.remove('active'); }
+  }
+
   /* ====================================================
      CLASSIFICATION BANNER
   ==================================================== */
@@ -3177,6 +3338,7 @@
     if (planEl) planEl.checked = true;
     fpClear('f-start');
     fpClear('f-end');
+    resetDateMode();
   }
 
   function saveProject() {
@@ -3549,9 +3711,9 @@
     document.getElementById('rf-role').value      = 'Test Lead';
     document.getElementById('rf-custom').value    = '';
     document.getElementById('rf-qty').value       = '1';
-    document.getElementById('rf-ws').checked      = false;
+    document.getElementById('rf-ws').checked      = true;
     document.getElementById('rf-ws-ratio').value  = '1.0';
-    document.getElementById('rf-travel').checked  = false;
+    document.getElementById('rf-travel').checked  = true;
     document.getElementById('rf-notes').value     = '';
     document.getElementById('rf-ad').value        = '0';
     document.getElementById('rf-gc').value        = '0';
