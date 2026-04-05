@@ -2097,7 +2097,7 @@
   =================================================== -->
   <div id="summary-strip">
     <div class="summary-card accent">
-      <div class="sc-label">Total Projects</div>
+      <div class="sc-label">Total Efforts</div>
       <div class="sc-value" id="sc-projects">—</div>
       <div class="sc-sub">active programs</div>
     </div>
@@ -2135,8 +2135,8 @@
     <span class="tb-label">Data</span>
     <button class="btn btn-ghost btn-sm" onclick="loadSampleData()" title="Load built-in sample flight test dataset">⊕ Sample Data</button>
     <div class="tb-sep"></div>
-    <button class="btn btn-ghost btn-sm" onclick="exportJSON()" title="Download all projects as JSON">⬇ Export JSON</button>
-    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file-input').click()" title="Load projects from a JSON file">⬆ Import JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportJSON()" title="Download all efforts as JSON">⬇ Export JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file-input').click()" title="Load efforts from a JSON file">⬆ Import JSON</button>
     <input type="file" id="import-file-input" accept=".json,application/json" style="display:none" onchange="handleImport(event)" />
     <button class="btn btn-ghost btn-sm" onclick="exportPPT()" title="Export all charts to a PowerPoint slide deck" style="color:var(--accent2);">📊 Export PPT</button>
     <div class="tb-sep"></div>
@@ -2147,7 +2147,7 @@
        NAV TABS
   =================================================== -->
   <div id="nav-tabs">
-    <button class="tab-btn active" data-section="projects">Projects</button>
+    <button class="tab-btn active" data-section="projects">Efforts</button>
     <button class="tab-btn" data-section="staffing">Staffing</button>
     <button class="tab-btn" data-section="travel">Travel &amp; Infrastructure</button>
     <button class="tab-btn" data-section="dashboard">Dashboard</button>
@@ -2162,12 +2162,12 @@
     <div id="section-projects" class="section active">
       <div class="section-header">
         <div>
-          <h2>Projects</h2>
+          <h2>Efforts</h2>
           <p>Manage flight test programs and their planning/execution phases</p>
         </div>
         <div class="toolbar-actions">
           <button class="btn btn-ghost" onclick="sortProjects()">⇅ Sort</button>
-          <button class="btn btn-primary" onclick="openProjectModal()">+ Add Project</button>
+          <button class="btn btn-primary" onclick="openProjectModal()">+ Add Effort</button>
         </div>
       </div>
       <div id="project-grid"></div>
@@ -2179,15 +2179,15 @@
       <div class="section-header">
         <div>
           <h2>Staffing &amp; Role Requirements</h2>
-          <p>Define personnel requirements by role for each project</p>
+          <p>Define personnel requirements by role for each effort</p>
         </div>
       </div>
 
       <!-- Project selector -->
       <div id="staffing-selector-bar">
-        <label for="staffing-project-select">View Project</label>
+        <label for="staffing-project-select">View Effort</label>
         <select id="staffing-project-select" onchange="onStaffingProjectChange()">
-          <option value="">— Select a project —</option>
+          <option value="">— Select an effort —</option>
         </select>
       </div>
 
@@ -2201,7 +2201,7 @@
       <div class="section-header">
         <div>
           <h2>Travel &amp; Infrastructure</h2>
-          <p>Trip projections and cost estimates for travel-required roles across all projects</p>
+          <p>Trip projections and cost estimates for travel-required roles across all efforts</p>
         </div>
       </div>
       <!-- Rendered by renderTravelSection() -->
@@ -2237,7 +2237,7 @@
 <div id="project-modal-overlay" class="modal-overlay" onclick="handleProjectOverlayClick(event)">
   <div class="modal-box">
     <div class="modal-header">
-      <h3 id="project-modal-title">Add Project</h3>
+      <h3 id="project-modal-title">Add Effort</h3>
       <button class="btn-icon" onclick="closeProjectModal()" title="Close">✕</button>
     </div>
     <div class="modal-body">
@@ -2245,7 +2245,7 @@
         <div class="form-grid">
 
           <div class="form-group full-width">
-            <label for="f-name">Project Name *</label>
+            <label for="f-name">Effort Name *</label>
             <input type="text" id="f-name" placeholder="e.g., XYZ-99 Flight Envelope Expansion" required />
           </div>
 
@@ -2314,7 +2314,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeProjectModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
+      <button class="btn btn-primary" onclick="saveProject()">Save Effort</button>
     </div>
   </div>
 </div>
@@ -3032,7 +3032,7 @@
       grid.innerHTML = `
         <div id="project-empty">
           <div class="emp-icon">📋</div>
-          <p>No projects yet. Click <strong>+ Add Project</strong> to get started,<br/>
+          <p>No efforts yet. Click <strong>+ Add Effort</strong> to get started,<br/>
              or use <strong>⊕ Sample Data</strong> in the toolbar to explore with demo data.</p>
         </div>`;
       return;
@@ -3143,7 +3143,7 @@
   ==================================================== */
   function openProjectModal(id) {
     editingProjectId = id || null;
-    document.getElementById('project-modal-title').textContent = id ? 'Edit Project' : 'Add Project';
+    document.getElementById('project-modal-title').textContent = id ? 'Edit Effort' : 'Add Effort';
     clearProjectForm();
 
     if (id) {
@@ -3223,7 +3223,7 @@
   function deleteProject(id) {
     const p = projects.find(x => x.id === id);
     if (!p) return;
-    if (!confirm(`Delete project "${p.name}"?\n\nThis cannot be undone.`)) return;
+    if (!confirm(`Delete effort "${p.name}"?\n\nThis cannot be undone.`)) return;
     projects = projects.filter(x => x.id !== id);
     if (staffingProjectId === id) {
       staffingProjectId = null;
@@ -3254,7 +3254,7 @@
   function populateStaffingProjectSelect() {
     const sel = document.getElementById('staffing-project-select');
     const prev = sel.value;
-    sel.innerHTML = '<option value="">— Select a project —</option>';
+    sel.innerHTML = '<option value="">— Select an effort —</option>';
     projects.forEach(p => {
       const opt = document.createElement('option');
       opt.value = p.id;
@@ -3281,7 +3281,7 @@
       container.innerHTML = `
         <div id="staffing-no-project">
           <div class="emp-icon">👆</div>
-          <p>Select a project above to view and manage its role requirements.</p>
+          <p>Select an effort above to view and manage its role requirements.</p>
           <p style="font-size:12px;color:var(--text-subtle);margin-top:8px;">
             Tip: Assign start and end dates to each role so monthly demand can be tracked on the Dashboard.
           </p>
@@ -3319,7 +3319,7 @@
     const contextHTML = `
       <div id="staffing-project-context">
         <div class="ctx-block">
-          <div class="ctx-label">Project</div>
+          <div class="ctx-label">Effort</div>
           <div class="ctx-value">${escHtml(p.name)}</div>
         </div>
         <div class="ctx-divider"></div>
@@ -3336,7 +3336,7 @@
         </div>
         <div class="ctx-divider"></div>
         <div class="ctx-block">
-          <div class="ctx-label">Project Span</div>
+          <div class="ctx-label">Effort Span</div>
           <div class="ctx-value">${fmtCtx(p.start)} – ${fmtCtx(p.end)}</div>
         </div>
         <div class="ctx-divider"></div>
@@ -3362,7 +3362,7 @@
         <div class="role-table-header">
           <div>
             <h3>Role Requirements</h3>
-            <p>${roles.length} role${roles.length !== 1 ? 's' : ''} defined for this project</p>
+            <p>${roles.length} role${roles.length !== 1 ? 's' : ''} defined for this effort</p>
           </div>
           <button class="btn btn-primary" onclick="openRoleModal()">+ Add Role</button>
         </div>
@@ -3864,7 +3864,7 @@
       });
     }
 
-    // ── 2. Personnel by Project — Stacked Bar ─────────
+    // ── 2. Personnel by Effort — Stacked Bar ─────────
     {
       const palette = ['#4f7ef8','#38d9a9','#f7a745','#e05c5c','#b57bee','#5bc4d9','#ff9f43','#a29bfe'];
       const el = document.getElementById('chart-by-project');
@@ -4143,7 +4143,7 @@
       <div class="dash-block">
         <div class="dash-block-header">
           <div>
-            <h3>Project Phase Timelines</h3>
+            <h3>Effort Phase Timelines</h3>
             <p>
               <span class="tl-legend-swatch" style="background:var(--accent)"></span> Test Planning &nbsp;
               <span class="tl-legend-swatch" style="background:var(--accent2)"></span> Test Execution &nbsp;
@@ -4187,7 +4187,7 @@
           <div class="emp-icon">📊</div>
           <p>No monthly data to display yet.</p>
           <p style="font-size:12px;color:var(--text-subtle);margin-top:8px;max-width:380px;">
-            Go to <strong style="color:var(--text-muted)">Projects</strong> to add programs,
+            Go to <strong style="color:var(--text-muted)">Efforts</strong> to add programs,
             then open <strong style="color:var(--text-muted)">Staffing</strong> to define role
             requirements with date ranges — each role drives the monthly demand calculations shown here.
           </p>
@@ -4213,7 +4213,7 @@
         <div class="dash-stat accent">
           <div class="ds-label">Portfolio Span</div>
           <div class="ds-value" style="font-size:16px;margin-top:2px;">${spanLabel}</div>
-          <div class="ds-sub">${projects.length} project${projects.length !== 1 ? 's' : ''}</div>
+          <div class="ds-sub">${projects.length} effort${projects.length !== 1 ? 's' : ''}</div>
         </div>
         <div class="dash-stat warn">
           <div class="ds-label">Peak Personnel</div>
@@ -4271,7 +4271,7 @@
       <div class="dash-block">
         <div class="dash-block-header">
           <div>
-            <h3>Top Projects by Headcount</h3>
+            <h3>Top Efforts by Headcount</h3>
             <p>Most resource-intensive programs in this portfolio</p>
           </div>
         </div>
@@ -4312,7 +4312,7 @@
         <div class="chart-block-header">
           <div>
             <h3>Total Personnel Over Time ${peakCallout}</h3>
-            <p>Monthly headcount across all projects and roles · <span style="color:#f7a745">●</span> peak month highlighted</p>
+            <p>Monthly headcount across all efforts and roles · <span style="color:#f7a745">●</span> peak month highlighted</p>
           </div>
           <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
                   onclick="toggleChartBlock('chart-wrap-personnel',this)">▾ Hide</button>
@@ -4326,8 +4326,8 @@
         <div class="chart-block">
           <div class="chart-block-header">
             <div>
-              <h3>Personnel by Project</h3>
-              <p>Stacked monthly headcount per project</p>
+              <h3>Personnel by Effort</h3>
+              <p>Stacked monthly headcount per effort</p>
             </div>
             <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
                     onclick="toggleChartBlock('chart-wrap-by-project',this)">▾ Hide</button>
@@ -4488,8 +4488,8 @@
       <div class="dash-block">
         <div class="dash-block-header">
           <div>
-            <h3>Personnel by Project</h3>
-            <p>Monthly headcount for each project</p>
+            <h3>Personnel by Effort</h3>
+            <p>Monthly headcount for each effort</p>
           </div>
         </div>
         <div class="monthly-table-wrap">
@@ -4563,7 +4563,7 @@
         <div class="travel-stat">
           <div class="ts-label">Total Projected Trips</div>
           <div class="ts-value">${totalTrips.toLocaleString('en-US')}</div>
-          <div class="ts-sub">across all projects</div>
+          <div class="ts-sub">across all efforts</div>
         </div>
         <div class="travel-stat accent2">
           <div class="ts-label">Est. Total Travel Cost</div>
@@ -4707,14 +4707,14 @@
     if (projects.length > 0) {
       if (!confirm(
         'Load sample data?\n\nThis will replace your current ' +
-        projects.length + ' project(s) with the built-in flight test dataset.\n\nContinue?'
+        projects.length + ' effort(s) with the built-in flight test dataset.\n\nContinue?'
       )) return;
     }
     projects = getSampleData();
     _nextId  = 200;
     saveState();
     fullRefresh();
-    showToast('Sample data loaded — 3 projects, 21 roles', 'success');
+    showToast('Sample data loaded — 3 efforts, 21 roles', 'success');
   }
 
   /* ====================================================
@@ -4736,7 +4736,7 @@
   ==================================================== */
   function exportJSON() {
     if (projects.length === 0) {
-      showToast('Nothing to export — add projects first', 'warn');
+      showToast('Nothing to export — add efforts first', 'warn');
       return;
     }
     const payload = JSON.stringify({
@@ -4756,7 +4756,7 @@
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast(
-      'Exported ' + projects.length + ' project' + (projects.length !== 1 ? 's' : ''),
+      'Exported ' + projects.length + ' effort' + (projects.length !== 1 ? 's' : ''),
       'success'
     );
   }
@@ -4854,7 +4854,7 @@
       return;
     }
     if (projects.length === 0) {
-      showToast('No data to export — add projects first', 'warn');
+      showToast('No data to export — add efforts first', 'warn');
       return;
     }
 
@@ -4955,9 +4955,9 @@
     // ── Chart slides ────────────────────────────────────
     const chartSlides = [
       { id: 'chart-personnel',   title: 'Total Personnel Over Time',
-        sub: `Monthly headcount across all projects · peak month: ${peakLabel}` },
-      { id: 'chart-by-project',  title: 'Personnel by Project',
-        sub: 'Stacked monthly headcount per project' },
+        sub: `Monthly headcount across all efforts · peak month: ${peakLabel}` },
+      { id: 'chart-by-project',  title: 'Personnel by Effort',
+        sub: 'Stacked monthly headcount per effort' },
       { id: 'chart-mix',         title: 'Workforce Mix Over Time',
         sub: 'Active Duty · Gov Civilian · Contractor breakdown by month' },
       { id: 'chart-ws',          title: 'Workstations Required Over Time',
@@ -5039,7 +5039,7 @@
         s.background = { color: BG };
         s.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.06, fill: { color: ACC } });
 
-        s.addText('Top Projects by Resource Intensity', {
+        s.addText('Top Efforts by Resource Intensity', {
           x: 0.5, y: 0.18, w: 12.3, h: 0.55,
           fontSize: 22, bold: true, color: TXT,
         });
@@ -5138,7 +5138,7 @@
           throw new Error('Missing required "projects" array');
         }
         if (data.projects.length === 0) {
-          showToast('Imported file contains no projects', 'warn');
+          showToast('Imported file contains no efforts', 'warn');
           return;
         }
         // Each project must have at least id + name
@@ -5150,8 +5150,8 @@
         // ── Confirm overwrite if data exists ────────────
         if (projects.length > 0) {
           if (!confirm(
-            'Import ' + data.projects.length + ' project(s) from "' + file.name + '"?\n\n' +
-            'This will replace your current ' + projects.length + ' project(s).\n\nContinue?'
+            'Import ' + data.projects.length + ' effort(s) from "' + file.name + '"?\n\n' +
+            'This will replace your current ' + projects.length + ' effort(s).\n\nContinue?'
           )) return;
         }
 
@@ -5175,7 +5175,7 @@
         saveState();
         fullRefresh();
         showToast(
-          'Imported ' + projects.length + ' project' + (projects.length !== 1 ? 's' : '') +
+          'Imported ' + projects.length + ' effort' + (projects.length !== 1 ? 's' : '') +
           ' from ' + file.name,
           'success'
         );
