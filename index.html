@@ -1740,6 +1740,44 @@
       .tl-info-spacer { width: 160px; }
     }
 
+    /* Phase picker — two-card selector in project modal */
+    .phase-picker {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 2px;
+    }
+    .phase-option { cursor: pointer; }
+    .phase-option input[type="radio"] { display: none; }
+    .phase-opt-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 14px 10px;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      transition: border-color var(--transition), background var(--transition);
+      cursor: pointer;
+      user-select: none;
+    }
+    .phase-opt-card .poi { font-size: 22px; line-height: 1; }
+    .phase-opt-card strong { font-size: 13px; font-weight: 700; color: var(--text); display: block; }
+    .phase-opt-card small  { font-size: 11px; color: var(--text-muted); }
+    .phase-option input[value="Planning"]:checked  + .phase-opt-card {
+      border-color: var(--accent);
+      background: rgba(79,126,248,0.1);
+    }
+    .phase-option input[value="Execution"]:checked + .phase-opt-card {
+      border-color: var(--accent2);
+      background: rgba(56,217,169,0.1);
+    }
+
+    /* Status badge — Active state */
+    .badge-active { background: rgba(56,217,169,0.18); color: #38d9a9; }
+
     /* Header icon — no background, SVG fills it */
     .header-icon {
       background: none !important;
@@ -2054,11 +2092,33 @@
             <input type="text" id="f-name" placeholder="e.g., XYZ-99 Flight Envelope Expansion" required />
           </div>
 
+          <!-- Phase selector — prominent two-card toggle -->
+          <div class="form-group full-width">
+            <label>Phase *</label>
+            <div class="phase-picker">
+              <label class="phase-option">
+                <input type="radio" name="f-phase" value="Planning" checked />
+                <span class="phase-opt-card">
+                  <span class="poi">📋</span>
+                  <strong>Test Planning</strong>
+                  <small>Requirements, design &amp; prep</small>
+                </span>
+              </label>
+              <label class="phase-option">
+                <input type="radio" name="f-phase" value="Execution" />
+                <span class="phase-opt-card">
+                  <span class="poi">🚀</span>
+                  <strong>Test Execution</strong>
+                  <small>Active flight test operations</small>
+                </span>
+              </label>
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="f-status">Status</label>
             <select id="f-status">
-              <option value="Planning">Planning</option>
-              <option value="Execution">Execution</option>
+              <option value="Active">Active</option>
               <option value="Complete">Complete</option>
               <option value="On Hold">On Hold</option>
             </select>
@@ -2073,7 +2133,7 @@
             </select>
           </div>
 
-          <div class="form-section-label">Project Span</div>
+          <div class="form-section-label">Date Range</div>
 
           <div class="form-group">
             <label for="f-start">Start Date</label>
@@ -2083,30 +2143,6 @@
           <div class="form-group">
             <label for="f-end">End Date</label>
             <input type="date" id="f-end" />
-          </div>
-
-          <div class="form-section-label">Planning Phase</div>
-
-          <div class="form-group">
-            <label for="f-plan-start">Planning Start</label>
-            <input type="date" id="f-plan-start" />
-          </div>
-
-          <div class="form-group">
-            <label for="f-plan-end">Planning End</label>
-            <input type="date" id="f-plan-end" />
-          </div>
-
-          <div class="form-section-label">Execution Phase</div>
-
-          <div class="form-group">
-            <label for="f-exec-start">Execution Start</label>
-            <input type="date" id="f-exec-start" />
-          </div>
-
-          <div class="form-group">
-            <label for="f-exec-end">Execution End</label>
-            <input type="date" id="f-exec-end" />
           </div>
 
           <div class="form-section-label">Additional Information</div>
@@ -2377,14 +2413,11 @@
     {
       id: '1',
       name: 'Alpha-7 High-Altitude Envelope Expansion',
-      status: 'Execution',
+      phase: 'Execution',
+      status: 'Active',
       priority: 'High',
       start: '2025-01-15',
       end: '2026-03-31',
-      planStart: '2025-01-15',
-      planEnd: '2025-04-30',
-      execStart: '2025-05-01',
-      execEnd: '2026-03-31',
       notes: 'Coordinating with Edwards AFB range scheduling. Key dependency on sensor integration milestone in Q2.',
       roles: [
         { id: 'r1', role: 'Test Lead',            customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for Edwards coordination.',          activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
@@ -2401,14 +2434,11 @@
     {
       id: '2',
       name: 'Bravo-12 Avionics Integration Validation',
-      status: 'Planning',
+      phase: 'Planning',
+      status: 'Active',
       priority: 'High',
       start: '2025-03-01',
       end: '2025-12-15',
-      planStart: '2025-03-01',
-      planEnd: '2025-05-31',
-      execStart: '2025-06-01',
-      execEnd: '2025-12-15',
       notes: 'Hardware-in-the-loop testing complete. Awaiting final software build from contractor.',
       roles: [
         { id: 'r10', role: 'Test Lead',             customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
@@ -2421,14 +2451,11 @@
     {
       id: '3',
       name: 'Charlie-3 Structural Load Survey',
-      status: 'Planning',
+      phase: 'Planning',
+      status: 'Active',
       priority: 'Medium',
       start: '2025-06-01',
       end: '2026-01-31',
-      planStart: '2025-06-01',
-      planEnd: '2025-08-31',
-      execStart: '2025-09-01',
-      execEnd: '2026-01-31',
       notes: 'Requires dedicated chase aircraft. Risk: weather windows at Eglin may compress schedule.',
       roles: [
         { id: 'r15', role: 'Test Lead',             customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
@@ -2465,7 +2492,7 @@
       animate:       true,
     };
     [
-      'f-start','f-end','f-plan-start','f-plan-end','f-exec-start','f-exec-end',
+      'f-start','f-end',
       'rf-start','rf-end',
     ].forEach(id => {
       const el = document.getElementById(id);
@@ -2751,7 +2778,7 @@
   const SORT_MODES  = ['start', 'name', 'priority', 'status'];
   const SORT_LABELS = { start: 'Start Date', name: 'Name', priority: 'Priority', status: 'Status' };
   const PRIORITY_ORDER = { High: 0, Medium: 1, Low: 2 };
-  const STATUS_ORDER   = { Execution: 0, Planning: 1, 'On Hold': 2, Complete: 3 };
+  const STATUS_ORDER   = { Active: 0, 'On Hold': 1, Complete: 2 };
 
   /* Project color palette — consistent across cards, charts, timeline */
   const PALETTE = ['#4f7ef8','#38d9a9','#f7a745','#e05c5c','#b57bee','#5bc4d9','#ff9f43','#a29bfe'];
@@ -2800,10 +2827,20 @@
   }
 
   function buildCard(p) {
+    // Phase — derive from p.phase; fall back gracefully for legacy data
+    const phaseVal   = p.phase || (p.status === 'Execution' ? 'Execution' : 'Planning');
+    const phaseClass = phaseVal === 'Execution' ? 'badge-execution' : 'badge-planning';
+    const phaseName  = phaseVal === 'Execution' ? 'Test Execution' : 'Test Planning';
+    const phaseColor = phaseVal === 'Execution' ? 'var(--accent2)' : 'var(--accent)';
+
     const statusClass = {
-      Planning: 'badge-planning', Execution: 'badge-execution',
-      Complete: 'badge-complete', 'On Hold': 'badge-on-hold',
-    }[p.status] || 'badge-planning';
+      Active:    'badge-active',
+      Complete:  'badge-complete',
+      'On Hold': 'badge-on-hold',
+      // legacy fallbacks
+      Planning:  'badge-planning',
+      Execution: 'badge-execution',
+    }[p.status] || 'badge-active';
 
     const priorityClass = {
       High: 'badge-high', Medium: 'badge-medium', Low: 'badge-low',
@@ -2815,26 +2852,13 @@
       return `<strong>${dt.toLocaleDateString('en-US', { month: 'short', year: 'numeric', day: 'numeric' })}</strong>`;
     }
 
-    const pStart = p.start ? new Date(p.start) : null;
-    const pEnd   = p.end   ? new Date(p.end)   : null;
-    let planPct = 40, execPct = 55;
-    if (pStart && pEnd) {
-      const total = pEnd - pStart || 1;
-      const planS = p.planStart ? new Date(p.planStart) : pStart;
-      const planE = p.planEnd   ? new Date(p.planEnd)   : pStart;
-      const execE = p.execEnd   ? new Date(p.execEnd)   : pEnd;
-      const execS = p.execStart ? new Date(p.execStart) : pEnd;
-      planPct = Math.min(55, Math.max(5, Math.round(((planE - planS) / total) * 100)));
-      execPct = Math.min(90, Math.max(5, Math.round(((execE - execS) / total) * 100)));
-    }
-
     const roleCount = (p.roles || []).length;
     const roleChip = roleCount > 0
       ? `<span style="font-size:11px;color:var(--text-subtle);margin-top:4px;display:inline-block;">
            👥 ${roleCount} role${roleCount !== 1 ? 's' : ''} defined
          </span>`
       : `<span style="font-size:11px;color:var(--text-subtle);margin-top:4px;display:inline-block;opacity:0.5;">
-           No roles defined
+           No roles defined yet
          </span>`;
 
     const notes = p.notes ? `<div class="card-notes">${escHtml(p.notes)}</div>` : '';
@@ -2846,7 +2870,8 @@
         <div class="card-title-area">
           <div class="card-name" title="${escHtml(p.name)}">${escHtml(p.name)}</div>
           <div class="card-badges">
-            <span class="badge ${statusClass}">${escHtml(p.status)}</span>
+            <span class="badge ${phaseClass}">${phaseName}</span>
+            <span class="badge ${statusClass}">${escHtml(p.status || 'Active')}</span>
             <span class="badge ${priorityClass}">${escHtml(p.priority)}</span>
           </div>
           ${roleChip}
@@ -2858,28 +2883,19 @@
         </div>
       </div>
 
-      <div class="card-dates">
+      <div class="card-dates" style="grid-template-columns:1fr 1fr;">
         <div class="date-block">
-          <div class="date-label">Project Start</div>
+          <div class="date-label">Start</div>
           <div class="date-range">${fmt(p.start)}</div>
         </div>
         <div class="date-block">
-          <div class="date-label">Project End</div>
+          <div class="date-label">End</div>
           <div class="date-range">${fmt(p.end)}</div>
-        </div>
-        <div class="date-block">
-          <div class="date-label">Planning Phase</div>
-          <div class="date-range">${fmt(p.planStart)} – ${fmt(p.planEnd)}</div>
-        </div>
-        <div class="date-block">
-          <div class="date-label">Execution Phase</div>
-          <div class="date-range">${fmt(p.execStart)} – ${fmt(p.execEnd)}</div>
         </div>
       </div>
 
-      <div class="phase-bar-wrap" title="Blue = Planning · Green = Execution">
-        <div class="phase-bar-planning"  style="width:${planPct}%"></div>
-        <div class="phase-bar-execution" style="width:${execPct}%"></div>
+      <div class="phase-bar-wrap" title="${phaseName}">
+        <div style="background:${phaseColor};height:100%;width:100%;border-radius:4px;"></div>
       </div>
 
       ${notes}
@@ -2898,15 +2914,17 @@
       const p = projects.find(x => x.id === id);
       if (!p) return;
       document.getElementById('f-name').value     = p.name     || '';
-      document.getElementById('f-status').value   = p.status   || 'Planning';
-      document.getElementById('f-priority').value = p.priority || 'Medium';
       document.getElementById('f-notes').value    = p.notes    || '';
-      fpSet('f-start',      p.start     || '');
-      fpSet('f-end',        p.end       || '');
-      fpSet('f-plan-start', p.planStart || '');
-      fpSet('f-plan-end',   p.planEnd   || '');
-      fpSet('f-exec-start', p.execStart || '');
-      fpSet('f-exec-end',   p.execEnd   || '');
+      // Phase radio
+      const phaseVal = p.phase || (p.status === 'Execution' ? 'Execution' : 'Planning');
+      const phaseEl  = document.querySelector(`input[name="f-phase"][value="${phaseVal}"]`);
+      if (phaseEl) phaseEl.checked = true;
+      // Status — map legacy Planning/Execution to Active
+      const statusMap = { Planning: 'Active', Execution: 'Active' };
+      document.getElementById('f-status').value   = statusMap[p.status] || p.status || 'Active';
+      document.getElementById('f-priority').value = p.priority || 'Medium';
+      fpSet('f-start', p.start || '');
+      fpSet('f-end',   p.end   || '');
     }
 
     document.getElementById('project-modal-overlay').classList.add('open');
@@ -2923,12 +2941,14 @@
   }
 
   function clearProjectForm() {
-    document.getElementById('f-name').value  = '';
-    document.getElementById('f-notes').value = '';
-    document.getElementById('f-status').value   = 'Planning';
+    document.getElementById('f-name').value     = '';
+    document.getElementById('f-notes').value    = '';
+    document.getElementById('f-status').value   = 'Active';
     document.getElementById('f-priority').value = 'Medium';
-    ['f-start','f-end','f-plan-start','f-plan-end','f-exec-start','f-exec-end']
-      .forEach(fpClear);
+    const planEl = document.querySelector('input[name="f-phase"][value="Planning"]');
+    if (planEl) planEl.checked = true;
+    fpClear('f-start');
+    fpClear('f-end');
   }
 
   function saveProject() {
@@ -2942,15 +2962,12 @@
 
     const data = {
       name,
-      status:    document.getElementById('f-status').value,
-      priority:  document.getElementById('f-priority').value,
-      start:     fpGet('f-start'),
-      end:       fpGet('f-end'),
-      planStart: fpGet('f-plan-start'),
-      planEnd:   fpGet('f-plan-end'),
-      execStart: fpGet('f-exec-start'),
-      execEnd:   fpGet('f-exec-end'),
-      notes:     document.getElementById('f-notes').value.trim(),
+      phase:    document.querySelector('input[name="f-phase"]:checked')?.value || 'Planning',
+      status:   document.getElementById('f-status').value,
+      priority: document.getElementById('f-priority').value,
+      start:    fpGet('f-start'),
+      end:      fpGet('f-end'),
+      notes:    document.getElementById('f-notes').value.trim(),
     };
 
     if (editingProjectId) {
@@ -3071,8 +3088,15 @@
         </div>
         <div class="ctx-divider"></div>
         <div class="ctx-block">
+          <div class="ctx-label">Phase</div>
+          <div class="ctx-value" style="color:${(p.phase || 'Planning') === 'Execution' ? 'var(--accent2)' : 'var(--accent)'}">
+            ${(p.phase || 'Planning') === 'Execution' ? '🚀 Test Execution' : '📋 Test Planning'}
+          </div>
+        </div>
+        <div class="ctx-divider"></div>
+        <div class="ctx-block">
           <div class="ctx-label">Status</div>
-          <div class="ctx-value">${escHtml(p.status)}</div>
+          <div class="ctx-value">${escHtml(p.status || 'Active')}</div>
         </div>
         <div class="ctx-divider"></div>
         <div class="ctx-block">
@@ -3783,8 +3807,7 @@
     }
 
     projects.forEach(p => {
-      [p.start, p.end, p.planStart, p.planEnd, p.execStart, p.execEnd]
-        .forEach(considerD);
+      [p.start, p.end].forEach(considerD);
     });
 
     if (!rawMin || !rawMax) return '';
@@ -3848,42 +3871,28 @@
       const roles    = p.roles || [];
       const totalPax = roles.reduce((s, r) => s + r.qty, 0);
 
-      // People active during planning phase (phase = Planning or Both)
-      const planPax  = roles
-        .filter(r => r.phase === 'Planning' || r.phase === 'Both')
-        .reduce((s, r) => s + r.qty, 0);
-
-      // People active during execution phase (phase = Execution or Both)
-      const execPax  = roles
-        .filter(r => r.phase === 'Execution' || r.phase === 'Both')
-        .reduce((s, r) => s + r.qty, 0);
+      const phaseVal   = p.phase || 'Planning';
+      const phaseColor = phaseVal === 'Execution' ? 'var(--accent2)' : 'var(--accent)';
+      const phaseName  = phaseVal === 'Execution' ? 'Test Execution' : 'Test Planning';
 
       const statusClass = {
-        Planning:  'badge-planning',
-        Execution: 'badge-execution',
+        Active:    'badge-active',
         Complete:  'badge-complete',
         'On Hold': 'badge-on-hold',
-      }[p.status] || 'badge-planning';
+      }[p.status] || 'badge-active';
 
-      const spanR = toRange(p.start, p.end);
-      const planR = (p.planStart && p.planEnd) ? toRange(p.planStart, p.planEnd) : null;
-      const execR = (p.execStart && p.execEnd) ? toRange(p.execStart, p.execEnd) : null;
+      const phaseBarR = toRange(p.start, p.end);
 
-      // Only show phase label text if bar is wide enough (≥ 6.5%) to hold it
-      const planLabel = planR && planR.width >= 6.5
-        ? '<span class="tl-phase-label">Plan</span>' : '';
-      const execLabel = execR && execR.width >= 6.5
-        ? '<span class="tl-phase-label">Exec</span>' : '';
+      // Only show label text if bar is wide enough (≥ 8%) to hold it
+      const phaseLabel = phaseBarR && phaseBarR.width >= 8
+        ? `<span class="tl-phase-label">${phaseName}</span>` : '';
 
       const todayMark = showToday
         ? `<div class="tl-today-mark" style="left:${todayPct.toFixed(2)}%"></div>`
         : '';
 
-      const paxChips = [
-        totalPax > 0 ? `<span class="tl-pax-chip">👥 ${totalPax}</span>` : '',
-        planPax  > 0 ? `<span class="tl-pax-chip tl-pax-plan">📋 ${planPax} plan</span>` : '',
-        execPax  > 0 ? `<span class="tl-pax-chip tl-pax-exec">▶ ${execPax} exec</span>` : '',
-      ].join('');
+      const paxChip = totalPax > 0
+        ? `<span class="tl-pax-chip">👥 ${totalPax}</span>` : '';
 
       const pColor = projectColor(p.id);
       return `
@@ -3894,14 +3903,12 @@
               p.name.length > 30 ? p.name.slice(0, 28) + '…' : p.name
             )}</div>
             <div class="tl-meta">
-              <span class="badge ${statusClass}" style="font-size:9px;padding:1px 6px;">${escHtml(p.status)}</span>
-              ${paxChips}
+              <span class="badge ${statusClass}" style="font-size:9px;padding:1px 6px;">${escHtml(p.status || 'Active')}</span>
+              ${paxChip}
             </div>
           </div>
           <div class="tl-track">
-            ${spanR ? `<div class="tl-project-span" style="left:${spanR.left.toFixed(2)}%;width:${spanR.width.toFixed(2)}%"></div>` : ''}
-            ${planR ? `<div class="tl-phase tl-phase-plan" style="left:${planR.left.toFixed(2)}%;width:${planR.width.toFixed(2)}%">${planLabel}</div>` : ''}
-            ${execR ? `<div class="tl-phase tl-phase-exec" style="left:${execR.left.toFixed(2)}%;width:${execR.width.toFixed(2)}%">${execLabel}</div>` : ''}
+            ${phaseBarR ? `<div class="tl-phase" style="left:${phaseBarR.left.toFixed(2)}%;width:${phaseBarR.width.toFixed(2)}%;background:${phaseColor};">${phaseLabel}</div>` : ''}
             ${todayMark}
           </div>
         </div>`;
@@ -3918,10 +3925,10 @@
           <div>
             <h3>Project Phase Timelines</h3>
             <p>
-              <span class="tl-legend-swatch" style="background:#4f7ef8"></span> Planning &nbsp;
-              <span class="tl-legend-swatch" style="background:#38d9a9"></span> Execution &nbsp;
+              <span class="tl-legend-swatch" style="background:var(--accent)"></span> Test Planning &nbsp;
+              <span class="tl-legend-swatch" style="background:var(--accent2)"></span> Test Execution &nbsp;
               ${todayLegend}
-              <span style="color:var(--text-subtle);">· 👥 total &nbsp; 📋 planning-phase pax &nbsp; ▶ execution-phase pax</span>
+              <span style="color:var(--text-subtle);">· 👥 total personnel</span>
             </p>
           </div>
         </div>
