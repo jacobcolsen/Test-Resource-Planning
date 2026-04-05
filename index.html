@@ -4524,6 +4524,60 @@
   }
 
   /* ====================================================
+     CHART CAPTURE HELPER
+     Renders a fresh Chart.js instance at exact target
+     pixel dimensions on an off-screen canvas.  This
+     avoids the bezier-distortion bug that occurs when
+     live-resizing an existing chart instance.
+  ==================================================== */
+  async function captureChartForExport(instKey, targetW, targetH) {
+    const inst = chartInstances[instKey];
+    if (!inst) return null;
+
+    // Off-screen canvas at the exact target pixel size
+    const tc = document.createElement('canvas');
+    tc.width  = targetW;
+    tc.height = targetH;
+    // Position off-screen (must be in DOM for some browsers to render)
+    tc.style.cssText = 'position:fixed;left:-9999px;top:-9999px;pointer-events:none;';
+    document.body.appendChild(tc);
+
+    let imgData = null;
+    try {
+      // Deep-clone chart data (arrays are JSON-safe; functions are in opts not data)
+      const exportData = JSON.parse(JSON.stringify(inst.data));
+
+      // Use the original options by reference so function callbacks
+      // (e.g. ticks.callback for currency formatting) are preserved.
+      const origOpts = inst.config.options || {};
+
+      const exportChart = new Chart(tc, {
+        type: inst.config.type,
+        data: exportData,
+        options: {
+          responsive:          false,
+          maintainAspectRatio: false,
+          animation:           false,   // render synchronously
+          devicePixelRatio:    1,       // no HiDPI scaling on offscreen canvas
+          plugins:  origOpts.plugins  || {},
+          scales:   origOpts.scales   || {},
+        },
+      });
+
+      // Chart.js 4 renders synchronously when animation:false,
+      // but one rAF ensures the pixel buffer is flushed.
+      await new Promise(r => requestAnimationFrame(r));
+      imgData = tc.toDataURL('image/png', 1.0);
+      exportChart.destroy();
+    } catch (err) {
+      console.warn('[exportPPT] captureChartForExport failed for', instKey, err);
+    }
+
+    document.body.removeChild(tc);
+    return imgData;
+  }
+
+  /* ====================================================
      EXPORT POWERPOINT
   ==================================================== */
   async function exportPPT() {
@@ -4646,7 +4700,7 @@
         sub: 'Monthly trip count distributed across active role months' },
     ];
 
-    // Map canvas IDs → chartInstances keys so we can resize before capture
+    // Canvas ID → chartInstances key
     const chartKeyMap = {
       'chart-personnel':   'personnel',
       'chart-by-project':  'byProject',
@@ -4656,49 +4710,17 @@
       'chart-trips':       'trips',
     };
 
-    // PPT content area: 12.2" × 5.35"  →  ratio 2.282 : 1
-    const PPT_RATIO = 12.2 / 5.35;   // ≈ 2.282
-    const PPT_W = 12.2, PPT_H = 5.35;
-    const PPT_X = 0.55, PPT_Y = 1.25;
+    // Capture dimensions — 2.28:1 matches the PPT content area exactly
+    const CAPTURE_W = 1560, CAPTURE_H = 684;  // 1560/684 ≈ 2.282
+    const PPT_W = 12.2,  PPT_H = 5.35;
+    const PPT_X = 0.55,  PPT_Y = 1.25;
 
     for (const cs of chartSlides) {
-      const canvas = document.getElementById(cs.id);
-      if (!canvas) continue;
-
-      // Resize the chart to exactly match the PPT content area ratio,
-      // capture at that size, then restore the original dimensions.
-      const inst    = chartInstances[chartKeyMap[cs.id]];
-      const wrapper = canvas.parentElement;
-      let imgData;
-
-      try {
-        if (inst && wrapper) {
-          // Capture at a fixed 1560 × 684 px  (= 1560/684 ≈ 2.28:1, hi-res)
-          const captureW = 1560;
-          const captureH = Math.round(captureW / PPT_RATIO);   // 684 px
-
-          const origWrapH   = wrapper.style.height;
-          const origAnim    = inst.options.animation;
-
-          inst.options.animation = false;
-          wrapper.style.height   = captureH + 'px';
-          inst.resize(captureW, captureH);
-          inst.update('none');
-
-          await new Promise(r => setTimeout(r, 100));
-          imgData = canvas.toDataURL('image/png', 1.0);
-
-          // Restore
-          inst.options.animation = origAnim;
-          wrapper.style.height   = origWrapH;
-          inst.resize();          // let Chart.js re-read the container
-          inst.update('none');
-        } else {
-          imgData = canvas.toDataURL('image/png', 1.0);
-        }
-      } catch (_) {
-        try { imgData = canvas.toDataURL('image/png', 1.0); } catch (__) { continue; }
-      }
+      // Render a fresh chart at CAPTURE_W × CAPTURE_H on an off-screen canvas.
+      // This avoids bezier / fill distortion that occurs when live-resizing
+      // an existing Chart.js instance.
+      const imgData = await captureChartForExport(chartKeyMap[cs.id], CAPTURE_W, CAPTURE_H);
+      if (!imgData) continue;
 
       const s = pptx.addSlide();
       s.background = { color: BG };
@@ -4713,13 +4735,13 @@
         fontSize: 10, color: MUT,
       });
 
-      // Background card
+      // Dark background card
       s.addShape(pptx.ShapeType.rect, {
         x: 0.4, y: 1.1, w: 12.5, h: 5.65,
         fill: { color: SURF }, line: { color: BDR, width: 0.5 },
         rectRadius: 0.08,
       });
-      // Image fills the full content area — ratio matches PPT_RATIO
+      // Image exactly matches content area — no letterboxing needed
       s.addImage({ data: imgData, x: PPT_X, y: PPT_Y, w: PPT_W, h: PPT_H });
 
       s.addText('Created by Maj "MOAB" Olsen  ·  AI-assisted by Claude (Anthropic)', {
