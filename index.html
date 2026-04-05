@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flight Test Resource Planning Dashboard</title>
+  <title>Test Resource Planner</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css" />
   <style>
     /* =========================================================
        RESET & BASE
@@ -1739,6 +1740,89 @@
       .tl-info-spacer { width: 160px; }
     }
 
+    /* Header icon — no background, SVG fills it */
+    .header-icon {
+      background: none !important;
+      overflow: hidden;
+      line-height: 0;
+      padding: 0;
+    }
+
+    /* App footer */
+    #app-footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 7px 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--text-subtle);
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+    #app-footer .footer-sep { color: var(--border); }
+    #app-footer a { color: var(--text-subtle); text-decoration: none; }
+    #app-footer a:hover { color: var(--text-muted); }
+
+    /* Flatpickr overrides — match dark theme */
+    .flatpickr-calendar {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55) !important;
+      color: var(--text) !important;
+    }
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-current-month,
+    .flatpickr-monthDropdown-months,
+    .flatpickr-weekdays,
+    span.flatpickr-weekday {
+      background: var(--surface2) !important;
+      color: var(--text-muted) !important;
+      fill: var(--text-muted) !important;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year {
+      color: var(--text) !important;
+    }
+    .flatpickr-day {
+      color: var(--text-muted) !important;
+      border-color: transparent !important;
+    }
+    .flatpickr-day:hover,
+    .flatpickr-day.prevMonthDay:hover,
+    .flatpickr-day.nextMonthDay:hover {
+      background: var(--surface3) !important;
+      color: var(--text) !important;
+    }
+    .flatpickr-day.selected,
+    .flatpickr-day.selected:hover,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: #fff !important;
+    }
+    .flatpickr-day.today {
+      border-color: var(--accent2) !important;
+      color: var(--accent2) !important;
+    }
+    .flatpickr-day.today:hover { background: rgba(56,217,169,0.12) !important; }
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+      color: var(--text-subtle) !important;
+    }
+    .numInputWrapper:hover { background: var(--surface3) !important; }
+    .numInputWrapper span { border-color: var(--border) !important; }
+    .numInputWrapper span:hover { background: var(--surface3) !important; }
+    .numInputWrapper span svg path { fill: var(--text-muted) !important; }
+    .flatpickr-months .flatpickr-prev-month,
+    .flatpickr-months .flatpickr-next-month { fill: var(--text-muted) !important; }
+    .flatpickr-months .flatpickr-prev-month:hover,
+    .flatpickr-months .flatpickr-next-month:hover { fill: var(--text) !important; }
+
     /* Print / briefing friendliness */
     @media print {
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -1756,6 +1840,8 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 </head>
 <body>
 <div id="app">
@@ -1765,9 +1851,43 @@
   =================================================== -->
   <header>
     <div class="header-brand">
-      <div class="header-icon">✈</div>
+      <div class="header-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+          <!-- Space background -->
+          <rect width="36" height="36" rx="8" fill="#060d1f"/>
+          <!-- Stars -->
+          <circle cx="4"  cy="4"  r="0.8" fill="white" opacity="0.95"/>
+          <circle cx="14" cy="2.5" r="0.6" fill="white" opacity="0.75"/>
+          <circle cx="27" cy="4"  r="0.9" fill="white" opacity="1"/>
+          <circle cx="33" cy="9"  r="0.6" fill="white" opacity="0.85"/>
+          <circle cx="3"  cy="17" r="0.7" fill="white" opacity="0.6"/>
+          <circle cx="32" cy="21" r="0.55" fill="white" opacity="0.7"/>
+          <circle cx="8"  cy="27" r="0.5" fill="white" opacity="0.5"/>
+          <circle cx="21" cy="2"  r="0.6" fill="white" opacity="0.8"/>
+          <circle cx="30" cy="14" r="0.5" fill="white" opacity="0.65"/>
+          <circle cx="10" cy="10" r="0.45" fill="white" opacity="0.55"/>
+          <!-- Earth -->
+          <ellipse cx="18" cy="33.5" rx="14.5" ry="5.5" fill="#1a5276"/>
+          <ellipse cx="12" cy="33.5" rx="5"   ry="4"   fill="#1e8449" opacity="0.9"/>
+          <ellipse cx="24" cy="32.5" rx="4"   ry="3"   fill="#1e8449" opacity="0.85"/>
+          <ellipse cx="18" cy="33.5" rx="14.5" ry="5.5" fill="none" stroke="rgba(100,210,255,0.3)" stroke-width="0.8"/>
+          <!-- Rocket flame -->
+          <polygon points="16,25.5 18,32 20,25.5" fill="#FF8C00" opacity="0.95"/>
+          <polygon points="17,25.5 18,30  19,25.5" fill="#FFE57F"/>
+          <!-- Rocket body -->
+          <rect x="14.5" y="12" width="7" height="13.5" rx="2" fill="#d8d8d8"/>
+          <!-- Nose cone -->
+          <path d="M14.5,12.5 Q18,3 21.5,12.5Z" fill="#E53935"/>
+          <!-- Porthole window -->
+          <circle cx="18" cy="18" r="2.2" fill="#4f7ef8"/>
+          <circle cx="18" cy="18" r="2.2" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.5"/>
+          <!-- Fins -->
+          <polygon points="14.5,22 11,28 14.5,25.5" fill="#a0a0a0"/>
+          <polygon points="21.5,22 25,28 21.5,25.5" fill="#a0a0a0"/>
+        </svg>
+      </div>
       <div class="header-titles">
-        <h1>Flight Test Resource Planning Dashboard</h1>
+        <h1>Test Resource Planner</h1>
         <p>Program Office · Resource &amp; Workforce Management</p>
       </div>
     </div>
@@ -1823,6 +1943,7 @@
     <button class="btn btn-ghost btn-sm" onclick="exportJSON()" title="Download all projects as JSON">⬇ Export JSON</button>
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file-input').click()" title="Load projects from a JSON file">⬆ Import JSON</button>
     <input type="file" id="import-file-input" accept=".json,application/json" style="display:none" onchange="handleImport(event)" />
+    <button class="btn btn-ghost btn-sm" onclick="exportPPT()" title="Export all charts to a PowerPoint slide deck" style="color:var(--accent2);">📊 Export PPT</button>
     <div class="tb-sep"></div>
     <button class="btn btn-danger btn-sm" onclick="resetApp()" title="Clear all data and start fresh">↺ Reset</button>
   </div>
@@ -1905,6 +2026,14 @@
     </div>
 
   </div><!-- /#main -->
+
+  <!-- App footer / credits -->
+  <footer id="app-footer">
+    <span>🚀 Created by Maj &ldquo;MOAB&rdquo; Olsen</span>
+    <span class="footer-sep">·</span>
+    <span>AI-assisted development by <a href="https://claude.ai" target="_blank" rel="noopener">Claude (Anthropic)</a></span>
+  </footer>
+
 </div><!-- /#app -->
 
 <!-- ===================================================
@@ -2321,11 +2450,48 @@
   /* ── Chart instance registry (Phase 6) ──────────────── */
   const chartInstances = {};
 
+  /* ── Flatpickr date picker instances ─────────────────── */
+  const datePickers = {};
+
+  function initDatePickers() {
+    if (!window.flatpickr) return;
+    const cfg = {
+      dateFormat:    'Y-m-d',
+      allowInput:    true,
+      disableMobile: false,
+      monthSelectorType: 'static',
+      animate:       true,
+    };
+    [
+      'f-start','f-end','f-plan-start','f-plan-end','f-exec-start','f-exec-end',
+      'rf-start','rf-end',
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) datePickers[id] = flatpickr(el, { ...cfg });
+    });
+  }
+
+  function fpSet(id, val) {
+    if (datePickers[id]) datePickers[id].setDate(val || '', false);
+    else { const el = document.getElementById(id); if (el) el.value = val || ''; }
+  }
+
+  function fpClear(id) {
+    if (datePickers[id]) datePickers[id].clear();
+    else { const el = document.getElementById(id); if (el) el.value = ''; }
+  }
+
+  function fpGet(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+  }
+
   /* ====================================================
      INIT
   ==================================================== */
   document.addEventListener('DOMContentLoaded', () => {
     setHeaderDate();
+    initDatePickers();
     // Load persisted state; fall back to sample data on first visit
     if (!loadState()) {
       projects = getSampleData();
@@ -2729,16 +2895,16 @@
     if (id) {
       const p = projects.find(x => x.id === id);
       if (!p) return;
-      document.getElementById('f-name').value       = p.name      || '';
-      document.getElementById('f-status').value     = p.status    || 'Planning';
-      document.getElementById('f-priority').value   = p.priority  || 'Medium';
-      document.getElementById('f-start').value      = p.start     || '';
-      document.getElementById('f-end').value        = p.end       || '';
-      document.getElementById('f-plan-start').value = p.planStart || '';
-      document.getElementById('f-plan-end').value   = p.planEnd   || '';
-      document.getElementById('f-exec-start').value = p.execStart || '';
-      document.getElementById('f-exec-end').value   = p.execEnd   || '';
-      document.getElementById('f-notes').value      = p.notes     || '';
+      document.getElementById('f-name').value     = p.name     || '';
+      document.getElementById('f-status').value   = p.status   || 'Planning';
+      document.getElementById('f-priority').value = p.priority || 'Medium';
+      document.getElementById('f-notes').value    = p.notes    || '';
+      fpSet('f-start',      p.start     || '');
+      fpSet('f-end',        p.end       || '');
+      fpSet('f-plan-start', p.planStart || '');
+      fpSet('f-plan-end',   p.planEnd   || '');
+      fpSet('f-exec-start', p.execStart || '');
+      fpSet('f-exec-end',   p.execEnd   || '');
     }
 
     document.getElementById('project-modal-overlay').classList.add('open');
@@ -2755,12 +2921,12 @@
   }
 
   function clearProjectForm() {
-    ['f-name','f-start','f-end','f-plan-start','f-plan-end',
-     'f-exec-start','f-exec-end','f-notes'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
+    document.getElementById('f-name').value  = '';
+    document.getElementById('f-notes').value = '';
     document.getElementById('f-status').value   = 'Planning';
     document.getElementById('f-priority').value = 'Medium';
+    ['f-start','f-end','f-plan-start','f-plan-end','f-exec-start','f-exec-end']
+      .forEach(fpClear);
   }
 
   function saveProject() {
@@ -2776,12 +2942,12 @@
       name,
       status:    document.getElementById('f-status').value,
       priority:  document.getElementById('f-priority').value,
-      start:     document.getElementById('f-start').value,
-      end:       document.getElementById('f-end').value,
-      planStart: document.getElementById('f-plan-start').value,
-      planEnd:   document.getElementById('f-plan-end').value,
-      execStart: document.getElementById('f-exec-start').value,
-      execEnd:   document.getElementById('f-exec-end').value,
+      start:     fpGet('f-start'),
+      end:       fpGet('f-end'),
+      planStart: fpGet('f-plan-start'),
+      planEnd:   fpGet('f-plan-end'),
+      execStart: fpGet('f-exec-start'),
+      execEnd:   fpGet('f-exec-end'),
       notes:     document.getElementById('f-notes').value.trim(),
     };
 
@@ -3089,8 +3255,8 @@
       document.getElementById('rf-custom').value   = r.customRole  || '';
       document.getElementById('rf-qty').value      = r.qty         ?? 1;
       document.getElementById('rf-phase').value    = r.phase       || 'Both';
-      document.getElementById('rf-start').value    = r.start       || '';
-      document.getElementById('rf-end').value      = r.end         || '';
+      fpSet('rf-start', r.start || '');
+      fpSet('rf-end',   r.end   || '');
       document.getElementById('rf-ws').checked     = !!r.wsRequired;
       document.getElementById('rf-ws-ratio').value = r.wsRatio     ?? 1.0;
       document.getElementById('rf-travel').checked = !!r.travelRequired;
@@ -3131,8 +3297,8 @@
     document.getElementById('rf-custom').value    = '';
     document.getElementById('rf-qty').value       = '1';
     document.getElementById('rf-phase').value     = 'Both';
-    document.getElementById('rf-start').value     = '';
-    document.getElementById('rf-end').value       = '';
+    fpClear('rf-start');
+    fpClear('rf-end');
     document.getElementById('rf-ws').checked      = false;
     document.getElementById('rf-ws-ratio').value  = '1.0';
     document.getElementById('rf-travel').checked  = false;
@@ -3279,8 +3445,8 @@
       customRole:     roleVal === 'Custom' ? customEl.value.trim() : '',
       qty,
       phase:          document.getElementById('rf-phase').value,
-      start:          document.getElementById('rf-start').value,
-      end:            document.getElementById('rf-end').value,
+      start:          fpGet('rf-start'),
+      end:            fpGet('rf-end'),
       wsRequired:     document.getElementById('rf-ws').checked,
       wsRatio,
       travelRequired: document.getElementById('rf-travel').checked,
@@ -4355,6 +4521,254 @@
       'Exported ' + projects.length + ' project' + (projects.length !== 1 ? 's' : ''),
       'success'
     );
+  }
+
+  /* ====================================================
+     EXPORT POWERPOINT
+  ==================================================== */
+  async function exportPPT() {
+    if (!window.PptxGenJS) {
+      showToast('PowerPoint library not loaded — check internet connection', 'error');
+      return;
+    }
+    if (projects.length === 0) {
+      showToast('No data to export — add projects first', 'warn');
+      return;
+    }
+
+    // Ensure dashboard is rendered so canvas elements exist
+    const dashSection = document.getElementById('section-dashboard');
+    if (!dashSection.classList.contains('active') || !document.getElementById('chart-personnel')) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-section="dashboard"]').classList.add('active');
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      dashSection.classList.add('active');
+      renderDashboard();
+      await new Promise(r => setTimeout(r, 600));
+    }
+
+    showToast('Building PowerPoint…', 'success');
+
+    const pptx = new PptxGenJS();
+    pptx.layout = 'LAYOUT_WIDE';
+
+    const BG   = '0f1117';
+    const SURF = '1a1d27';
+    const BDR  = '2e3350';
+    const TXT  = 'e8eaf0';
+    const MUT  = '7c84a3';
+    const SUB  = '4d5374';
+    const ACC  = '4f7ef8';
+    const ACC2 = '38d9a9';
+    const WARN = 'f7a745';
+
+    const { totalPersonnel, peakPersonnel, peakWs, peakYM } = computeSummaryStats();
+    const { totalTrips, totalCost } = computePortfolioTravel();
+    const peakLabel = peakYM
+      ? new Date(peakYM + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      : '—';
+
+    // ── Slide 1: Title & portfolio summary ─────────────
+    {
+      const s = pptx.addSlide();
+      s.background = { color: BG };
+
+      // Decorative top bar
+      s.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.06, fill: { color: ACC } });
+
+      s.addText('Test Resource Planner', {
+        x: 0.5, y: 1.2, w: 12.3, h: 1.1,
+        fontSize: 40, bold: true, color: TXT, align: 'center',
+      });
+      s.addText('Program Office · Resource & Workforce Management', {
+        x: 0.5, y: 2.45, w: 12.3, h: 0.5,
+        fontSize: 16, color: MUT, align: 'center',
+      });
+      s.addText(new Date().toLocaleDateString('en-US', { dateStyle: 'long' }), {
+        x: 0.5, y: 3.05, w: 12.3, h: 0.35,
+        fontSize: 12, color: SUB, align: 'center',
+      });
+
+      // Stat boxes
+      const stats = [
+        { label: 'Projects',        val: String(projects.length),           color: ACC  },
+        { label: 'Total Personnel', val: totalPersonnel > 0 ? String(totalPersonnel) : '—', color: TXT  },
+        { label: 'Peak Personnel',  val: peakPersonnel > 0  ? String(peakPersonnel)  : '—', color: WARN },
+        { label: 'Est. Travel',     val: fmtCurrency(totalCost),             color: ACC2 },
+        { label: 'Peak Workstations', val: peakWs > 0 ? String(peakWs) : '—',    color: TXT  },
+        { label: 'Total Trips',     val: totalTrips > 0 ? String(totalTrips) : '—', color: ACC  },
+      ];
+      const bw = 1.9, bh = 1.0, bGap = 0.22, bY = 4.1;
+      stats.forEach((st, i) => {
+        const bx = 0.5 + i * (bw + bGap);
+        s.addShape(pptx.ShapeType.rect, {
+          x: bx, y: bY, w: bw, h: bh,
+          fill: { color: SURF }, line: { color: BDR, width: 0.5 },
+          rectRadius: 0.06,
+        });
+        s.addText(st.val, {
+          x: bx, y: bY + 0.12, w: bw, h: 0.55,
+          fontSize: 26, bold: true, color: st.color, align: 'center',
+        });
+        s.addText(st.label.toUpperCase(), {
+          x: bx, y: bY + 0.68, w: bw, h: 0.25,
+          fontSize: 8, color: SUB, align: 'center', charSpacing: 1.5,
+        });
+      });
+
+      if (peakYM) {
+        s.addText(`Busiest Month: ${peakLabel}  ·  ${peakPersonnel} personnel simultaneously active`, {
+          x: 0.5, y: 5.35, w: 12.3, h: 0.3,
+          fontSize: 11, color: WARN, align: 'center', italic: true,
+        });
+      }
+
+      // Footer
+      s.addText('Created by Maj "MOAB" Olsen  ·  AI-assisted by Claude (Anthropic)', {
+        x: 0.5, y: 6.9, w: 12.3, h: 0.3,
+        fontSize: 9, color: SUB, align: 'center',
+      });
+    }
+
+    // ── Chart slides ────────────────────────────────────
+    const chartSlides = [
+      { id: 'chart-personnel',   title: 'Total Personnel Over Time',
+        sub: `Monthly headcount across all projects · peak month: ${peakLabel}` },
+      { id: 'chart-by-project',  title: 'Personnel by Project',
+        sub: 'Stacked monthly headcount per project' },
+      { id: 'chart-mix',         title: 'Workforce Mix Over Time',
+        sub: 'Active Duty · Gov Civilian · Contractor breakdown by month' },
+      { id: 'chart-ws',          title: 'Workstations Required Over Time',
+        sub: 'Monthly workstation demand (wsRequired roles × wsRatio)' },
+      { id: 'chart-travel-cost', title: 'Estimated Travel Cost Over Time',
+        sub: 'Monthly travel expenditure distributed across active role months' },
+      { id: 'chart-trips',       title: 'Projected Trips Over Time',
+        sub: 'Monthly trip count distributed across active role months' },
+    ];
+
+    for (const cs of chartSlides) {
+      const canvas = document.getElementById(cs.id);
+      if (!canvas) continue;
+
+      let imgData;
+      try { imgData = canvas.toDataURL('image/png', 1.0); }
+      catch (_) { continue; }
+
+      const s = pptx.addSlide();
+      s.background = { color: BG };
+      s.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.06, fill: { color: ACC } });
+
+      s.addText(cs.title, {
+        x: 0.5, y: 0.18, w: 12.3, h: 0.55,
+        fontSize: 22, bold: true, color: TXT,
+      });
+      s.addText(cs.sub, {
+        x: 0.5, y: 0.72, w: 12.3, h: 0.3,
+        fontSize: 10, color: MUT,
+      });
+
+      // Chart image — add a dark background rect first
+      s.addShape(pptx.ShapeType.rect, {
+        x: 0.4, y: 1.1, w: 12.5, h: 5.65,
+        fill: { color: SURF }, line: { color: BDR, width: 0.5 },
+        rectRadius: 0.08,
+      });
+      s.addImage({ data: imgData, x: 0.55, y: 1.25, w: 12.2, h: 5.35 });
+
+      s.addText('Created by Maj "MOAB" Olsen  ·  AI-assisted by Claude (Anthropic)', {
+        x: 0.5, y: 6.9, w: 12.3, h: 0.3,
+        fontSize: 9, color: SUB, align: 'center',
+      });
+    }
+
+    // ── Top 3 projects slide ────────────────────────────
+    {
+      const top3 = [...projects]
+        .map(p => {
+          const total = (p.roles || []).reduce((s, r) => s + (r.qty || 0), 0);
+          let trips = 0, cost = 0;
+          (p.roles || []).forEach(r => {
+            const tv = calcRoleTravel(r);
+            if (tv) { trips += tv.totalTrips; cost += tv.totalTravelCost; }
+          });
+          return { p, total, trips, cost };
+        })
+        .filter(x => x.total > 0)
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 3);
+
+      if (top3.length > 0) {
+        const s = pptx.addSlide();
+        s.background = { color: BG };
+        s.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.06, fill: { color: ACC } });
+
+        s.addText('Top Projects by Resource Intensity', {
+          x: 0.5, y: 0.18, w: 12.3, h: 0.55,
+          fontSize: 22, bold: true, color: TXT,
+        });
+        s.addText('Most resource-intensive programs in this portfolio', {
+          x: 0.5, y: 0.72, w: 12.3, h: 0.3,
+          fontSize: 10, color: MUT,
+        });
+
+        const medals = ['🥇','🥈','🥉'];
+        const cardW = 3.9, cardH = 4.2, cardY = 1.3, gap = 0.25;
+        top3.forEach((x, i) => {
+          const cx = 0.5 + i * (cardW + gap);
+          const col = PALETTE[Math.max(0, projects.findIndex(p => p.id === x.p.id)) % PALETTE.length].replace('#','');
+          s.addShape(pptx.ShapeType.rect, {
+            x: cx, y: cardY, w: cardW, h: cardH,
+            fill: { color: SURF }, line: { color: BDR, width: 0.5 },
+            rectRadius: 0.08,
+          });
+          // Color bar
+          s.addShape(pptx.ShapeType.rect, {
+            x: cx, y: cardY, w: 0.06, h: cardH,
+            fill: { color: col },
+            rectRadius: 0,
+          });
+          s.addText(`${medals[i]} Rank ${i+1}`, {
+            x: cx + 0.15, y: cardY + 0.15, w: cardW - 0.25, h: 0.28,
+            fontSize: 9, color: SUB, bold: true, charSpacing: 1.5,
+          });
+          s.addText(x.p.name, {
+            x: cx + 0.15, y: cardY + 0.45, w: cardW - 0.25, h: 0.65,
+            fontSize: 14, bold: true, color: TXT, wrap: true,
+          });
+          // Stats
+          const statRows = [
+            { label: 'Role-Slots', val: String(x.total),         color: col   },
+            { label: 'Trips',      val: x.trips > 0 ? String(x.trips) : '—', color: ACC  },
+            { label: 'Travel Est.',val: fmtCurrency(x.cost),      color: ACC2  },
+          ];
+          statRows.forEach((st, si) => {
+            const sy = cardY + 1.25 + si * 0.95;
+            s.addText(st.val, {
+              x: cx + 0.15, y: sy, w: cardW - 0.3, h: 0.55,
+              fontSize: 28, bold: true, color: st.color,
+            });
+            s.addText(st.label.toUpperCase(), {
+              x: cx + 0.15, y: sy + 0.55, w: cardW - 0.3, h: 0.22,
+              fontSize: 8, color: SUB, charSpacing: 1.5,
+            });
+          });
+        });
+
+        s.addText('Created by Maj "MOAB" Olsen  ·  AI-assisted by Claude (Anthropic)', {
+          x: 0.5, y: 6.9, w: 12.3, h: 0.3,
+          fontSize: 9, color: SUB, align: 'center',
+        });
+      }
+    }
+
+    // ── Write file ──────────────────────────────────────
+    const dateStr = new Date().toISOString().slice(0, 10);
+    try {
+      await pptx.writeFile({ fileName: `test-resource-plan-${dateStr}.pptx` });
+      showToast(`PowerPoint exported — ${chartSlides.length + 2} slides`, 'success');
+    } catch (err) {
+      showToast('Export failed: ' + err.message, 'error');
+    }
   }
 
   /* ====================================================
