@@ -1927,6 +1927,35 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
     #class-editor-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
+    .class-swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .class-swatch-pill {
+      width: 80px;
+      height: 26px;
+      border-radius: 4px;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+    .class-swatch:hover .class-swatch-pill { transform: scale(1.06); }
+    .class-swatch.active .class-swatch-pill { border-color: #fff; }
+    .class-swatch-name {
+      font-size: 9px;
+      color: var(--text-subtle);
+      text-align: center;
+      max-width: 80px;
+      line-height: 1.2;
+    }
     .class-custom-row {
       display: grid;
       grid-template-columns: 1fr auto auto;
@@ -1990,6 +2019,8 @@
 <div id="class-editor-overlay" onclick="handleClassOverlayClick(event)">
   <div id="class-editor-box">
     <h3>Classification Marking</h3>
+    <div style="font-size:11px;color:var(--text-subtle);margin-bottom:8px;">Select a color scheme</div>
+    <div id="class-swatches" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;"></div>
     <div class="class-custom-row">
       <input type="text" id="class-custom-text" placeholder="e.g. UNCLASSIFIED" maxlength="60" />
       <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
@@ -2625,6 +2656,15 @@
 
   let classState = { label: 'UNCLASSIFIED', bg: '#1b5e20', fg: '#ffffff' };
 
+  const CLASS_COLORS = [
+    { name: 'Unclassified',       bg: '#1b5e20', fg: '#ffffff' },
+    { name: 'CUI',                bg: '#512888', fg: '#ffffff' },
+    { name: 'Confidential',       bg: '#003087', fg: '#ffffff' },
+    { name: 'Secret',             bg: '#c8102e', fg: '#ffffff' },
+    { name: 'Top Secret',         bg: '#e65100', fg: '#ffffff' },
+    { name: 'TS // SCI',          bg: '#fdd835', fg: '#000000' },
+  ];
+
   function applyClassBanner() {
     ['top','bottom'].forEach(pos => {
       const banner = document.getElementById(`class-banner-${pos}`);
@@ -2656,12 +2696,31 @@
   }
 
   function openClassEditor() {
+    // Render color swatches
+    const swatchContainer = document.getElementById('class-swatches');
+    swatchContainer.innerHTML = CLASS_COLORS.map((c, i) => {
+      const isActive = classState.bg === c.bg && classState.fg === c.fg;
+      return `<div class="class-swatch${isActive ? ' active' : ''}" onclick="pickClassColor(${i})">
+        <div class="class-swatch-pill" style="background:${c.bg};color:${c.fg};">▐▐▌▌</div>
+        <div class="class-swatch-name">${c.name}</div>
+      </div>`;
+    }).join('');
+
     document.getElementById('class-custom-text').value = classState.label;
     document.getElementById('class-custom-bg').value   = classState.bg;
     document.getElementById('class-custom-fg').value   = classState.fg;
     document.getElementById('class-editor-overlay').classList.add('open');
     document.getElementById('class-custom-text').focus();
     document.getElementById('class-custom-text').select();
+  }
+
+  function pickClassColor(i) {
+    const c = CLASS_COLORS[i];
+    document.getElementById('class-custom-bg').value = c.bg;
+    document.getElementById('class-custom-fg').value = c.fg;
+    document.querySelectorAll('.class-swatch').forEach((el, idx) => {
+      el.classList.toggle('active', idx === i);
+    });
   }
 
   function closeClassEditor() {
