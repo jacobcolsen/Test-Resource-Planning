@@ -2354,29 +2354,6 @@
                    placeholder="# of personnel" oninput="onMixInput()" />
           </div>
 
-          <!-- Phase applicability -->
-          <div class="form-group full-width">
-            <label for="rf-phase">Phase Applicability</label>
-            <select id="rf-phase">
-              <option value="Both">Both (Planning &amp; Execution)</option>
-              <option value="Planning">Planning only</option>
-              <option value="Execution">Execution only</option>
-            </select>
-          </div>
-
-          <!-- Date range -->
-          <div class="form-section-label">Date Range</div>
-
-          <div class="form-group">
-            <label for="rf-start">Start Date</label>
-            <input type="date" id="rf-start" />
-          </div>
-
-          <div class="form-group">
-            <label for="rf-end">End Date</label>
-            <input type="date" id="rf-end" />
-          </div>
-
           <!-- Workstation & travel flags -->
           <div class="form-section-label">Requirements &amp; Flags</div>
 
@@ -2632,10 +2609,7 @@
       monthSelectorType: 'static',
       animate:       true,
     };
-    [
-      'f-start','f-end',
-      'rf-start','rf-end',
-    ].forEach(id => {
+    ['f-start','f-end'].forEach(id => {
       const el = document.getElementById(id);
       if (el) datePickers[id] = flatpickr(el, { ...cfg });
     });
@@ -3517,13 +3491,6 @@
     clearRoleForm();
 
     // When adding a new role, default dates to the project's span
-    if (!roleId && staffingProjectId) {
-      const proj = projects.find(x => x.id === staffingProjectId);
-      if (proj) {
-        fpSet('rf-start', proj.start || '');
-        fpSet('rf-end',   proj.end   || '');
-      }
-    }
 
     if (roleId) {
       const p = projects.find(x => x.id === staffingProjectId);
@@ -3534,9 +3501,6 @@
       document.getElementById('rf-role').value     = r.role        || 'Test Lead';
       document.getElementById('rf-custom').value   = r.customRole  || '';
       document.getElementById('rf-qty').value      = r.qty         ?? 1;
-      document.getElementById('rf-phase').value    = r.phase       || 'Both';
-      fpSet('rf-start', r.start || '');
-      fpSet('rf-end',   r.end   || '');
       document.getElementById('rf-ws').checked     = !!r.wsRequired;
       document.getElementById('rf-ws-ratio').value = r.wsRatio     ?? 1.0;
       document.getElementById('rf-travel').checked = !!r.travelRequired;
@@ -3576,9 +3540,6 @@
     document.getElementById('rf-role').value      = 'Test Lead';
     document.getElementById('rf-custom').value    = '';
     document.getElementById('rf-qty').value       = '1';
-    document.getElementById('rf-phase').value     = 'Both';
-    fpClear('rf-start');
-    fpClear('rf-end');
     document.getElementById('rf-ws').checked      = false;
     document.getElementById('rf-ws-ratio').value  = '1.0';
     document.getElementById('rf-travel').checked  = false;
@@ -3724,9 +3685,6 @@
       role:           roleVal,
       customRole:     roleVal === 'Custom' ? customEl.value.trim() : '',
       qty,
-      phase:          document.getElementById('rf-phase').value,
-      start:          fpGet('rf-start'),
-      end:            fpGet('rf-end'),
       wsRequired:     document.getElementById('rf-ws').checked,
       wsRatio,
       travelRequired: document.getElementById('rf-travel').checked,
