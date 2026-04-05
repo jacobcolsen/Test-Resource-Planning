@@ -4667,13 +4667,26 @@
         fontSize: 10, color: MUT,
       });
 
-      // Chart image — add a dark background rect first
+      // Compute display size maintaining canvas aspect ratio (fit-within, no stretch)
+      const natW   = canvas.width  || 1;
+      const natH   = canvas.height || 1;
+      const areaW  = 12.2;
+      const areaH  = 5.35;
+      const areaX0 = 0.55;
+      const areaY0 = 1.25;
+      const scale  = Math.min(areaW / natW, areaH / natH);
+      const imgW   = natW * scale;
+      const imgH   = natH * scale;
+      const imgX   = areaX0 + (areaW - imgW) / 2;
+      const imgY   = areaY0 + (areaH - imgH) / 2;
+
+      // Dark background card behind the image
       s.addShape(pptx.ShapeType.rect, {
         x: 0.4, y: 1.1, w: 12.5, h: 5.65,
         fill: { color: SURF }, line: { color: BDR, width: 0.5 },
         rectRadius: 0.08,
       });
-      s.addImage({ data: imgData, x: 0.55, y: 1.25, w: 12.2, h: 5.35 });
+      s.addImage({ data: imgData, x: imgX, y: imgY, w: imgW, h: imgH });
 
       s.addText('Created by Maj "MOAB" Olsen  ·  AI-assisted by Claude (Anthropic)', {
         x: 0.5, y: 6.9, w: 12.3, h: 0.3,
