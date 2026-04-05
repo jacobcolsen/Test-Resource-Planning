@@ -398,9 +398,21 @@
     .phase-bar-wrap {
       background: var(--surface2);
       border-radius: 4px;
-      overflow: hidden;
+      overflow: visible;
       height: 6px;
       display: flex;
+      align-items: center;
+      position: relative;
+      margin-bottom: 2px;
+    }
+    .phase-bar-label {
+      position: absolute;
+      right: 0;
+      top: 9px;
+      font-size: 10px;
+      color: var(--text-subtle);
+      white-space: nowrap;
+      pointer-events: none;
     }
 
     .phase-bar-planning  { background: var(--accent); height: 100%; }
@@ -2417,18 +2429,18 @@
       status: 'Active',
       priority: 'High',
       start: '2025-01-15',
-      end: '2026-03-31',
+      end: '2026-07-31',
       notes: 'Coordinating with Edwards AFB range scheduling. Key dependency on sensor integration milestone in Q2.',
       roles: [
-        { id: 'r1', role: 'Test Lead',            customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for Edwards coordination.',          activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r2', role: 'Flight Test Engineer', customRole: '', qty: 3, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 2, govCivilian: 0, contractor: 1, tvlTravelers: 3, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r3', role: 'Data Analyst',         customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time data review during test points.',       activeDuty: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 6, tvlAvgDays: 5, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
-        { id: 'r4', role: 'Mission Planner',      customRole: '', qty: 1, phase: 'Planning',  start: '2025-01-15', end: '2025-04-30', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
-        { id: 'r5', role: 'Safety Officer',       customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie.', activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 4, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r6', role: 'Range Support',        customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 50  },
-        { id: 'r7', role: 'Aircraft Maintainer',  customRole: '', qty: 4, phase: 'Execution', start: '2025-05-01', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Includes crew chief and two specialists.',        activeDuty: 4, govCivilian: 0, contractor: 0, tvlTravelers: 4, tvlTripsPerPerson: 12, tvlAvgDays: 7, tvlAirfare: 700, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
-        { id: 'r8', role: 'Data Systems Engineer',customRole: '', qty: 2, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Instrumentation setup and real-time telemetry.',  activeDuty: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r9', role: 'Logistics Coordinator',customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-03-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r1', role: 'Test Lead',            customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-07-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for Edwards coordination.',          activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r2', role: 'Flight Test Engineer', customRole: '', qty: 3, phase: 'Both',      start: '2025-01-15', end: '2026-07-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 2, govCivilian: 0, contractor: 1, tvlTravelers: 3, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r3', role: 'Data Analyst',         customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-07-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time data review during test points.',       activeDuty: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 6, tvlAvgDays: 5, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r4', role: 'Mission Planner',      customRole: '', qty: 1, phase: 'Planning',  start: '2025-01-15', end: '2025-06-30', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r5', role: 'Safety Officer',       customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-07-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie.', activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 4, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r6', role: 'Range Support',        customRole: '', qty: 2, phase: 'Execution', start: '2025-05-01', end: '2026-07-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                                activeDuty: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r7', role: 'Aircraft Maintainer',  customRole: '', qty: 4, phase: 'Execution', start: '2025-05-01', end: '2026-07-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Includes crew chief and two specialists.',        activeDuty: 4, govCivilian: 0, contractor: 0, tvlTravelers: 4, tvlTripsPerPerson: 12, tvlAvgDays: 7, tvlAirfare: 700, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r8', role: 'Data Systems Engineer',customRole: '', qty: 2, phase: 'Both',      start: '2025-01-15', end: '2026-07-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Instrumentation setup and real-time telemetry.',  activeDuty: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r9', role: 'Logistics Coordinator',customRole: '', qty: 1, phase: 'Both',      start: '2025-01-15', end: '2026-07-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                                activeDuty: 0, govCivilian: 1, contractor: 0 },
       ],
     },
     {
@@ -2437,15 +2449,15 @@
       phase: 'Planning',
       status: 'Active',
       priority: 'High',
-      start: '2025-03-01',
-      end: '2025-12-15',
+      start: '2025-10-01',
+      end: '2026-10-15',
       notes: 'Hardware-in-the-loop testing complete. Awaiting final software build from contractor.',
       roles: [
-        { id: 'r10', role: 'Test Lead',             customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r11', role: 'Test Engineer',         customRole: '', qty: 3, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 2, govCivilian: 1, contractor: 0, tvlTravelers: 3, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
-        { id: 'r12', role: 'Avionics Engineer',     customRole: '', qty: 2, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: 'Contractor-provided; GFE laptop required.', activeDuty: 0, govCivilian: 0, contractor: 2 },
-        { id: 'r13', role: 'Data Systems Engineer', customRole: '', qty: 1, phase: 'Execution', start: '2025-06-01', end: '2025-12-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 5, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
-        { id: 'r14', role: 'Logistics Coordinator', customRole: '', qty: 1, phase: 'Both',      start: '2025-03-01', end: '2025-12-15', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r10', role: 'Test Lead',             customRole: '', qty: 1, phase: 'Both',      start: '2025-10-01', end: '2026-10-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r11', role: 'Test Engineer',         customRole: '', qty: 3, phase: 'Both',      start: '2025-10-01', end: '2026-10-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 2, govCivilian: 1, contractor: 0, tvlTravelers: 3, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r12', role: 'Avionics Engineer',     customRole: '', qty: 2, phase: 'Both',      start: '2025-10-01', end: '2026-10-15', wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: 'Contractor-provided; GFE laptop required.', activeDuty: 0, govCivilian: 0, contractor: 2 },
+        { id: 'r13', role: 'Data Systems Engineer', customRole: '', qty: 1, phase: 'Execution', start: '2026-05-01', end: '2026-10-15', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 5, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r14', role: 'Logistics Coordinator', customRole: '', qty: 1, phase: 'Both',      start: '2025-10-01', end: '2026-10-15', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                        activeDuty: 0, govCivilian: 1, contractor: 0 },
       ],
     },
     {
@@ -2454,17 +2466,17 @@
       phase: 'Planning',
       status: 'Active',
       priority: 'Medium',
-      start: '2025-06-01',
-      end: '2026-01-31',
+      start: '2026-02-01',
+      end: '2027-01-31',
       notes: 'Requires dedicated chase aircraft. Risk: weather windows at Eglin may compress schedule.',
       roles: [
-        { id: 'r15', role: 'Test Lead',             customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r16', role: 'Test Engineer',         customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Structural instrumentation monitoring.',   activeDuty: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 75  },
-        { id: 'r17', role: 'Safety Officer',        customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r18', role: 'Range Support',         customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range coordination required.',       activeDuty: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 50  },
-        { id: 'r19', role: 'Aircraft Maintainer',   customRole: '',                    qty: 2, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
-        { id: 'r20', role: 'Logistics Coordinator', customRole: '',                    qty: 1, phase: 'Both',      start: '2025-06-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                      activeDuty: 0, govCivilian: 1, contractor: 0 },
-        { id: 'r21', role: 'Custom',                customRole: 'Chase Aircraft Pilot',qty: 1, phase: 'Execution', start: '2025-09-01', end: '2026-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Coordinate with 40 FTS for availability.', activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r15', role: 'Test Lead',             customRole: '',                    qty: 1, phase: 'Both',      start: '2026-02-01', end: '2027-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r16', role: 'Test Engineer',         customRole: '',                    qty: 2, phase: 'Execution', start: '2026-08-01', end: '2027-01-31', wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Structural instrumentation monitoring.',   activeDuty: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r17', role: 'Safety Officer',        customRole: '',                    qty: 1, phase: 'Both',      start: '2026-02-01', end: '2027-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r18', role: 'Range Support',         customRole: '',                    qty: 2, phase: 'Execution', start: '2026-08-01', end: '2027-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range coordination required.',       activeDuty: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r19', role: 'Aircraft Maintainer',   customRole: '',                    qty: 2, phase: 'Execution', start: '2026-08-01', end: '2027-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: '',                                      activeDuty: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r20', role: 'Logistics Coordinator', customRole: '',                    qty: 1, phase: 'Both',      start: '2026-02-01', end: '2027-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: '',                                      activeDuty: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r21', role: 'Custom',                customRole: 'Chase Aircraft Pilot',qty: 1, phase: 'Execution', start: '2026-08-01', end: '2027-01-31', wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Coordinate with 40 FTS for availability.', activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8,  tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
       ],
     },
    ]; // end getSampleData
@@ -2894,9 +2906,30 @@
         </div>
       </div>
 
-      <div class="phase-bar-wrap" title="${phaseName}">
-        <div style="background:${phaseColor};height:100%;width:100%;border-radius:4px;"></div>
-      </div>
+      ${(() => {
+        const now   = Date.now();
+        const tS    = p.start ? new Date(p.start + 'T00:00:00').getTime() : null;
+        const tE    = p.end   ? new Date(p.end   + 'T00:00:00').getTime() : null;
+        let pct = 0, label = '', barColor = phaseColor;
+
+        if (p.status === 'Complete') {
+          pct = 100; label = 'Complete';
+        } else if (p.status === 'On Hold') {
+          if (tS && tE && tE > tS) pct = Math.round(Math.min(100, Math.max(0, (now - tS) / (tE - tS) * 100)));
+          label = 'On Hold'; barColor = 'var(--text-subtle)';
+        } else if (tS && tE && tE > tS) {
+          if (now < tS)      { pct = 0;   label = 'Not started'; }
+          else if (now > tE) { pct = 100; label = 'Complete'; }
+          else               { pct = Math.round((now - tS) / (tE - tS) * 100); label = `${pct}% complete`; }
+        } else {
+          label = tS ? (now < tS ? 'Not started' : 'In progress') : '';
+        }
+
+        return `<div class="phase-bar-wrap" title="${phaseName} · ${label}">
+          <div style="background:${barColor};height:100%;width:${pct}%;border-radius:4px;min-width:${pct>0?'6px':'0'};transition:width 0.4s;"></div>
+          ${label ? `<span class="phase-bar-label">${label}</span>` : ''}
+        </div>`;
+      })()}
 
       ${notes}
     </div>`;
