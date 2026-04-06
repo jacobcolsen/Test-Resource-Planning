@@ -2962,9 +2962,9 @@
     return { minYM, maxYM };
   }
 
-  function roleActiveInMonth(role, ym) {
-    const rStart = dateToYM(role.start);
-    const rEnd   = dateToYM(role.end);
+  function roleActiveInMonth(role, ym, project) {
+    const rStart = dateToYM(role.start) || (project ? dateToYM(project.start) : null);
+    const rEnd   = dateToYM(role.end)   || (project ? dateToYM(project.end)   : null);
     if (!rStart && !rEnd) return true;
     if (rStart && rStart > ym) return false;
     if (rEnd   && rEnd   < ym) return false;
@@ -2983,7 +2983,7 @@
       projects.forEach(p => {
         let pCount = 0;
         (p.roles || []).forEach(r => {
-          if (!roleActiveInMonth(r, ym)) return;
+          if (!roleActiveInMonth(r, ym, p)) return;
           const qty = r.qty || 0;
           pCount += qty;
           total  += qty;
@@ -2996,7 +2996,7 @@
           if (r.travelRequired) {
             const tv = calcRoleTravel(r);
             if (tv && tv.totalTrips > 0) {
-              const activeMonths = roleActiveMonthCount(r);
+              const activeMonths = roleActiveMonthCount(r, p);
               trips      += tv.totalTrips      / activeMonths;
               travelCost += tv.totalTravelCost / activeMonths;
             }
@@ -3036,9 +3036,9 @@
     return { travelers, tripsPerPax, avgDays, perTripCost, totalTrips, totalTravelCost };
   }
 
-  function roleActiveMonthCount(role) {
-    const s = dateToYM(role.start);
-    const e = dateToYM(role.end);
+  function roleActiveMonthCount(role, project) {
+    const s = dateToYM(role.start) || (project ? dateToYM(project.start) : null);
+    const e = dateToYM(role.end)   || (project ? dateToYM(project.end)   : null);
     if (!s || !e) return 1;
     return monthRange(s, e).length || 1;
   }
