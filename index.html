@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Test Resource Planner</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
   <style>
     /* =========================================================
        RESET & BASE
@@ -12,22 +12,22 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0f1117;
-      --surface:     #1a1d27;
-      --surface2:    #222638;
-      --surface3:    #2a2f47;
-      --border:      #2e3350;
-      --accent:      #4f7ef8;
-      --accent-dim:  #3a5ec0;
-      --accent2:     #38d9a9;
-      --warn:        #f7a745;
-      --danger:      #e05c5c;
-      --text:        #e8eaf0;
-      --text-muted:  #7c84a3;
-      --text-subtle: #4d5374;
+      --bg:          #f0f2f7;
+      --surface:     #ffffff;
+      --surface2:    #f4f5fa;
+      --surface3:    #e8eaf3;
+      --border:      #d0d4e4;
+      --accent:      #3a6ff0;
+      --accent-dim:  #2a55c8;
+      --accent2:     #17a87a;
+      --warn:        #d4820a;
+      --danger:      #c0392b;
+      --text:        #1a1d2e;
+      --text-muted:  #4a5275;
+      --text-subtle: #8892b8;
       --radius:      10px;
       --radius-sm:   6px;
-      --shadow:      0 4px 24px rgba(0,0,0,0.45);
+      --shadow:      0 4px 24px rgba(0,0,0,0.10);
       --transition:  0.18s ease;
     }
 
@@ -368,13 +368,13 @@
       text-transform: uppercase;
     }
 
-    .badge-planning   { background: rgba(79,126,248,0.18);  color: #7aa8ff; }
-    .badge-execution  { background: rgba(56,217,169,0.18);  color: #38d9a9; }
-    .badge-complete   { background: rgba(124,132,163,0.18); color: #9aa0b8; }
-    .badge-on-hold    { background: rgba(247,167,69,0.18);  color: #f7a745; }
-    .badge-high       { background: rgba(224,92,92,0.18);   color: #e07c7c; }
-    .badge-medium     { background: rgba(247,167,69,0.18);  color: #f7a745; }
-    .badge-low        { background: rgba(56,217,169,0.18);  color: #38d9a9; }
+    .badge-planning   { background: rgba(58,111,240,0.12);  color: #2a55c8; }
+    .badge-execution  { background: rgba(23,168,122,0.12);  color: #0e8a62; }
+    .badge-complete   { background: rgba(100,110,150,0.12); color: #505a80; }
+    .badge-on-hold    { background: rgba(212,130,10,0.12);  color: #a06200; }
+    .badge-high       { background: rgba(192,57,43,0.12);   color: #a02020; }
+    .badge-medium     { background: rgba(212,130,10,0.12);  color: #a06200; }
+    .badge-low        { background: rgba(23,168,122,0.12);  color: #0e8a62; }
 
     .card-actions { display: flex; gap: 2px; flex-shrink: 0; }
 
@@ -441,7 +441,7 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.65);
+      background: rgba(30,35,70,0.45);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -731,7 +731,7 @@
 
     #role-table td:last-child { text-align: right; }
 
-    #role-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    #role-table tbody tr:hover { background: rgba(0,0,0,0.02); }
 
     /* Role name cell */
     .role-name {
@@ -768,7 +768,7 @@
     }
 
     .flag-ws     { background: rgba(79,126,248,0.18); color: #7aa8ff; }
-    .flag-travel { background: rgba(56,217,169,0.18); color: #38d9a9; }
+    .flag-travel { background: rgba(23,168,122,0.12); color: #38d9a9; }
 
     /* Date range in table */
     .role-dates {
@@ -967,7 +967,7 @@
       justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
-      background: rgba(79,126,248,0.07);
+      background: rgba(58,111,240,0.06);
       border: 1px solid rgba(79,126,248,0.2);
       margin-top: 4px;
     }
@@ -1107,7 +1107,7 @@
     #travel-table td:first-child { text-align: left; }
     #travel-table td:nth-child(2) { text-align: left; }
 
-    #travel-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    #travel-table tbody tr:hover { background: rgba(0,0,0,0.02); }
 
     .travel-role-name { font-weight: 600; color: var(--text); font-size: 13px; }
     .travel-project-name { font-size: 11px; color: var(--text-muted); }
@@ -1247,11 +1247,11 @@
     }
 
     #monthly-table tbody tr:hover,
-    #project-monthly-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    #project-monthly-table tbody tr:hover { background: rgba(0,0,0,0.02); }
 
     /* Peak row highlight */
     #monthly-table tbody tr.peak-row {
-      background: rgba(247,167,69,0.07);
+      background: rgba(212,130,10,0.06);
     }
 
     #monthly-table tbody tr.peak-row td:first-child::after {
@@ -1478,7 +1478,7 @@
 
     .tl-pax-plan {
       color: #7aa8ff;
-      background: rgba(79,126,248,0.1);
+      background: rgba(58,111,240,0.08);
       border-color: rgba(79,126,248,0.25);
     }
 
@@ -1504,8 +1504,8 @@
       top: 0;
       height: 100%;
       background: rgba(255,255,255,0.035);
-      border-left:  1px solid rgba(255,255,255,0.07);
-      border-right: 1px solid rgba(255,255,255,0.07);
+      border-left:  1px solid rgba(0,0,0,0.06);
+      border-right: 1px solid rgba(0,0,0,0.06);
     }
 
     /* Planning bar — top 44% of track */
@@ -1632,7 +1632,7 @@
     #toast.show { opacity: 1; transform: translateY(0); }
     #toast.toast-success { border-color: rgba(56,217,169,0.45);  color: var(--accent2); background: rgba(56,217,169,0.07); }
     #toast.toast-error   { border-color: rgba(224,92,92,0.45);   color: var(--danger);  background: rgba(224,92,92,0.07);  }
-    #toast.toast-warn    { border-color: rgba(247,167,69,0.45);   color: var(--warn);    background: rgba(247,167,69,0.07); }
+    #toast.toast-warn    { border-color: rgba(247,167,69,0.45);   color: var(--warn);    background: rgba(212,130,10,0.06); }
 
     /* =========================================================
        SCROLLBAR STYLING
@@ -1668,8 +1668,8 @@
 
     /* Busiest month callout banner */
     .busiest-banner {
-      background: rgba(247,167,69,0.07);
-      border: 1px solid rgba(247,167,69,0.25);
+      background: rgba(212,130,10,0.06);
+      border: 1px solid rgba(212,130,10,0.25);
       border-radius: var(--radius);
       padding: 12px 20px;
       margin-bottom: 20px;
@@ -1780,7 +1780,7 @@
     .phase-opt-card small  { font-size: 11px; color: var(--text-muted); }
     .phase-option input[value="Planning"]:checked  + .phase-opt-card {
       border-color: var(--accent);
-      background: rgba(79,126,248,0.1);
+      background: rgba(58,111,240,0.08);
     }
     .phase-option input[value="Execution"]:checked + .phase-opt-card {
       border-color: var(--accent2);
@@ -1788,7 +1788,7 @@
     }
 
     /* Status badge — Active state */
-    .badge-active { background: rgba(56,217,169,0.18); color: #38d9a9; }
+    .badge-active { background: rgba(23,168,122,0.12); color: #0e8a62; }
 
     /* Header icon — no background, SVG fills it */
     .header-icon {
@@ -1809,7 +1809,7 @@
       height: 220px;
       border-radius: 50%;
       overflow: hidden;
-      box-shadow: 0 8px 48px rgba(0,0,0,0.75), 0 0 0 3px rgba(255,255,255,0.12);
+      box-shadow: 0 8px 48px rgba(0,0,0,0.25), 0 0 0 3px rgba(0,0,0,0.08);
       z-index: 9999;
       pointer-events: none;
       animation: popIn 0.2s cubic-bezier(0.34,1.4,0.64,1) forwards;
@@ -1838,12 +1838,12 @@
     #app-footer a { color: var(--text-subtle); text-decoration: none; }
     #app-footer a:hover { color: var(--text-muted); }
 
-    /* Flatpickr overrides — match dark theme */
+    /* Flatpickr overrides — match light theme */
     .flatpickr-calendar {
       background: var(--surface) !important;
       border: 1px solid var(--border) !important;
       border-radius: var(--radius) !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.55) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
       color: var(--text) !important;
     }
     .flatpickr-months .flatpickr-month,
@@ -1922,7 +1922,7 @@
     #class-editor-overlay {
       display: none;
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(30,35,70,0.4);
       z-index: 3000;
       align-items: center;
       justify-content: center;
@@ -1935,7 +1935,7 @@
       padding: 24px;
       width: 420px;
       max-width: 94vw;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
     }
     #class-editor-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
     .class-swatch {
@@ -2021,7 +2021,7 @@
     }
     .q-btn span { font-size: 9px; font-weight: 400; color: var(--text-subtle); }
     .q-btn:hover { border-color: var(--accent); color: var(--text); }
-    .q-btn.active { border-color: var(--accent); background: rgba(79,126,248,0.15); color: var(--accent); }
+    .q-btn.active { border-color: var(--accent); background: rgba(58,111,240,0.1); color: var(--accent); }
     .q-btn.active span { color: var(--accent); }
 
     /* Print / briefing friendliness */
@@ -2032,7 +2032,7 @@
       .section { display: none !important; }
       #section-dashboard { display: block !important; }
       #app { min-height: unset; }
-      header { border-bottom: 1px solid #2e3350; }
+      header { border-bottom: 1px solid #d0d4e4; }
       #summary-strip { overflow: visible; flex-wrap: wrap; }
       .chart-grid { grid-template-columns: 1fr 1fr; }
       .chart-block, .dash-block, .dash-stat-row { break-inside: avoid; }
@@ -3462,7 +3462,7 @@
     }).length;
 
     const mixWarningChip = invalidMixCount > 0
-      ? `<div class="ctx-chip" style="border-color:rgba(224,92,92,0.3);color:var(--danger);">
+      ? `<div class="ctx-chip" style="border-color:rgba(192,57,43,0.25);color:var(--danger);">
            ✗ <strong>${invalidMixCount}</strong> mix conflict${invalidMixCount !== 1 ? 's' : ''}
          </div>`
       : '';
@@ -3952,11 +3952,11 @@
 
     // Shared tooltip style
     const tip = {
-      backgroundColor: '#1a1d27',
-      borderColor:     '#2e3350',
+      backgroundColor: '#ffffff',
+      borderColor:     '#d0d4e4',
       borderWidth:     1,
-      titleColor:      '#e8eaf0',
-      bodyColor:       '#7c84a3',
+      titleColor:      '#1a1d2e',
+      bodyColor:       '#4a5275',
       padding:         10,
       cornerRadius:    6,
       boxWidth:        10,
@@ -3965,22 +3965,22 @@
 
     // Scale factories — return fresh objects each call
     const scX = (stacked) => ({
-      grid:   { color: 'rgba(46,51,80,0.5)' },
+      grid:   { color: 'rgba(180,185,210,0.5)' },
       border: { display: false },
-      ticks:  { color: '#7c84a3', font: { size: 11 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 20 },
+      ticks:  { color: '#4a5275', font: { size: 11 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 20 },
       ...(stacked ? { stacked: true } : {})
     });
 
     const scY = (stacked, fmtCb) => ({
-      grid:        { color: 'rgba(46,51,80,0.5)' },
+      grid:        { color: 'rgba(180,185,210,0.5)' },
       border:      { display: false },
-      ticks:       { color: '#7c84a3', font: { size: 11 }, ...(fmtCb ? { callback: fmtCb } : {}) },
+      ticks:       { color: '#4a5275', font: { size: 11 }, ...(fmtCb ? { callback: fmtCb } : {}) },
       beginAtZero: true,
       ...(stacked ? { stacked: true } : {})
     });
 
     const legOpts = {
-      labels: { color: '#7c84a3', boxWidth: 12, padding: 14, font: { size: 11 } }
+      labels: { color: '#4a5275', boxWidth: 12, padding: 14, font: { size: 11 } }
     };
 
     // ── 1. Total Personnel — Line ─────────────────────
@@ -4947,7 +4947,7 @@
         ...(origPlugins.legend || {}),
         labels: {
           ...(origPlugins.legend?.labels || {}),
-          color:    '#e8eaf0',
+          color:    '#1a1d2e',
           boxWidth:  22,
           boxHeight: 18,
           padding:   28,
@@ -4963,7 +4963,7 @@
           ticks: {
             ...(sc.ticks || {}),
             font:    { size: 16 },
-            color:   '#7c84a3',
+            color:   '#4a5275',
             padding: 8,
           },
         };
@@ -5028,12 +5028,12 @@
     const pptx = new PptxGenJS();
     pptx.layout = 'LAYOUT_WIDE';
 
-    const BG   = '0f1117';
-    const SURF = '1a1d27';
-    const BDR  = '2e3350';
-    const TXT  = 'e8eaf0';
-    const MUT  = '7c84a3';
-    const SUB  = '4d5374';
+    const BG   = 'f0f2f7';
+    const SURF = 'ffffff';
+    const BDR  = 'd0d4e4';
+    const TXT  = '1a1d2e';
+    const MUT  = '4a5275';
+    const SUB  = '8892b8';
     const ACC  = '4f7ef8';
     const ACC2 = '38d9a9';
     const WARN = 'f7a745';
