@@ -2282,23 +2282,17 @@
 <!-- ===================================================
      FILE CONNECT MODAL
 =================================================== -->
-<div id="file-connect-modal" style="
-  position:fixed;inset:0;background:rgba(30,35,70,0.55);
-  display:flex;align-items:center;justify-content:center;
-  z-index:3000;padding:24px;opacity:0;pointer-events:none;
-  transition:opacity 0.18s ease;">
-  <div style="
-    background:var(--surface);border:1px solid var(--border);
-    border-radius:var(--radius);box-shadow:var(--shadow);
-    width:100%;max-width:420px;padding:32px;text-align:center;">
-    <div style="font-size:36px;margin-bottom:12px">📁</div>
-    <h2 id="fcm-title" style="font-size:17px;font-weight:700;margin-bottom:8px;color:var(--text)">Connect to Data File</h2>
-    <p  id="fcm-body"  style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6"></p>
-    <div id="fcm-buttons" style="display:flex;flex-direction:column;gap:10px"></div>
-    <button onclick="dismissFileModal()" style="
-      margin-top:16px;background:none;border:none;
-      font-size:11px;color:var(--text-subtle);cursor:pointer;
-      text-decoration:underline">Skip — use browser storage only</button>
+<div id="file-connect-modal" class="modal-overlay" style="z-index:3000">
+  <div class="modal-box" style="max-width:400px;text-align:center">
+    <div class="modal-body" style="padding:36px 32px 28px">
+      <div style="font-size:32px;margin-bottom:14px">📁</div>
+      <h3 id="fcm-title" style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text)"></h3>
+      <p  id="fcm-body"  style="font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:24px"></p>
+      <button id="fcm-action-btn" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;font-size:13px"></button>
+    </div>
+    <div class="modal-footer" style="justify-content:center;padding:14px 24px">
+      <button onclick="dismissFileModal()" style="background:none;border:none;font-size:12px;color:var(--text-subtle);cursor:pointer;text-decoration:underline">Skip — use local data</button>
+    </div>
   </div>
 </div>
 
@@ -5118,31 +5112,19 @@
   }
 
   // ── File connect modal ─────────────────────────────────────
-  function _showFileModal(title, body, buttons) {
-    const m = document.getElementById('file-connect-modal');
-    document.getElementById('fcm-title').textContent   = title;
-    document.getElementById('fcm-body').textContent    = body;
-    const btnWrap = document.getElementById('fcm-buttons');
-    btnWrap.innerHTML = '';
-    buttons.forEach(({ label, primary, fn }) => {
-      const b = document.createElement('button');
-      b.textContent = label;
-      b.className   = primary ? 'btn btn-primary' : 'btn btn-ghost';
-      b.style.cssText = 'width:100%;justify-content:center;padding:10px';
-      b.onclick = fn;
-      btnWrap.appendChild(b);
-    });
-    m.style.opacity       = '1';
-    m.style.pointerEvents = 'all';
+  function _showFileModal(title, body, actionLabel, actionFn) {
+    document.getElementById('fcm-title').textContent = title;
+    document.getElementById('fcm-body').textContent  = body;
+    const btn = document.getElementById('fcm-action-btn');
+    btn.textContent = actionLabel;
+    btn.onclick     = actionFn;
+    document.getElementById('file-connect-modal').classList.add('open');
   }
 
   function dismissFileModal() {
-    const m = document.getElementById('file-connect-modal');
-    m.style.opacity       = '0';
-    m.style.pointerEvents = 'none';
+    document.getElementById('file-connect-modal').classList.remove('open');
   }
 
-  // Called by openDataFile/newDataFile/reconnectFile after success
   function _onFileConnected() {
     dismissFileModal();
     updateFileStatus();
@@ -5155,31 +5137,28 @@
     try {
       const h = await _idbGet('fh');
       if (!h) {
-        // First visit — no file ever set up
+        // First visit — no file chosen yet
         _showFileModal(
-          'Connect to a Data File',
-          'All your efforts and roles are saved to a .json file. Connect to an existing file (e.g. on a shared drive) or create a new one.',
-          [
-            { label: '📂  Open Existing File', primary: true,  fn: openDataFile },
-            { label: '+  Create New File',     primary: false, fn: newDataFile  },
-          ]
+          'Select your data file',
+          'Select data.json from your shared drive. All changes will save there automatically.',
+          '📂  Select data.json',
+          openDataFile
         );
       } else if ((await h.queryPermission({ mode:'readwrite' })) === 'granted') {
-        // Same session — silently reconnect, no popup needed
+        // Permission still active (same session) — connect silently, no modal
         await _activateHandle(h);
       } else {
-        // New session — have the file, just need permission re-grant
+        // New session — file is known, just need one-click permission re-grant
         _pendingHandle = h;
         updateFileStatus();
         _showFileModal(
-          'Reconnect to ' + h.name,
-          'Your browser requires you to re-confirm file access once per session. Click below to reconnect — no file picker will appear.',
-          [
-            { label: '🔓  Reconnect to ' + h.name, primary: true, fn: reconnectFile },
-          ]
+          'Connect — ' + h.name,
+          'Click below to reconnect. Your browser requires this once per session — no file picker will appear.',
+          '🔓  Connect to ' + h.name,
+          reconnectFile
         );
       }
-    } catch(_) { /* stale handle — ignore */ }
+    } catch(_) { /* stale/invalid handle — ignore */ }
   }
 
   /* ====================================================
