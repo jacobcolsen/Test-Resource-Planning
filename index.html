@@ -2163,11 +2163,17 @@
        DATA TOOLBAR  (Phase 8)
   =================================================== -->
   <div id="data-toolbar">
-    <!-- LEFT: shared-drive sync status -->
+    <!-- LEFT: file sync status -->
     <div id="file-status-area" class="file-disconnected">
-      <span id="file-status-name">🔴 Local only</span>
-      <span id="file-status-time">Run server.py to enable shared sync</span>
-      <button id="file-reload-btn" class="btn btn-ghost btn-sm" style="display:none;padding:3px 8px" onclick="reloadFromFile()" title="Pull latest changes from shared data file">↻ Reload</button>
+      <span id="file-status-name">No data file</span>
+      <span id="file-status-time">Select or create a .json file to enable shared sync</span>
+      <button id="file-reload-btn"    class="btn btn-ghost btn-sm" style="display:none;padding:3px 8px" onclick="reloadFromFile()" title="Pull latest changes from the shared file">↻ Reload</button>
+      <button id="file-disconnect-btn" class="btn btn-ghost btn-sm" style="display:none;padding:3px 8px;color:var(--text-subtle)" onclick="disconnectFile()" title="Disconnect from file">✕</button>
+    </div>
+    <!-- First-time setup buttons (hidden once a file is connected) -->
+    <div id="file-setup-area" style="display:flex;align-items:center;gap:4px">
+      <button class="btn btn-ghost btn-sm" onclick="openDataFile()" title="Connect to an existing .json data file">📂 Open File</button>
+      <button class="btn btn-ghost btn-sm" onclick="newDataFile()"  title="Create a new .json data file">+ New File</button>
     </div>
 
     <!-- spacer pushes data buttons to right -->
@@ -2272,6 +2278,29 @@
   </footer>
 
 </div><!-- /#app -->
+
+<!-- ===================================================
+     FILE CONNECT MODAL
+=================================================== -->
+<div id="file-connect-modal" style="
+  position:fixed;inset:0;background:rgba(30,35,70,0.55);
+  display:flex;align-items:center;justify-content:center;
+  z-index:3000;padding:24px;opacity:0;pointer-events:none;
+  transition:opacity 0.18s ease;">
+  <div style="
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    width:100%;max-width:420px;padding:32px;text-align:center;">
+    <div style="font-size:36px;margin-bottom:12px">📁</div>
+    <h2 id="fcm-title" style="font-size:17px;font-weight:700;margin-bottom:8px;color:var(--text)">Connect to Data File</h2>
+    <p  id="fcm-body"  style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6"></p>
+    <div id="fcm-buttons" style="display:flex;flex-direction:column;gap:10px"></div>
+    <button onclick="dismissFileModal()" style="
+      margin-top:16px;background:none;border:none;
+      font-size:11px;color:var(--text-subtle);cursor:pointer;
+      text-decoration:underline">Skip — use browser storage only</button>
+  </div>
+</div>
 
 <!-- ===================================================
      MODAL 1 — ADD / EDIT PROJECT
@@ -4869,42 +4898,76 @@
   }
 
   /* ====================================================
-     SERVER SYNC — data.json via companion server.py
-     When running via server.py the app uses /api/data
-     for all reads and writes (no file picker needed).
-     Falls back to localStorage when opened as a plain
-     file:// or when the server is not reachable.
+     FILE SYNC — direct read/write to data.json on disk
+     Uses the File System Access API (Chrome/Edge).
+     User picks or creates the file once; the handle is
+     stored in IndexedDB so subsequent visits only need
+     a single "Reconnect" click (browser security rule —
+     cannot be bypassed, but no file picker shown again).
+     Falls back to localStorage in unsupported browsers.
   ==================================================== */
 
-  let _serverMode  = false;   // true when /api/data is reachable
-  let _lastSavedAt = null;    // Date of last successful server write
+  let _fileHandle  = null;   // FileSystemFileHandle
+  let _lastSavedAt = null;   // Date of last successful write
+  let _pendingHandle = null; // handle awaiting permission re-grant
+  const _fsaSupported = typeof window.showOpenFilePicker === 'function';
 
-  // ── Check if server is available ──────────────────────────
-  async function _probeServer() {
-    try {
-      const r = await fetch('/api/data', { method: 'HEAD', cache: 'no-store' });
-      return r.ok || r.status === 405; // 405 = HEAD not allowed but server exists
-    } catch(_) { return false; }
-  }
-
-  // ── Load data from server ──────────────────────────────────
-  async function _serverLoad() {
-    const r = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  }
-
-  // ── Write data to server ───────────────────────────────────
-  async function _serverWrite(payload) {
-    const r = await fetch('/api/data', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload, null, 2),
+  // ── IndexedDB — persist handle between sessions ────────────
+  function _idbOpen() {
+    return new Promise((res, rej) => {
+      const req = indexedDB.open('ftRP_fsa', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('h');
+      req.onsuccess = e => res(e.target.result);
+      req.onerror   = e => rej(e.target.error);
     });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+  }
+  async function _idbGet(k) {
+    const db = await _idbOpen();
+    return new Promise((res, rej) => {
+      const r = db.transaction('h','readonly').objectStore('h').get(k);
+      r.onsuccess = e => res(e.target.result);
+      r.onerror   = e => rej(e.target.error);
+    });
+  }
+  async function _idbSet(k, v) {
+    const db = await _idbOpen();
+    return new Promise((res, rej) => {
+      const tx = db.transaction('h','readwrite');
+      tx.objectStore('h').put(v, k);
+      tx.oncomplete = () => res();
+      tx.onerror    = e => rej(e.target.error);
+    });
+  }
+  async function _idbDel(k) {
+    const db = await _idbOpen();
+    return new Promise((res, rej) => {
+      const tx = db.transaction('h','readwrite');
+      tx.objectStore('h').delete(k);
+      tx.oncomplete = () => res();
+      tx.onerror    = e => rej(e.target.error);
+    });
   }
 
-  // ── Apply a loaded data object to app state ────────────────
+  // ── Permission check / request ─────────────────────────────
+  async function _ensurePermission(handle) {
+    const opts = { mode: 'readwrite' };
+    if ((await handle.queryPermission(opts))   === 'granted') return true;
+    if ((await handle.requestPermission(opts)) === 'granted') return true;
+    return false;
+  }
+
+  // ── Low-level read / write ─────────────────────────────────
+  async function _readHandle(handle) {
+    const file = await handle.getFile();
+    return JSON.parse(await file.text());
+  }
+  async function _writeHandle(handle, obj) {
+    const w = await handle.createWritable();
+    await w.write(JSON.stringify(obj, null, 2));
+    await w.close();
+  }
+
+  // ── Apply data object to app state + localStorage ──────────
   function _applyData(data) {
     if (!data || !Array.isArray(data.projects)) return false;
     projects = data.projects;
@@ -4913,74 +4976,221 @@
     return true;
   }
 
-  // ── Public: pull latest from server (teammate changes) ────
-  async function reloadFromFile() {
-    if (!_serverMode) { showToast('Server not connected', 'warn'); return; }
+  // ── Write current state to the open file (fire-and-forget) ─
+  function _saveToFile() {
+    if (!_fileHandle) return;
+    const payload = { version:1, savedAt: new Date().toISOString(), nextId: _nextId, projects };
+    _writeHandle(_fileHandle, payload)
+      .then(() => { _lastSavedAt = new Date(); updateFileStatus(); })
+      .catch(e  => { showToast('File write error: ' + e.message, 'warn'); });
+  }
+
+  // ── Public: open existing file ────────────────────────────
+  async function openDataFile() {
+    if (!_fsaSupported) { showToast('Use Chrome or Edge for file sync', 'warn'); return; }
     try {
-      const data = await _serverLoad();
-      if (!_applyData(data)) { showToast('Invalid data from server', 'warn'); return; }
+      const [h] = await window.showOpenFilePicker({
+        id: 'ftRP',
+        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+        multiple: false,
+      });
+      await _activateHandle(h);
+      _onFileConnected();
+      showToast('Connected to ' + h.name, 'success');
+    } catch(e) {
+      if (e.name !== 'AbortError') showToast('Could not open file: ' + e.message, 'warn');
+    }
+  }
+
+  // ── Public: create new file ────────────────────────────────
+  async function newDataFile() {
+    if (!_fsaSupported) { showToast('Use Chrome or Edge for file sync', 'warn'); return; }
+    try {
+      const h = await window.showSaveFilePicker({
+        id: 'ftRP',
+        suggestedName: 'ft-resource-plan.json',
+        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+      });
+      _fileHandle = h;
+      await _idbSet('fh', h);
+      _saveToFile();
+      _lastSavedAt = new Date();
+      _onFileConnected();
+      showToast('Created ' + h.name + ' — all changes auto-save here', 'success');
+    } catch(e) {
+      if (e.name !== 'AbortError') showToast('Could not create file: ' + e.message, 'warn');
+    }
+  }
+
+  // ── Public: reconnect after permission lapse ───────────────
+  async function reconnectFile() {
+    if (!_pendingHandle) return;
+    const ok = await _ensurePermission(_pendingHandle);
+    if (!ok) {
+      _pendingHandle = null;
+      await _idbDel('fh');
+      dismissFileModal();
+      updateFileStatus();
+      showToast('Permission denied — using browser storage', 'warn');
+      return;
+    }
+    const h = _pendingHandle;
+    _pendingHandle = null;
+    await _activateHandle(h);
+    _onFileConnected();
+    showToast('Reconnected to ' + h.name, 'success');
+  }
+
+  // ── Public: pull latest from file (get teammate changes) ───
+  async function reloadFromFile() {
+    if (!_fileHandle) return;
+    try {
+      const data = await _readHandle(_fileHandle);
+      if (!_applyData(data)) { showToast('Invalid file format', 'warn'); return; }
       _lastSavedAt = new Date();
       fullRefresh();
       updateFileStatus();
-      showToast('Reloaded from data.json', 'success');
+      showToast('Reloaded from ' + _fileHandle.name, 'success');
     } catch(e) {
       showToast('Reload failed: ' + e.message, 'warn');
     }
   }
 
-  // ── Update toolbar file status UI ─────────────────────────
+  // ── Public: disconnect ─────────────────────────────────────
+  async function disconnectFile() {
+    _fileHandle = null;
+    _lastSavedAt = null;
+    await _idbDel('fh');
+    updateFileStatus();
+    showToast('Disconnected — using browser storage only', 'warn');
+  }
+
+  // ── Activate a handle: store, load data, refresh UI ────────
+  async function _activateHandle(h) {
+    _fileHandle  = h;
+    _lastSavedAt = null;
+    await _idbSet('fh', h);
+    try {
+      const data = await _readHandle(h);
+      if (_applyData(data)) { _lastSavedAt = new Date(); fullRefresh(); }
+    } catch(_) {
+      // Empty or new file — write current state into it
+      _saveToFile();
+    }
+    updateFileStatus();
+  }
+
+  // ── Update toolbar status display ──────────────────────────
   function updateFileStatus() {
     const area      = document.getElementById('file-status-area');
     const nameEl    = document.getElementById('file-status-name');
     const timeEl    = document.getElementById('file-status-time');
     const reloadBtn = document.getElementById('file-reload-btn');
+    const discBtn   = document.getElementById('file-disconnect-btn');
+    const setupArea = document.getElementById('file-setup-area');
     if (!area) return;
-    if (_serverMode) {
+
+    if (_fileHandle) {
       area.className = 'file-connected';
-      nameEl.textContent = '🟢 data.json';
+      nameEl.textContent = '📁 ' + _fileHandle.name;
       timeEl.textContent = _lastSavedAt
-        ? 'Saved ' + _lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        : 'Connecting…';
+        ? 'Saved ' + _lastSavedAt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })
+        : '';
       reloadBtn.style.display = '';
+      discBtn.style.display   = '';
+      if (setupArea) setupArea.style.display = 'none';
+    } else if (_pendingHandle) {
+      area.className = 'file-reconnect';
+      nameEl.innerHTML = '📁 <strong>' + _pendingHandle.name + '</strong>'
+        + '&nbsp;<button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:11px" onclick="reconnectFile()">Reconnect</button>';
+      timeEl.textContent = '';
+      reloadBtn.style.display = 'none';
+      discBtn.style.display   = 'none';
+      if (setupArea) setupArea.style.display = 'none';
     } else {
       area.className = 'file-disconnected';
-      nameEl.textContent = '🔴 Local only';
-      timeEl.textContent = 'Run server.py to enable shared sync';
+      nameEl.textContent = _fsaSupported ? 'No data file' : 'File sync: Chrome/Edge only';
+      timeEl.textContent = _fsaSupported ? 'Select or create a .json file to enable shared sync' : '';
       reloadBtn.style.display = 'none';
+      discBtn.style.display   = 'none';
+      if (setupArea) setupArea.style.display = _fsaSupported ? '' : 'none';
     }
   }
 
-  // ── On load: probe server, load data if available ─────────
+  // ── File connect modal ─────────────────────────────────────
+  function _showFileModal(title, body, buttons) {
+    const m = document.getElementById('file-connect-modal');
+    document.getElementById('fcm-title').textContent   = title;
+    document.getElementById('fcm-body').textContent    = body;
+    const btnWrap = document.getElementById('fcm-buttons');
+    btnWrap.innerHTML = '';
+    buttons.forEach(({ label, primary, fn }) => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.className   = primary ? 'btn btn-primary' : 'btn btn-ghost';
+      b.style.cssText = 'width:100%;justify-content:center;padding:10px';
+      b.onclick = fn;
+      btnWrap.appendChild(b);
+    });
+    m.style.opacity       = '1';
+    m.style.pointerEvents = 'all';
+  }
+
+  function dismissFileModal() {
+    const m = document.getElementById('file-connect-modal');
+    m.style.opacity       = '0';
+    m.style.pointerEvents = 'none';
+  }
+
+  // Called by openDataFile/newDataFile/reconnectFile after success
+  function _onFileConnected() {
+    dismissFileModal();
+    updateFileStatus();
+  }
+
+  // ── On page load: restore remembered handle ────────────────
   async function tryRestoreFileHandle() {
     updateFileStatus();
-    _serverMode = await _probeServer();
-    if (!_serverMode) { updateFileStatus(); return; }
+    if (!_fsaSupported) return;
     try {
-      const data = await _serverLoad();
-      if (_applyData(data)) {
-        _lastSavedAt = new Date();
-        fullRefresh();
+      const h = await _idbGet('fh');
+      if (!h) {
+        // First visit — no file ever set up
+        _showFileModal(
+          'Connect to a Data File',
+          'All your efforts and roles are saved to a .json file. Connect to an existing file (e.g. on a shared drive) or create a new one.',
+          [
+            { label: '📂  Open Existing File', primary: true,  fn: openDataFile },
+            { label: '+  Create New File',     primary: false, fn: newDataFile  },
+          ]
+        );
+      } else if ((await h.queryPermission({ mode:'readwrite' })) === 'granted') {
+        // Same session — silently reconnect, no popup needed
+        await _activateHandle(h);
+      } else {
+        // New session — have the file, just need permission re-grant
+        _pendingHandle = h;
+        updateFileStatus();
+        _showFileModal(
+          'Reconnect to ' + h.name,
+          'Your browser requires you to re-confirm file access once per session. Click below to reconnect — no file picker will appear.',
+          [
+            { label: '🔓  Reconnect to ' + h.name, primary: true, fn: reconnectFile },
+          ]
+        );
       }
-    } catch(e) {
-      // Server reachable but data unreadable — start fresh, will write on next save
-    }
-    updateFileStatus();
+    } catch(_) { /* stale handle — ignore */ }
   }
 
   /* ====================================================
      PERSISTENCE — Phase 8
   ==================================================== */
 
-  // Serialize app state — writes to server when available,
-  // always also mirrors to localStorage as offline fallback.
+  // Saves to the connected .json file (if any) AND localStorage.
   function saveState() {
-    const payload = { version: 1, savedAt: new Date().toISOString(), nextId: _nextId, projects };
+    const payload = { version:1, savedAt: new Date().toISOString(), nextId: _nextId, projects };
     try { localStorage.setItem(LS_KEY, JSON.stringify(payload)); } catch(_) {}
-    if (_serverMode) {
-      _serverWrite(payload)
-        .then(() => { _lastSavedAt = new Date(); updateFileStatus(); })
-        .catch(e  => showToast('Server save failed: ' + e.message, 'warn'));
-    }
+    _saveToFile(); // no-op when no file is connected
   }
 
   // Restore app state from localStorage.
