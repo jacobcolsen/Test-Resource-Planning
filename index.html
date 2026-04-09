@@ -1574,7 +1574,7 @@
       padding: 5px 32px;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: flex-start;
       gap: 6px;
       flex-shrink: 0;
     }
@@ -1595,6 +1595,28 @@
       margin: 0 4px;
       flex-shrink: 0;
     }
+
+    /* ── File sync status (left side of toolbar) ── */
+    #file-status-area {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    #file-status-name {
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    #file-status-time {
+      color: var(--text-subtle);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    #file-status-area.file-connected #file-status-name { color: var(--accent2); }
+    #file-status-area.file-reconnect #file-status-name { color: var(--warn); }
+    #toolbar-spacer { flex: 1; }
 
     .btn-sm {
       font-size: 11px;
@@ -2141,6 +2163,17 @@
        DATA TOOLBAR  (Phase 8)
   =================================================== -->
   <div id="data-toolbar">
+    <!-- LEFT: shared-drive sync status -->
+    <div id="file-status-area" class="file-disconnected">
+      <span id="file-status-name">🔴 Local only</span>
+      <span id="file-status-time">Run server.py to enable shared sync</span>
+      <button id="file-reload-btn" class="btn btn-ghost btn-sm" style="display:none;padding:3px 8px" onclick="reloadFromFile()" title="Pull latest changes from shared data file">↻ Reload</button>
+    </div>
+
+    <!-- spacer pushes data buttons to right -->
+    <div id="toolbar-spacer"></div>
+
+    <!-- RIGHT: data management -->
     <span class="tb-label">Data</span>
     <button class="btn btn-ghost btn-sm" onclick="loadSampleData()" title="Load built-in sample flight test dataset">⊕ Sample Data</button>
     <div class="tb-sep"></div>
@@ -2891,7 +2924,7 @@
     if (e.target === document.getElementById('class-editor-overlay')) closeClassEditor();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     setHeaderDate();
     loadClassification();
     initDatePickers();
@@ -2906,6 +2939,8 @@
     initTabs();
     populateStaffingProjectSelect();
     renderStaffingContent();
+    // Try to reconnect to previously used shared data file
+    await tryRestoreFileHandle();
   });
 
   /* ====================================================
@@ -4834,20 +4869,117 @@
   }
 
   /* ====================================================
+     SERVER SYNC — data.json via companion server.py
+     When running via server.py the app uses /api/data
+     for all reads and writes (no file picker needed).
+     Falls back to localStorage when opened as a plain
+     file:// or when the server is not reachable.
+  ==================================================== */
+
+  let _serverMode  = false;   // true when /api/data is reachable
+  let _lastSavedAt = null;    // Date of last successful server write
+
+  // ── Check if server is available ──────────────────────────
+  async function _probeServer() {
+    try {
+      const r = await fetch('/api/data', { method: 'HEAD', cache: 'no-store' });
+      return r.ok || r.status === 405; // 405 = HEAD not allowed but server exists
+    } catch(_) { return false; }
+  }
+
+  // ── Load data from server ──────────────────────────────────
+  async function _serverLoad() {
+    const r = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }
+
+  // ── Write data to server ───────────────────────────────────
+  async function _serverWrite(payload) {
+    const r = await fetch('/api/data', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload, null, 2),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+  }
+
+  // ── Apply a loaded data object to app state ────────────────
+  function _applyData(data) {
+    if (!data || !Array.isArray(data.projects)) return false;
+    projects = data.projects;
+    if (typeof data.nextId === 'number' && data.nextId > _nextId) _nextId = data.nextId;
+    try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(_) {}
+    return true;
+  }
+
+  // ── Public: pull latest from server (teammate changes) ────
+  async function reloadFromFile() {
+    if (!_serverMode) { showToast('Server not connected', 'warn'); return; }
+    try {
+      const data = await _serverLoad();
+      if (!_applyData(data)) { showToast('Invalid data from server', 'warn'); return; }
+      _lastSavedAt = new Date();
+      fullRefresh();
+      updateFileStatus();
+      showToast('Reloaded from data.json', 'success');
+    } catch(e) {
+      showToast('Reload failed: ' + e.message, 'warn');
+    }
+  }
+
+  // ── Update toolbar file status UI ─────────────────────────
+  function updateFileStatus() {
+    const area      = document.getElementById('file-status-area');
+    const nameEl    = document.getElementById('file-status-name');
+    const timeEl    = document.getElementById('file-status-time');
+    const reloadBtn = document.getElementById('file-reload-btn');
+    if (!area) return;
+    if (_serverMode) {
+      area.className = 'file-connected';
+      nameEl.textContent = '🟢 data.json';
+      timeEl.textContent = _lastSavedAt
+        ? 'Saved ' + _lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : 'Connecting…';
+      reloadBtn.style.display = '';
+    } else {
+      area.className = 'file-disconnected';
+      nameEl.textContent = '🔴 Local only';
+      timeEl.textContent = 'Run server.py to enable shared sync';
+      reloadBtn.style.display = 'none';
+    }
+  }
+
+  // ── On load: probe server, load data if available ─────────
+  async function tryRestoreFileHandle() {
+    updateFileStatus();
+    _serverMode = await _probeServer();
+    if (!_serverMode) { updateFileStatus(); return; }
+    try {
+      const data = await _serverLoad();
+      if (_applyData(data)) {
+        _lastSavedAt = new Date();
+        fullRefresh();
+      }
+    } catch(e) {
+      // Server reachable but data unreadable — start fresh, will write on next save
+    }
+    updateFileStatus();
+  }
+
+  /* ====================================================
      PERSISTENCE — Phase 8
   ==================================================== */
 
-  // Serialize app state to localStorage
+  // Serialize app state — writes to server when available,
+  // always also mirrors to localStorage as offline fallback.
   function saveState() {
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify({
-        version:  1,
-        savedAt:  new Date().toISOString(),
-        nextId:   _nextId,
-        projects,
-      }));
-    } catch (_) {
-      // localStorage unavailable or quota exceeded — fail silently
+    const payload = { version: 1, savedAt: new Date().toISOString(), nextId: _nextId, projects };
+    try { localStorage.setItem(LS_KEY, JSON.stringify(payload)); } catch(_) {}
+    if (_serverMode) {
+      _serverWrite(payload)
+        .then(() => { _lastSavedAt = new Date(); updateFileStatus(); })
+        .catch(e  => showToast('Server save failed: ' + e.message, 'warn'));
     }
   }
 
@@ -4907,7 +5039,7 @@
     )) return;
     projects = [];
     _nextId  = 100;
-    try { localStorage.removeItem(LS_KEY); } catch (_) {}
+    saveState(); // clears localStorage and writes empty state to file if connected
     fullRefresh();
     showToast('App reset — all data cleared', 'warn');
   }
