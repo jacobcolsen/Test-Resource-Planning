@@ -836,7 +836,8 @@
     }
 
     /* Colour-coded labels for the three categories */
-    .label-ad  { color: #7aa8ff !important; }  /* active duty  — accent blue  */
+    .label-officer { color: #5b8af7 !important; }  /* officer  — blue   */
+    .label-enlisted { color: #7baaf7 !important; } /* enlisted — lighter blue */
     .label-gc  { color: #38d9a9 !important; }  /* gov civilian — accent green  */
     .label-ctr { color: #f7a745 !important; }  /* contractor   — warm amber    */
 
@@ -2532,10 +2533,15 @@
 
           <!-- Three side-by-side inputs: AD / GC / CTR -->
           <div class="form-group full-width">
-            <div class="form-grid-3">
+            <div class="form-grid-3" style="grid-template-columns:repeat(4,1fr)">
               <div class="form-group">
-                <label for="rf-ad" class="label-ad">Active Duty</label>
-                <input type="number" id="rf-ad" min="0" max="999" value="0"
+                <label for="rf-officer" class="label-officer">Officer</label>
+                <input type="number" id="rf-officer" min="0" max="999" value="0"
+                       oninput="onMixInput()" placeholder="0" />
+              </div>
+              <div class="form-group">
+                <label for="rf-enlisted" class="label-enlisted">Enlisted</label>
+                <input type="number" id="rf-enlisted" min="0" max="999" value="0"
                        oninput="onMixInput()" placeholder="0" />
               </div>
               <div class="form-group">
@@ -2609,15 +2615,15 @@
       end: '2026-09-30',
       notes: 'Sharks sourced from NAVSEA. Each requires individual security clearance and a booster seat. Laser boresight alignment complicated by shark enthusiasm. Range safety requires minimum 500ft buffer from any reflective surfaces.',
       roles: [
-        { id: 'r1', role: 'Test Lead',             customRole: '', qty: 1, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for shark wrangling and laser boresight coordination with Edwards range safety.',  activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r2', role: 'Flight Test Engineer',  customRole: '', qty: 3, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Must be comfortable working within fin-reach of a motivated hammerhead during live fire events.',  activeDuty: 2, govCivilian: 0, contractor: 1, tvlTravelers: 3, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r3', role: 'Data Analyst',          customRole: '', qty: 2, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time telemetry. Must distinguish intentional laser firing from accidental tail-slap actuation.',  activeDuty: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 6, tvlAvgDays: 5, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
-        { id: 'r4', role: 'Safety Officer',        customRole: '', qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie. Also holds PADI certification per shark handling protocol.',  activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 4, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r5', role: 'Range Support',         customRole: '', qty: 2, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range ops. Required to maintain poker face during shark laser employment TTP briefings.',  activeDuty: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 50  },
-        { id: 'r6', role: 'Aircraft Maintainer',   customRole: '', qty: 4, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Standard crew chief duties plus bite mark FOD inspection and laser aperture cleaning after every sortie.',  activeDuty: 4, govCivilian: 0, contractor: 0, tvlTravelers: 4, tvlTripsPerPerson: 12, tvlAvgDays: 7, tvlAirfare: 700, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
-        { id: 'r7', role: 'Data Systems Engineer', customRole: '', qty: 2, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Harness integration and instrumentation. All connectors must be waterproofed and bite-rated.',  activeDuty: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r8', role: 'Logistics Coordinator', customRole: '', qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: 'Coordinates live shark transport logistics. Currently negotiating GSA Schedule for saltwater containment tanks.',  activeDuty: 0, govCivilian: 1, contractor: 0 },
-        { id: 'r9', role: 'Custom',                customRole: 'Marine Mammal Liaison', qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: true, notes: 'Required by DoD Directive 3200.11. Certifies all sharks are willing volunteers and laser-proficient.', activeDuty: 0, govCivilian: 0, contractor: 1, tvlTravelers: 1, tvlTripsPerPerson: 6, tvlAvgDays: 5, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75 },
+        { id: 'r1', role: 'Test Lead',             customRole: '', qty: 1, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Primary POC for shark wrangling and laser boresight coordination with Edwards range safety.',  officer: 1, enlisted: 0, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r2', role: 'Flight Test Engineer',  customRole: '', qty: 3, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Must be comfortable working within fin-reach of a motivated hammerhead during live fire events.',  officer: 1, enlisted: 1, govCivilian: 0, contractor: 1, tvlTravelers: 3, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r3', role: 'Data Analyst',          customRole: '', qty: 2, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Real-time telemetry. Must distinguish intentional laser firing from accidental tail-slap actuation.',  officer: 0, enlisted: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 6, tvlAvgDays: 5, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r4', role: 'Safety Officer',        customRole: '', qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Flight safety concurrence required each sortie. Also holds PADI certification per shark handling protocol.',  officer: 1, enlisted: 0, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 4, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r5', role: 'Range Support',         customRole: '', qty: 2, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Eglin range ops. Required to maintain poker face during shark laser employment TTP briefings.',  officer: 0, enlisted: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r6', role: 'Aircraft Maintainer',   customRole: '', qty: 4, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Standard crew chief duties plus bite mark FOD inspection and laser aperture cleaning after every sortie.',  officer: 0, enlisted: 4, govCivilian: 0, contractor: 0, tvlTravelers: 4, tvlTripsPerPerson: 12, tvlAvgDays: 7, tvlAirfare: 700, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r7', role: 'Data Systems Engineer', customRole: '', qty: 2, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Harness integration and instrumentation. All connectors must be waterproofed and bite-rated.',  officer: 0, enlisted: 0, govCivilian: 1, contractor: 1, tvlTravelers: 2, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 800, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r8', role: 'Logistics Coordinator', customRole: '', qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: 'Coordinates live shark transport logistics. Currently negotiating GSA Schedule for saltwater containment tanks.',  officer: 0, enlisted: 0, govCivilian: 1, contractor: 0 },
+        { id: 'r9', role: 'Custom',                customRole: 'Marine Mammal Liaison', qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: true, notes: 'Required by DoD Directive 3200.11. Certifies all sharks are willing volunteers and laser-proficient.', officer: 0, enlisted: 0, govCivilian: 0, contractor: 1, tvlTravelers: 1, tvlTripsPerPerson: 6, tvlAvgDays: 5, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75 },
       ],
     },
     {
@@ -2630,10 +2636,10 @@
       end: '2026-12-31',
       notes: 'USSF directed effort to field an orbital superlaser on a constrained CR budget. Planet destruction capability descoped to "city block." Prime contractor has never built a death ray before but submitted the lowest bid. Thermal exhaust port vulnerability deferred to Phase 2.',
       roles: [
-        { id: 'r10', role: 'Test Lead',             customRole: '', qty: 1, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Responsible for superlaser test point coordination. Must sign waiver acknowledging no friendly fire T&E precedent exists.',  activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r11', role: 'Test Engineer',         customRole: '', qty: 3, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Power coupling analysis and beam divergence testing. Reminded weekly that "fully operational" is not a test objective.',  activeDuty: 2, govCivilian: 1, contractor: 0, tvlTravelers: 3, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
-        { id: 'r12', role: 'Avionics Engineer',     customRole: '', qty: 2, wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: 'Integrating targeting computer. Contractor lobbying hard to replace it with The Force. Request denied.',  activeDuty: 0, govCivilian: 0, contractor: 2 },
-        { id: 'r13', role: 'Data Systems Engineer', customRole: '', qty: 1, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Telemetry collection for beam power, target acquisition, and post-shot crater diameter estimation.',  activeDuty: 0, govCivilian: 1, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 5, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r10', role: 'Test Lead',             customRole: '', qty: 1, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Responsible for superlaser test point coordination. Must sign waiver acknowledging no friendly fire T&E precedent exists.',  officer: 1, enlisted: 0, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r11', role: 'Test Engineer',         customRole: '', qty: 3, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Power coupling analysis and beam divergence testing. Reminded weekly that "fully operational" is not a test objective.',  officer: 1, enlisted: 1, govCivilian: 1, contractor: 0, tvlTravelers: 3, tvlTripsPerPerson: 6, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r12', role: 'Avionics Engineer',     customRole: '', qty: 2, wsRequired: true,  wsRatio: 1.0, travelRequired: false, notes: 'Integrating targeting computer. Contractor lobbying hard to replace it with The Force. Request denied.',  officer: 0, enlisted: 0, govCivilian: 0, contractor: 2 },
+        { id: 'r13', role: 'Data Systems Engineer', customRole: '', qty: 1, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Telemetry collection for beam power, target acquisition, and post-shot crater diameter estimation.',  officer: 0, enlisted: 0, govCivilian: 1, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 5, tvlAvgDays: 4, tvlAirfare: 750, tvlLodging: 149, tvlRentalCar: 55, tvlPerDiem: 157, tvlMisc: 75  },
         { id: 'r14', role: 'Logistics Coordinator', customRole: '', qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: 'Managing kyber crystal procurement. Current lead time: 18 months. No domestic sources identified.',  activeDuty: 0, govCivilian: 1, contractor: 0 },
       ],
     },
@@ -2647,13 +2653,13 @@
       end: '2027-06-30',
       notes: 'Joint USSF/DARPA initiative to field the most objectively cool cannon ever. Requirements state it must look awesome from at least three angles simultaneously. Sound effects are a KPP. The PM has already ordered challenge coins.',
       roles: [
-        { id: 'r15', role: 'Test Lead',             customRole: '',                    qty: 1, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Responsible for coolness verification methodology. Must have an opinion on rail guns vs. coilguns.',  activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r16', role: 'Test Engineer',         customRole: '',                    qty: 2, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Muzzle velocity, barrel heat bloom, and slow-motion camera framing analysis. Emphasis on framing.',  activeDuty: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 75  },
+        { id: 'r15', role: 'Test Lead',             customRole: '',                    qty: 1, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Responsible for coolness verification methodology. Must have an opinion on rail guns vs. coilguns.',  officer: 1, enlisted: 0, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r16', role: 'Test Engineer',         customRole: '',                    qty: 2, wsRequired: true,  wsRatio: 1.0, travelRequired: true,  notes: 'Muzzle velocity, barrel heat bloom, and slow-motion camera framing analysis. Emphasis on framing.',  officer: 1, enlisted: 1, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 75  },
         { id: 'r17', role: 'Safety Officer',        customRole: '',                    qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Standard range safety duties. Also ensures the cannon looks cool while being safe, which is harder than it sounds.',  activeDuty: 1, govCivilian: 0, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
-        { id: 'r18', role: 'Range Support',         customRole: '',                    qty: 2, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Range ops and downrange target setup. Required to acknowledge in writing that cannons are, in fact, extremely cool.',  activeDuty: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 50  },
-        { id: 'r19', role: 'Aircraft Maintainer',   customRole: '',                    qty: 2, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Ground support and cannon mount maintenance. Responsible for chrome polish schedule.',  activeDuty: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r18', role: 'Range Support',         customRole: '',                    qty: 2, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Range ops and downrange target setup. Required to acknowledge in writing that cannons are, in fact, extremely cool.',  officer: 0, enlisted: 0, govCivilian: 2, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 50  },
+        { id: 'r19', role: 'Aircraft Maintainer',   customRole: '',                    qty: 2, wsRequired: false, wsRatio: 1.0, travelRequired: true,  notes: 'Ground support and cannon mount maintenance. Responsible for chrome polish schedule.',  officer: 0, enlisted: 2, govCivilian: 0, contractor: 0, tvlTravelers: 2, tvlTripsPerPerson: 10, tvlAvgDays: 7, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 0,  tvlPerDiem: 157, tvlMisc: 50  },
         { id: 'r20', role: 'Logistics Coordinator', customRole: '',                    qty: 1, wsRequired: false, wsRatio: 1.0, travelRequired: false, notes: 'Coordinating ammunition procurement and ensuring all rounds are also extremely cool. Tracer rounds mandatory.',  activeDuty: 0, govCivilian: 1, contractor: 0 },
-        { id: 'r21', role: 'Custom',                customRole: 'Cannon Aesthetics Lead / GS-13', qty: 1, wsRequired: true, wsRatio: 1.0, travelRequired: true, notes: 'New billet created specifically for this effort. Approves all paint schemes, decals, and naming conventions. TS/SCI required.', activeDuty: 0, govCivilian: 1, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
+        { id: 'r21', role: 'Custom',                customRole: 'Cannon Aesthetics Lead / GS-13', qty: 1, wsRequired: true, wsRatio: 1.0, travelRequired: true, notes: 'New billet created specifically for this effort. Approves all paint schemes, decals, and naming conventions. TS/SCI required.', officer: 0, enlisted: 0, govCivilian: 1, contractor: 0, tvlTravelers: 1, tvlTripsPerPerson: 8, tvlAvgDays: 5, tvlAirfare: 900, tvlLodging: 149, tvlRentalCar: 60, tvlPerDiem: 157, tvlMisc: 100 },
       ],
     },
    ]; // end getSampleData
@@ -2976,7 +2982,7 @@
     if (!minYM || !maxYM) return [];
 
     return monthRange(minYM, maxYM).map(ym => {
-      let total = 0, ad = 0, gc = 0, ctr = 0, ws = 0;
+      let total = 0, officer = 0, enlisted = 0, gc = 0, ctr = 0, ws = 0;
       let trips = 0, travelCost = 0;
       const byProject = {};
 
@@ -2987,7 +2993,8 @@
           const qty = r.qty || 0;
           pCount += qty;
           total  += qty;
-          ad     += r.activeDuty  ?? 0;
+          officer  += r.officer  ?? (r.activeDuty ?? 0);
+          enlisted += r.enlisted ?? 0;
           gc     += r.govCivilian ?? 0;
           ctr    += r.contractor  ?? 0;
           if (r.wsRequired) {
@@ -3009,7 +3016,7 @@
       const label = new Date(yr, mo - 1, 1)
         .toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 
-      return { ym, label, total, ad, gc, ctr, ws, trips, travelCost, byProject };
+      return { ym, label, total, officer, enlisted, ad: officer + enlisted, gc, ctr, ws, trips, travelCost, byProject };
     });
   }
 
@@ -3452,12 +3459,14 @@
                           .reduce((s, r) => s + Math.ceil(r.qty * (r.wsRatio || 1)), 0);
     const travelRoles = roles.filter(r => r.travelRequired).length;
 
-    const totalAD  = roles.reduce((s, r) => s + (r.activeDuty  ?? 0), 0);
+    const totalOFF = roles.reduce((s, r) => s + (r.officer  ?? (r.activeDuty ?? 0)), 0);
+    const totalENL = roles.reduce((s, r) => s + (r.enlisted ?? 0), 0);
+    const totalAD  = totalOFF + totalENL;
     const totalGC  = roles.reduce((s, r) => s + (r.govCivilian ?? 0), 0);
     const totalCTR = roles.reduce((s, r) => s + (r.contractor  ?? 0), 0);
 
     const invalidMixCount = roles.filter(r => {
-      const sum = (r.activeDuty ?? 0) + (r.govCivilian ?? 0) + (r.contractor ?? 0);
+      const sum = (r.officer ?? (r.activeDuty ?? 0)) + (r.enlisted ?? 0) + (r.govCivilian ?? 0) + (r.contractor ?? 0);
       return sum !== 0 && sum !== r.qty;
     }).length;
 
@@ -3496,8 +3505,11 @@
         <div class="ctx-divider"></div>
         <div class="ctx-chips">
           <div class="ctx-chip">👥 <strong>${totalPax}</strong> total</div>
-          <div class="ctx-chip" title="Active Duty">
-            <span style="color:#7aa8ff;font-weight:700;">AD</span> <strong>${totalAD}</strong>
+          <div class="ctx-chip" title="Officer">
+            <span style="color:#5b8af7;font-weight:700;">OFF</span> <strong>${totalOFF}</strong>
+          </div>
+          <div class="ctx-chip" title="Enlisted">
+            <span style="color:#7baaf7;font-weight:700;">ENL</span> <strong>${totalENL}</strong>
           </div>
           <div class="ctx-chip" title="Gov Civilian">
             <span style="color:#38d9a9;font-weight:700;">GC</span> <strong>${totalGC}</strong>
@@ -3587,7 +3599,9 @@
       ? `<div class="role-notes-text" title="${escHtml(r.notes)}">${escHtml(r.notes)}</div>`
       : `<span style="color:var(--text-subtle);font-size:12px;">—</span>`;
 
-    const ad  = r.activeDuty  ?? 0;
+    const off = r.officer  ?? (r.activeDuty ?? 0);
+    const enl = r.enlisted ?? 0;
+    const ad  = off + enl;
     const gc  = r.govCivilian ?? 0;
     const ctr = r.contractor  ?? 0;
     const mixSum = ad + gc + ctr;
@@ -3611,8 +3625,12 @@
       <td class="mix-cell">
         <div class="mix-breakdown">
           <div class="mix-part">
-            <span class="mix-part-label label-ad">AD</span>
-            <span class="mix-part-value" style="color:#7aa8ff">${ad}</span>
+            <span class="mix-part-label label-officer">OFF</span>
+            <span class="mix-part-value" style="color:#5b8af7">${off}</span>
+          </div>
+          <div class="mix-part">
+            <span class="mix-part-label label-enlisted">ENL</span>
+            <span class="mix-part-value" style="color:#7baaf7">${enl}</span>
           </div>
           <div class="mix-part">
             <span class="mix-part-label label-gc">GC</span>
@@ -3676,7 +3694,8 @@
       document.getElementById('rf-ws-ratio').value = r.wsRatio     ?? 1.0;
       document.getElementById('rf-travel').checked = !!r.travelRequired;
       document.getElementById('rf-notes').value    = r.notes       || '';
-      document.getElementById('rf-ad').value       = r.activeDuty  ?? 0;
+      document.getElementById('rf-officer').value  = r.officer  ?? (r.activeDuty ?? 0);
+      document.getElementById('rf-enlisted').value = r.enlisted ?? 0;
       document.getElementById('rf-gc').value       = r.govCivilian ?? 0;
       document.getElementById('rf-ctr').value      = r.contractor  ?? 0;
       document.getElementById('rf-tvl-travelers').value = r.tvlTravelers      ?? r.qty ?? 1;
@@ -3715,7 +3734,8 @@
     document.getElementById('rf-ws-ratio').value  = '1.0';
     document.getElementById('rf-travel').checked  = true;
     document.getElementById('rf-notes').value     = '';
-    document.getElementById('rf-ad').value        = '0';
+    document.getElementById('rf-officer').value   = '0';
+    document.getElementById('rf-enlisted').value  = '0';
     document.getElementById('rf-gc').value        = '0';
     document.getElementById('rf-ctr').value       = '0';
     document.getElementById('rf-tvl-travelers').value = '1';
@@ -3786,7 +3806,9 @@
 
   function onMixInput() {
     const qty = parseInt(document.getElementById('rf-qty').value, 10) || 0;
-    const ad  = parseInt(document.getElementById('rf-ad').value,  10) || 0;
+    const off = parseInt(document.getElementById('rf-officer').value,  10) || 0;
+    const enl = parseInt(document.getElementById('rf-enlisted').value, 10) || 0;
+    const ad  = off + enl;
     const gc  = parseInt(document.getElementById('rf-gc').value,  10) || 0;
     const ctr = parseInt(document.getElementById('rf-ctr').value, 10) || 0;
     const sum = ad + gc + ctr;
@@ -3816,7 +3838,7 @@
       bar.classList.add('invalid');
       bar.querySelector('.mix-recon-icon').textContent = '✗';
       bar.querySelector('.mix-recon-msg').textContent  =
-        `Mix under by ${qty - sum} — Active Duty + Gov Civilian + Contractor must equal ${qty}`;
+        `Mix under by ${qty - sum} — Officer + Enlisted + Gov Civilian + Contractor must equal ${qty}`;
     } else {
       bar.classList.add('invalid');
       bar.querySelector('.mix-recon-icon').textContent = '✗';
@@ -3860,7 +3882,8 @@
       wsRatio,
       travelRequired: document.getElementById('rf-travel').checked,
       notes:          document.getElementById('rf-notes').value.trim(),
-      activeDuty:     Math.max(0, parseInt(document.getElementById('rf-ad').value,  10) || 0),
+      officer:        Math.max(0, parseInt(document.getElementById('rf-officer').value,  10) || 0),
+      enlisted:       Math.max(0, parseInt(document.getElementById('rf-enlisted').value, 10) || 0),
       govCivilian:    Math.max(0, parseInt(document.getElementById('rf-gc').value,  10) || 0),
       contractor:     Math.max(0, parseInt(document.getElementById('rf-ctr').value, 10) || 0),
       tvlTravelers:      Math.max(0, parseFloat(document.getElementById('rf-tvl-travelers').value) || 0),
@@ -4051,7 +4074,8 @@
         data: {
           labels,
           datasets: [
-            { label: 'Active Duty',  data: monthly.map(m => m.ad),  backgroundColor: 'rgba(122,168,255,0.78)', borderColor: '#7aa8ff', borderWidth: 1 },
+            { label: 'Officer',   data: monthly.map(m => m.officer),  backgroundColor: 'rgba(91,138,247,0.78)',  borderColor: '#5b8af7', borderWidth: 1 },
+            { label: 'Enlisted',  data: monthly.map(m => m.enlisted), backgroundColor: 'rgba(123,170,247,0.72)', borderColor: '#7baaf7', borderWidth: 1 },
             { label: 'Gov Civilian', data: monthly.map(m => m.gc),  backgroundColor: 'rgba(56,217,169,0.72)',  borderColor: '#38d9a9', borderWidth: 1 },
             { label: 'Contractor',   data: monthly.map(m => m.ctr), backgroundColor: 'rgba(247,167,69,0.78)',  borderColor: '#f7a745', borderWidth: 1 },
           ]
@@ -4494,9 +4518,10 @@
           <div class="chart-block-header">
             <div>
               <h3>Workforce Mix Over Time</h3>
-              <p><span style="color:#7aa8ff">■</span> Active Duty &nbsp;
-                 <span style="color:#38d9a9">■</span> Gov Civilian &nbsp;
-                 <span style="color:#f7a745">■</span> Contractor</p>
+              <p><span style="color:#5b8af7">■</span> Officer &nbsp;
+                 <span style="color:#7baaf7">■</span> Enlisted &nbsp;
+                 <span style="color:#17a87a">■</span> Gov Civilian &nbsp;
+                 <span style="color:#d4820a">■</span> Contractor</p>
             </div>
             <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0;"
                     onclick="toggleChartBlock('chart-wrap-mix',this)">▾ Hide</button>
@@ -4597,9 +4622,10 @@
           <div>
             <h3>Monthly Resource Demand</h3>
             <p>All active role requirements aggregated by month ·
-               <span style="color:#7aa8ff">■</span> Active Duty &nbsp;
-               <span style="color:#38d9a9">■</span> Gov Civilian &nbsp;
-               <span style="color:#f7a745">■</span> Contractor</p>
+               <span style="color:#5b8af7">■</span> Officer &nbsp;
+               <span style="color:#7baaf7">■</span> Enlisted &nbsp;
+               <span style="color:#17a87a">■</span> Gov Civilian &nbsp;
+               <span style="color:#d4820a">■</span> Contractor</p>
           </div>
         </div>
         <div class="monthly-table-wrap">
@@ -4608,7 +4634,8 @@
               <tr>
                 <th>Month</th>
                 <th>Total Personnel</th>
-                <th style="color:#7aa8ff">Active Duty</th>
+                <th style="color:#5b8af7">Officer</th>
+                <th style="color:#7baaf7">Enlisted</th>
                 <th style="color:#38d9a9">Gov Civilian</th>
                 <th style="color:#f7a745">Contractor</th>
                 <th>Workstations</th>
@@ -5113,7 +5140,7 @@
       { id: 'chart-by-project',  title: 'Personnel by Effort',
         sub: 'Stacked monthly headcount per effort' },
       { id: 'chart-mix',         title: 'Workforce Mix Over Time',
-        sub: 'Active Duty · Gov Civilian · Contractor breakdown by month' },
+        sub: 'Officer · Enlisted · Gov Civilian · Contractor breakdown by month' },
       { id: 'chart-ws',          title: 'Workstations Required Over Time',
         sub: 'Monthly workstation demand (wsRequired roles × wsRatio)' },
       { id: 'chart-travel-cost', title: 'Estimated Travel Cost Over Time',
