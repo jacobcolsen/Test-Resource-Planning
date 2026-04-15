@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Test Resource Planner</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-  <script>if(localStorage.getItem('trp_dark')==='1')document.documentElement.classList.add('dark-init');</script>
+  <script>if(localStorage.getItem('trp_dark')==='1')document.documentElement.classList.add('dark');</script>
   <style>
     /* =========================================================
        RESET & BASE
@@ -33,9 +33,10 @@
     }
 
     /* =========================================================
-       DARK MODE
+       DARK MODE  — variables live on html.dark so they cascade
+       to every element in the document without exception
     ========================================================= */
-    html.dark-init body, body.dark {
+    html.dark {
       --bg:          #0d1521;
       --surface:     #141d2e;
       --surface2:    #1a2438;
@@ -45,18 +46,11 @@
       --text-muted:  #8892b8;
       --text-subtle: #4a5580;
       --shadow:      0 4px 24px rgba(0,0,0,0.40);
-      background:    #0d1521;
-      color:         #ccd6f6;
     }
 
-    /* Explicit overrides for elements whose backgrounds might not inherit variables */
-    body.dark header,
-    body.dark #summary-strip,
-    body.dark #nav-tabs,
-    body.dark #data-toolbar,
-    body.dark #app-footer {
-      background: #141d2e;
-      border-color: #2a3558;
+    html.dark body {
+      background: #0d1521;
+      color:      #ccd6f6;
     }
 
     /* Dark mode toggle button */
@@ -3000,8 +2994,7 @@
      DARK MODE
   ==================================================== */
   function toggleDarkMode() {
-    const isDark = document.body.classList.toggle('dark');
-    document.documentElement.classList.remove('dark-init');
+    const isDark = document.documentElement.classList.toggle('dark');
     localStorage.setItem('trp_dark', isDark ? '1' : '0');
     updateDarkToggleBtn(isDark);
     // Re-render charts so tooltip colours pick up the new theme
@@ -3020,8 +3013,7 @@
 
   function initDarkMode() {
     const isDark = localStorage.getItem('trp_dark') === '1';
-    document.body.classList.toggle('dark', isDark);
-    document.documentElement.classList.remove('dark-init');
+    document.documentElement.classList.toggle('dark', isDark);
     updateDarkToggleBtn(isDark);
   }
 
