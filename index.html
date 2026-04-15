@@ -45,6 +45,18 @@
       --text-muted:  #8892b8;
       --text-subtle: #4a5580;
       --shadow:      0 4px 24px rgba(0,0,0,0.40);
+      background:    #0d1521;
+      color:         #ccd6f6;
+    }
+
+    /* Explicit overrides for elements whose backgrounds might not inherit variables */
+    body.dark header,
+    body.dark #summary-strip,
+    body.dark #nav-tabs,
+    body.dark #data-toolbar,
+    body.dark #app-footer {
+      background: #141d2e;
+      border-color: #2a3558;
     }
 
     /* Dark mode toggle button */
