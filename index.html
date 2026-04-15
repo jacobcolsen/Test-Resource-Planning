@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Test Resource Planner</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <script>if(localStorage.getItem('trp_dark')==='1')document.documentElement.classList.add('dark-init');</script>
   <style>
     /* =========================================================
        RESET & BASE
@@ -30,6 +31,39 @@
       --shadow:      0 4px 24px rgba(0,0,0,0.10);
       --transition:  0.18s ease;
     }
+
+    /* =========================================================
+       DARK MODE
+    ========================================================= */
+    html.dark-init body, body.dark {
+      --bg:          #0d1521;
+      --surface:     #141d2e;
+      --surface2:    #1a2438;
+      --surface3:    #1e2a40;
+      --border:      #2a3558;
+      --text:        #ccd6f6;
+      --text-muted:  #8892b8;
+      --text-subtle: #4a5580;
+      --shadow:      0 4px 24px rgba(0,0,0,0.40);
+    }
+
+    /* Dark mode toggle button */
+    #dark-toggle {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text-muted);
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+    #dark-toggle:hover { background: var(--surface3); color: var(--text); }
 
     html, body {
       height: 100%;
@@ -2117,9 +2151,12 @@
         <p>Resource &amp; Workforce Management</p>
       </div>
     </div>
-    <div class="header-meta">
-      <span id="header-date"></span>
-      <span style="color:var(--text-subtle);font-size:11px;">FY 2025–2026</span>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button id="dark-toggle" onclick="toggleDarkMode()" title="Switch to dark mode">&#9790;</button>
+      <div class="header-meta">
+        <span id="header-date"></span>
+        <span style="color:var(--text-subtle);font-size:11px;">FY 2025–2026</span>
+      </div>
     </div>
   </header>
 
@@ -2947,7 +2984,37 @@
     if (e.target === document.getElementById('class-editor-overlay')) closeClassEditor();
   }
 
+  /* ====================================================
+     DARK MODE
+  ==================================================== */
+  function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark');
+    document.documentElement.classList.remove('dark-init');
+    localStorage.setItem('trp_dark', isDark ? '1' : '0');
+    updateDarkToggleBtn(isDark);
+    // Re-render charts so tooltip colours pick up the new theme
+    if (document.getElementById('section-dashboard')?.classList.contains('active')) {
+      destroyAllCharts();
+      renderDashboard();
+    }
+  }
+
+  function updateDarkToggleBtn(isDark) {
+    const btn = document.getElementById('dark-toggle');
+    if (!btn) return;
+    btn.innerHTML = isDark ? '&#9728;' : '&#9790;';
+    btn.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+  }
+
+  function initDarkMode() {
+    const isDark = localStorage.getItem('trp_dark') === '1';
+    document.body.classList.toggle('dark', isDark);
+    document.documentElement.classList.remove('dark-init');
+    updateDarkToggleBtn(isDark);
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
+    initDarkMode();
     setHeaderDate();
     loadClassification();
     initDatePickers();
@@ -4031,13 +4098,14 @@
     const labels  = monthly.map(m => m.label);
     const peakIdx = monthly.findIndex(m => m.ym === peakYM);
 
-    // Shared tooltip style
+    // Shared tooltip style — reads live CSS variables so dark mode works
+    const cs = getComputedStyle(document.body);
     const tip = {
-      backgroundColor: '#ffffff',
-      borderColor:     '#d0d4e4',
+      backgroundColor: cs.getPropertyValue('--surface').trim() || '#ffffff',
+      borderColor:     cs.getPropertyValue('--border').trim()  || '#d0d4e4',
       borderWidth:     1,
-      titleColor:      '#1a1d2e',
-      bodyColor:       '#4a5275',
+      titleColor:      cs.getPropertyValue('--text').trim()       || '#1a1d2e',
+      bodyColor:       cs.getPropertyValue('--text-muted').trim() || '#4a5275',
       padding:         10,
       cornerRadius:    6,
       boxWidth:        10,
