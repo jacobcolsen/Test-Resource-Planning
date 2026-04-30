@@ -2087,6 +2087,73 @@
     .q-btn.active { border-color: var(--accent); background: rgba(58,111,240,0.1); color: var(--accent); }
     .q-btn.active span { color: var(--accent); }
 
+    /* =========================================================
+       PHASE 1-5 — Capacity & Fill additions
+    ========================================================= */
+
+    /* Fill progress bar in role rows */
+    .fill-bar-wrap { margin-top:4px; }
+    .fill-bar { height:6px; background:var(--surface3); border-radius:3px; overflow:hidden; width:100%; }
+    .fill-bar-inner { height:100%; border-radius:3px; transition:width 0.25s; }
+    .fill-bar-inner.full    { background: var(--accent2); }
+    .fill-bar-inner.partial { background: var(--warn); }
+    .fill-bar-inner.empty   { background: var(--danger); width: 0% !important; }
+    .fill-label { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+    /* Conflict alerts block */
+    .conflict-alert-block {
+      background: rgba(192,57,43,0.07);
+      border: 1px solid rgba(192,57,43,0.35);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+    }
+    .conflict-alert-block h4 { font-size:13px; font-weight:700; color:var(--danger); margin-bottom:8px; }
+    .conflict-month-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .conflict-month-chip {
+      background: rgba(192,57,43,0.12);
+      border: 1px solid rgba(192,57,43,0.4);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size:11px;
+      color: var(--danger);
+      font-weight:600;
+    }
+    .conflict-month-chip span { font-weight:400; color:var(--text-muted); }
+
+    /* Crunch period callout */
+    .crunch-block {
+      background: rgba(212,130,10,0.07);
+      border: 1px solid rgba(212,130,10,0.35);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+    }
+    .crunch-block h4 { font-size:13px; font-weight:700; color:var(--warn); margin-bottom:6px; }
+    .crunch-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .crunch-chip {
+      background: rgba(212,130,10,0.12);
+      border: 1px solid rgba(212,130,10,0.4);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size:11px;
+      color: var(--warn);
+      font-weight:600;
+    }
+
+    /* Role demand heatmap */
+    .hm-wrap { overflow-x:auto; }
+    .hm-table { border-collapse:collapse; font-size:11px; min-width:100%; }
+    .hm-table th { padding:5px 8px; text-align:center; color:var(--text-muted); font-weight:600;
+                   white-space:nowrap; border-bottom:1px solid var(--border); }
+    .hm-table th.hm-role-header { text-align:left; min-width:140px; }
+    .hm-table td { padding:5px 8px; text-align:center; white-space:nowrap;
+                   border-bottom:1px solid var(--border); }
+    .hm-table td.hm-role { text-align:left; font-weight:600; color:var(--text);
+                            background:var(--surface2); min-width:140px; position:sticky; left:0; z-index:1; }
+    .hm-table td.hm-empty { color:var(--text-subtle); }
+    .hm-cell { font-weight:700; border-radius:3px; }
+
     /* Print / briefing friendliness */
     @media print {
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -2185,15 +2252,15 @@
       <div class="sc-value" id="sc-peak">—</div>
       <div class="sc-sub" id="sc-peak-sub">simultaneous demand</div>
     </div>
-    <div class="summary-card">
-      <div class="sc-label">Total Trips</div>
-      <div class="sc-value" id="sc-trips">—</div>
-      <div class="sc-sub">projected travel events</div>
-    </div>
     <div class="summary-card accent2">
-      <div class="sc-label">Est. Travel Cost</div>
-      <div class="sc-value" id="sc-cost">—</div>
-      <div class="sc-sub">across all programs</div>
+      <div class="sc-label">Positions Filled</div>
+      <div class="sc-value" id="sc-filled">—</div>
+      <div class="sc-sub" id="sc-filled-sub">of total required</div>
+    </div>
+    <div class="summary-card" id="sc-gap-card">
+      <div class="sc-label">vs. Authorized</div>
+      <div class="sc-value" id="sc-gap">—</div>
+      <div class="sc-sub" id="sc-gap-sub">set baseline to compare</div>
     </div>
     <div class="summary-card">
       <div class="sc-label">Peak Workstations</div>
@@ -2225,6 +2292,8 @@
     <!-- RIGHT: data management -->
     <span class="tb-label">Data</span>
     <button class="btn btn-ghost btn-sm" onclick="loadSampleData()" title="Load built-in sample flight test dataset">⊕ Sample Data</button>
+    <div class="tb-sep"></div>
+    <button class="btn btn-ghost btn-sm" onclick="openBaselineModal()" title="Set authorized headcount and workstation capacity" style="color:var(--accent);">⚙ Baseline</button>
     <div class="tb-sep"></div>
     <button class="btn btn-ghost btn-sm" onclick="exportJSON()" title="Download all efforts as JSON">⬇ Export JSON</button>
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file-input').click()" title="Load efforts from a JSON file">⬆ Import JSON</button>
@@ -2525,6 +2594,13 @@
                    placeholder="# of personnel" oninput="onMixInput()" />
           </div>
 
+          <!-- Filled (on-hand) -->
+          <div class="form-group">
+            <label for="rf-filled">Filled (on-hand)</label>
+            <input type="number" id="rf-filled" min="0" max="999" value="0"
+                   placeholder="0" />
+          </div>
+
           <!-- Workstation & travel flags -->
           <div class="form-section-label">Requirements &amp; Flags</div>
 
@@ -2681,6 +2757,60 @@
   </div>
 </div>
 
+<!-- ===================================================
+     BASELINE MODAL — authorized strength & space
+=================================================== -->
+<div id="baseline-modal-overlay" class="modal-overlay" onclick="handleBaselineOverlayClick(event)">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <h3>Authorization Baseline</h3>
+      <button class="btn-icon" onclick="closeBaselineModal()" title="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">
+        Set your authorized headcount and workstation capacity. These values appear as
+        threshold lines on Dashboard charts and drive conflict detection.
+      </p>
+      <div class="form-section-label">Authorized Headcount</div>
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
+        <div class="form-group">
+          <label for="bl-officer" class="label-officer">Officer</label>
+          <input type="number" id="bl-officer" min="0" max="9999" value="0" placeholder="0" oninput="updateBaselineTotal()" />
+        </div>
+        <div class="form-group">
+          <label for="bl-enlisted" class="label-enlisted">Enlisted</label>
+          <input type="number" id="bl-enlisted" min="0" max="9999" value="0" placeholder="0" oninput="updateBaselineTotal()" />
+        </div>
+        <div class="form-group">
+          <label for="bl-gc" class="label-gc">Gov Civilian</label>
+          <input type="number" id="bl-gc" min="0" max="9999" value="0" placeholder="0" oninput="updateBaselineTotal()" />
+        </div>
+        <div class="form-group">
+          <label for="bl-ctr" class="label-ctr">Contractor</label>
+          <input type="number" id="bl-ctr" min="0" max="9999" value="0" placeholder="0" oninput="updateBaselineTotal()" />
+        </div>
+      </div>
+      <div id="bl-total-row" style="font-size:12px;color:var(--text-muted);text-align:right;margin-bottom:16px;padding-right:4px;">
+        Total authorized headcount: <strong id="bl-total">0</strong>
+      </div>
+      <div class="form-section-label">Space Inventory</div>
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label for="bl-ws">Workstations Available</label>
+          <input type="number" id="bl-ws" min="0" max="9999" value="0" placeholder="0" />
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--text-subtle);margin-top:8px;">
+        Set to 0 to hide threshold lines and disable gap analysis for that category.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeBaselineModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBaseline()">Save Baseline</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast notification (Phase 8) -->
 <div id="toast"></div>
 
@@ -2700,6 +2830,9 @@
 
   /* ── Active dataset (populated on DOMContentLoaded) ── */
   let projects = [];
+
+  /* ── Authorization baseline (headcount + workspace capacity) ── */
+  let authorizedStrength = { officer: 0, enlisted: 0, govCivilian: 0, contractor: 0, workstations: 0 };
 
   /* ── Built-in sample dataset ────────────────────────── */
   function getSampleData() {
@@ -3038,6 +3171,49 @@
   });
 
   /* ====================================================
+     AUTHORIZATION BASELINE MODAL
+  ==================================================== */
+  function openBaselineModal() {
+    document.getElementById('bl-officer').value  = authorizedStrength.officer  || 0;
+    document.getElementById('bl-enlisted').value = authorizedStrength.enlisted || 0;
+    document.getElementById('bl-gc').value       = authorizedStrength.govCivilian || 0;
+    document.getElementById('bl-ctr').value      = authorizedStrength.contractor  || 0;
+    document.getElementById('bl-ws').value       = authorizedStrength.workstations || 0;
+    updateBaselineTotal();
+    document.getElementById('baseline-modal-overlay').classList.add('open');
+  }
+
+  function closeBaselineModal() {
+    document.getElementById('baseline-modal-overlay').classList.remove('open');
+  }
+
+  function handleBaselineOverlayClick(e) {
+    if (e.target === document.getElementById('baseline-modal-overlay')) closeBaselineModal();
+  }
+
+  function updateBaselineTotal() {
+    const o = parseInt(document.getElementById('bl-officer').value,  10) || 0;
+    const e = parseInt(document.getElementById('bl-enlisted').value, 10) || 0;
+    const g = parseInt(document.getElementById('bl-gc').value,       10) || 0;
+    const c = parseInt(document.getElementById('bl-ctr').value,      10) || 0;
+    document.getElementById('bl-total').textContent = o + e + g + c;
+  }
+
+  function saveBaseline() {
+    authorizedStrength = {
+      officer:      Math.max(0, parseInt(document.getElementById('bl-officer').value,  10) || 0),
+      enlisted:     Math.max(0, parseInt(document.getElementById('bl-enlisted').value, 10) || 0),
+      govCivilian:  Math.max(0, parseInt(document.getElementById('bl-gc').value,       10) || 0),
+      contractor:   Math.max(0, parseInt(document.getElementById('bl-ctr').value,      10) || 0),
+      workstations: Math.max(0, parseInt(document.getElementById('bl-ws').value,       10) || 0),
+    };
+    closeBaselineModal();
+    saveState();
+    updateSummaryCards();
+    showToast('Authorization baseline saved', 'success');
+  }
+
+  /* ====================================================
      HEADER DATE
   ==================================================== */
   function setHeaderDate() {
@@ -3192,14 +3368,46 @@
     return { totalTrips, totalCost };
   }
 
+  function computeConflicts(monthly) {
+    const totalAuth = authorizedStrength.officer + authorizedStrength.enlisted
+                    + authorizedStrength.govCivilian + authorizedStrength.contractor;
+    const wsAuth = authorizedStrength.workstations;
+    if (totalAuth === 0 && wsAuth === 0) return [];
+    const conflicts = [];
+    monthly.forEach(m => {
+      const issues = [];
+      if (totalAuth > 0 && m.total > totalAuth) {
+        issues.push({ type: 'personnel', demand: m.total, authorized: totalAuth, gap: m.total - totalAuth });
+      }
+      if (wsAuth > 0 && m.ws > wsAuth) {
+        issues.push({ type: 'workstations', demand: m.ws, authorized: wsAuth, gap: m.ws - wsAuth });
+      }
+      if (issues.length > 0) conflicts.push({ ym: m.ym, label: m.label, issues });
+    });
+    return conflicts;
+  }
+
+  function computeCrunchPeriods(monthly) {
+    const totalAuth = authorizedStrength.officer + authorizedStrength.enlisted
+                    + authorizedStrength.govCivilian + authorizedStrength.contractor;
+    const wsAuth = authorizedStrength.workstations;
+    if (totalAuth === 0 || wsAuth === 0) return [];
+    return monthly.filter(m =>
+      (m.total / totalAuth) >= 0.85 && (m.ws / wsAuth) >= 0.85
+    );
+  }
+
   function computeSummaryStats() {
     const monthly = computeMonthlyData();
 
-    const totalPersonnel = projects.reduce((sum, p) =>
-      sum + (p.roles || []).reduce((s, r) => s + (r.qty || 0), 0), 0);
+    let totalPersonnel = 0, totalFilled = 0;
+    projects.forEach(p => (p.roles || []).forEach(r => {
+      totalPersonnel += r.qty || 0;
+      totalFilled    += Math.min(r.filled || 0, r.qty || 0);
+    }));
 
     if (monthly.length === 0) {
-      return { totalPersonnel, peakPersonnel: 0, peakWs: 0, peakYM: null };
+      return { totalPersonnel, totalFilled, peakPersonnel: 0, peakWs: 0, peakYM: null };
     }
 
     let peakPersonnel = 0, peakWs = 0, peakYM = null;
@@ -3211,15 +3419,14 @@
       if (m.ws > peakWs) peakWs = m.ws;
     });
 
-    return { totalPersonnel, peakPersonnel, peakWs, peakYM };
+    return { totalPersonnel, totalFilled, peakPersonnel, peakWs, peakYM };
   }
 
   /* ====================================================
      SUMMARY CARDS
   ==================================================== */
   function updateSummaryCards() {
-    const { totalPersonnel, peakPersonnel, peakWs, peakYM } = computeSummaryStats();
-    const { totalTrips, totalCost } = computePortfolioTravel();
+    const { totalPersonnel, totalFilled, peakPersonnel, peakWs, peakYM } = computeSummaryStats();
 
     document.getElementById('sc-projects').textContent = projects.length;
 
@@ -3229,22 +3436,66 @@
     document.getElementById('sc-peak').textContent =
       peakPersonnel > 0 ? peakPersonnel : '—';
 
+    // Peak sub-label — shows gap vs authorized when baseline is set
     const peakSubEl = document.getElementById('sc-peak-sub');
     if (peakSubEl) {
+      const totalAuth = authorizedStrength.officer + authorizedStrength.enlisted
+                      + authorizedStrength.govCivilian + authorizedStrength.contractor;
       if (peakYM && peakPersonnel > 0) {
         const lbl = new Date(peakYM + '-02')
           .toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-        peakSubEl.textContent = lbl;
+        if (totalAuth > 0) {
+          const gap = peakPersonnel - totalAuth;
+          if (gap > 0) {
+            peakSubEl.innerHTML = `${lbl} &nbsp;<span style="color:var(--danger);font-weight:700">▲${gap} over auth</span>`;
+          } else {
+            peakSubEl.innerHTML = `${lbl} &nbsp;<span style="color:var(--accent2)">✓ within auth</span>`;
+          }
+        } else {
+          peakSubEl.textContent = lbl;
+        }
       } else {
         peakSubEl.textContent = 'simultaneous demand';
       }
     }
 
-    document.getElementById('sc-trips').textContent =
-      totalTrips > 0 ? totalTrips : '—';
+    // Fill status card
+    const filledEl    = document.getElementById('sc-filled');
+    const filledSubEl = document.getElementById('sc-filled-sub');
+    if (filledEl) filledEl.textContent = totalPersonnel > 0 ? `${totalFilled} / ${totalPersonnel}` : '—';
+    if (filledSubEl) {
+      const open = totalPersonnel - totalFilled;
+      filledSubEl.textContent = open > 0 ? `${open} position${open !== 1 ? 's' : ''} open` : (totalPersonnel > 0 ? 'fully filled' : 'of total required');
+    }
 
-    document.getElementById('sc-cost').textContent =
-      totalCost > 0 ? fmtCurrency(totalCost) : '—';
+    // Gap card — vs. authorized
+    const gapEl    = document.getElementById('sc-gap');
+    const gapSubEl = document.getElementById('sc-gap-sub');
+    if (gapEl && gapSubEl) {
+      const totalAuth = authorizedStrength.officer + authorizedStrength.enlisted
+                      + authorizedStrength.govCivilian + authorizedStrength.contractor;
+      const wsAuth = authorizedStrength.workstations;
+      if (totalAuth > 0) {
+        const gap = peakPersonnel - totalAuth;
+        if (gap > 0) {
+          gapEl.textContent = `+${gap}`;
+          gapEl.style.color = 'var(--danger)';
+          gapSubEl.textContent = 'over authorized at peak';
+        } else if (gap < 0) {
+          gapEl.textContent = `${Math.abs(gap)} available`;
+          gapEl.style.color = 'var(--accent2)';
+          gapSubEl.textContent = 'headroom at peak';
+        } else {
+          gapEl.textContent = 'Exact';
+          gapEl.style.color = 'var(--warn)';
+          gapSubEl.textContent = 'at authorized limit';
+        }
+      } else {
+        gapEl.textContent = '—';
+        gapEl.style.color = '';
+        gapSubEl.textContent = 'set baseline to compare';
+      }
+    }
 
     document.getElementById('sc-ws').textContent =
       peakWs > 0 ? peakWs : '—';
@@ -3667,6 +3918,22 @@
     container.innerHTML = contextHTML + tableHTML;
   }
 
+  function buildFillCell(r) {
+    const qty    = r.qty    || 0;
+    const filled = Math.min(r.filled || 0, qty);
+    const open   = qty - filled;
+    const pct    = qty > 0 ? Math.round((filled / qty) * 100) : 0;
+    const cls    = filled === qty ? 'full' : filled === 0 ? 'empty' : 'partial';
+    return `
+      <div class="role-qty">${qty} reqd</div>
+      <div class="fill-bar-wrap">
+        <div class="fill-bar">
+          <div class="fill-bar-inner ${cls}" style="width:${pct}%"></div>
+        </div>
+        <div class="fill-label">${filled} filled · ${open} open</div>
+      </div>`;
+  }
+
   function buildRoleEmpty() {
     return `
       <div id="role-empty">
@@ -3779,7 +4046,7 @@
           <div class="role-name">${escHtml(displayName)}</div>
           ${customLabel}
         </td>
-        <td><div class="role-qty">${r.qty}</div></td>
+        <td>${buildFillCell(r)}</td>
         ${mixCell}
         <td><span class="badge ${phaseClass}">${escHtml(r.phase)}</span></td>
         <td>
@@ -3819,6 +4086,7 @@
       document.getElementById('rf-role').value     = r.role        || 'Test Lead';
       document.getElementById('rf-custom').value   = r.customRole  || '';
       document.getElementById('rf-qty').value      = r.qty         ?? 1;
+      document.getElementById('rf-filled').value   = r.filled      ?? 0;
       document.getElementById('rf-ws').checked     = !!r.wsRequired;
       document.getElementById('rf-ws-ratio').value = r.wsRatio     ?? 1.0;
       document.getElementById('rf-travel').checked = !!r.travelRequired;
@@ -3859,6 +4127,7 @@
     document.getElementById('rf-role').value      = 'Test Lead';
     document.getElementById('rf-custom').value    = '';
     document.getElementById('rf-qty').value       = '1';
+    document.getElementById('rf-filled').value    = '0';
     document.getElementById('rf-ws').checked      = true;
     document.getElementById('rf-ws-ratio').value  = '1.0';
     document.getElementById('rf-travel').checked  = true;
@@ -4003,10 +4272,13 @@
     const wsRatioRaw = parseFloat(document.getElementById('rf-ws-ratio').value);
     const wsRatio = isNaN(wsRatioRaw) || wsRatioRaw <= 0 ? 1.0 : wsRatioRaw;
 
+    const filled = Math.max(0, Math.min(qty, parseInt(document.getElementById('rf-filled').value, 10) || 0));
+
     const data = {
       role:           roleVal,
       customRole:     roleVal === 'Custom' ? customEl.value.trim() : '',
       qty,
+      filled,
       wsRequired:     document.getElementById('rf-ws').checked,
       wsRatio,
       travelRequired: document.getElementById('rf-travel').checked,
@@ -4138,27 +4410,41 @@
 
     // ── 1. Total Personnel — Line ─────────────────────
     {
+      const totalAuth = authorizedStrength.officer + authorizedStrength.enlisted
+                      + authorizedStrength.govCivilian + authorizedStrength.contractor;
       const pointBg = monthly.map((_, i) => i === peakIdx ? '#f7a745' : '#4f7ef8');
       const pointR  = monthly.map((_, i) => i === peakIdx ? 7 : 3);
+      const personnelDatasets = [{
+        label: 'Total Personnel',
+        data:  monthly.map(m => m.total),
+        borderColor:         '#4f7ef8',
+        backgroundColor:     'rgba(79,126,248,0.1)',
+        fill:                true,
+        tension:             0.35,
+        borderWidth:         2.5,
+        pointBackgroundColor: pointBg,
+        pointBorderColor:    pointBg,
+        pointRadius:         pointR,
+        pointHoverRadius:    7,
+        order: 1,
+      }];
+      if (totalAuth > 0) {
+        personnelDatasets.push({
+          label:       'Authorized',
+          data:        monthly.map(() => totalAuth),
+          borderColor: 'rgba(192,57,43,0.85)',
+          borderWidth: 2,
+          borderDash:  [6, 4],
+          pointRadius: 0,
+          fill:        false,
+          tension:     0,
+          order:       0,
+        });
+      }
       const el = document.getElementById('chart-personnel');
       if (el) chartInstances.personnel = new Chart(el, {
         type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Total Personnel',
-            data:  monthly.map(m => m.total),
-            borderColor:         '#4f7ef8',
-            backgroundColor:     'rgba(79,126,248,0.1)',
-            fill:                true,
-            tension:             0.35,
-            borderWidth:         2.5,
-            pointBackgroundColor: pointBg,
-            pointBorderColor:    pointBg,
-            pointRadius:         pointR,
-            pointHoverRadius:    7,
-          }]
-        },
+        data: { labels, datasets: personnelDatasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -4225,25 +4511,37 @@
       const wsIdx = monthly.findIndex(m => m.ws === wsMax);
       const pointBg = monthly.map((_, i) => i === wsIdx && wsMax > 0 ? '#f7a745' : '#c8753a');
       const pointR  = monthly.map((_, i) => i === wsIdx && wsMax > 0 ? 7 : 3);
+      const wsDatasets = [{
+        label:               'Workstations Required',
+        data:                monthly.map(m => m.ws),
+        borderColor:         '#f7a745',
+        backgroundColor:     'rgba(247,167,69,0.1)',
+        fill:                true,
+        tension:             0.3,
+        borderWidth:         2.5,
+        pointBackgroundColor: pointBg,
+        pointBorderColor:    pointBg,
+        pointRadius:         pointR,
+        pointHoverRadius:    7,
+        order: 1,
+      }];
+      if (authorizedStrength.workstations > 0) {
+        wsDatasets.push({
+          label:       'Authorized',
+          data:        monthly.map(() => authorizedStrength.workstations),
+          borderColor: 'rgba(192,57,43,0.85)',
+          borderWidth: 2,
+          borderDash:  [6, 4],
+          pointRadius: 0,
+          fill:        false,
+          tension:     0,
+          order:       0,
+        });
+      }
       const el = document.getElementById('chart-ws');
       if (el) chartInstances.ws = new Chart(el, {
         type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label:               'Workstations Required',
-            data:                monthly.map(m => m.ws),
-            borderColor:         '#f7a745',
-            backgroundColor:     'rgba(247,167,69,0.1)',
-            fill:                true,
-            tension:             0.3,
-            borderWidth:         2.5,
-            pointBackgroundColor: pointBg,
-            pointBorderColor:    pointBg,
-            pointRadius:         pointR,
-            pointHoverRadius:    7,
-          }]
-        },
+        data: { labels, datasets: wsDatasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -4313,6 +4611,123 @@
         }
       });
     }
+  }
+
+  /* ====================================================
+     CONFLICT ALERTS & CRUNCH PERIODS HTML BUILDERS
+  ==================================================== */
+  function buildConflictAlertsHTML(conflicts) {
+    if (conflicts.length === 0) return '';
+    const chips = conflicts.map(c => {
+      const details = c.issues.map(i =>
+        `${i.type === 'personnel' ? '👤' : '🖥'} ${i.demand}/${i.authorized} (+${i.gap})`
+      ).join(' &nbsp;');
+      return `<div class="conflict-month-chip">${c.label} <span>— ${details}</span></div>`;
+    }).join('');
+    return `
+      <div class="conflict-alert-block">
+        <h4>⚠ Capacity Exceeded — ${conflicts.length} month${conflicts.length !== 1 ? 's' : ''} over authorized</h4>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">
+          Demand exceeds your authorized baseline in the months below.
+          Each chip shows demand&thinsp;/&thinsp;authorized (overage).
+        </p>
+        <div class="conflict-month-chips">${chips}</div>
+      </div>`;
+  }
+
+  function buildCrunchHTML(crunchMonths) {
+    if (crunchMonths.length === 0) return '';
+    const chips = crunchMonths.map(m =>
+      `<div class="crunch-chip">${m.label}</div>`
+    ).join('');
+    return `
+      <div class="crunch-block">
+        <h4>🔴 Crunch Periods — both personnel and workstations ≥ 85% of authorized</h4>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">
+          These months put simultaneous pressure on both people and space. Plan accordingly.
+        </p>
+        <div class="crunch-chips">${chips}</div>
+      </div>`;
+  }
+
+  /* ====================================================
+     ROLE DEMAND HEATMAP BUILDER
+  ==================================================== */
+  function buildRoleHeatmapHTML(monthly) {
+    if (projects.length === 0 || monthly.length === 0) return '';
+
+    // Collect unique role display names preserving first-seen order
+    const roleNames = [];
+    const seen = new Set();
+    projects.forEach(p => {
+      (p.roles || []).forEach(r => {
+        const name = r.role === 'Custom' ? (r.customRole || 'Custom') : r.role;
+        if (!seen.has(name)) { seen.add(name); roleNames.push(name); }
+      });
+    });
+    if (roleNames.length === 0) return '';
+
+    // Build demand matrix: roleName → array of monthly counts
+    const matrix = {};
+    roleNames.forEach(n => { matrix[n] = new Array(monthly.length).fill(0); });
+    monthly.forEach((m, mi) => {
+      projects.forEach(p => {
+        (p.roles || []).forEach(r => {
+          if (!roleActiveInMonth(r, m.ym, p)) return;
+          const name = r.role === 'Custom' ? (r.customRole || 'Custom') : r.role;
+          if (matrix[name]) matrix[name][mi] += (r.qty || 0);
+        });
+      });
+    });
+
+    const allVals = Object.values(matrix).flat();
+    const maxVal  = Math.max(...allVals, 1);
+
+    const headerCells = monthly.map(m =>
+      `<th>${m.label}</th>`
+    ).join('');
+
+    const rows = roleNames.map(name => {
+      const cells = matrix[name].map(v => {
+        if (v === 0) return `<td class="hm-empty">—</td>`;
+        const pct = v / maxVal;
+        let bg;
+        if (pct < 0.33) {
+          bg = `rgba(79,126,248,${0.15 + pct * 0.9})`;
+        } else if (pct < 0.67) {
+          bg = `rgba(247,167,69,${0.25 + pct * 0.55})`;
+        } else {
+          bg = `rgba(192,57,43,${0.35 + pct * 0.5})`;
+        }
+        return `<td class="hm-cell" style="background:${bg}">${v}</td>`;
+      }).join('');
+      return `<tr><td class="hm-role">${escHtml(name)}</td>${cells}</tr>`;
+    }).join('');
+
+    return `
+      <div class="dash-block">
+        <div class="dash-block-header">
+          <div>
+            <h3>Role Demand Heatmap</h3>
+            <p>Monthly headcount per role type —
+               <span style="color:rgba(79,126,248,0.9)">■</span> low &nbsp;
+               <span style="color:rgba(247,167,69,0.8)">■</span> medium &nbsp;
+               <span style="color:rgba(192,57,43,0.85)">■</span> high (relative to portfolio peak)
+            </p>
+          </div>
+        </div>
+        <div class="hm-wrap" style="padding:0 20px 16px;">
+          <table class="hm-table">
+            <thead>
+              <tr>
+                <th class="hm-role-header">Role</th>
+                ${headerCells}
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
   }
 
   /* ====================================================
@@ -4816,9 +5231,14 @@
         </div>
       </div>` : '';
 
-    const timelineHTML = buildTimelineHTML();
+    const timelineHTML      = buildTimelineHTML();
+    const conflicts         = computeConflicts(monthly);
+    const crunchMonths      = computeCrunchPeriods(monthly);
+    const conflictAlertsHTML = buildConflictAlertsHTML(conflicts);
+    const crunchHTML        = buildCrunchHTML(crunchMonths);
+    const heatmapHTML       = buildRoleHeatmapHTML(monthly);
 
-    container.innerHTML = statsHTML + busiestHTML + top3HTML + timelineHTML + chartsHTML + tableHTML + projectTableHTML;
+    container.innerHTML = statsHTML + conflictAlertsHTML + busiestHTML + crunchHTML + top3HTML + timelineHTML + chartsHTML + heatmapHTML + tableHTML + projectTableHTML;
 
     // Render charts now that canvas elements exist in the DOM
     renderCharts(monthly, peakYM);
@@ -5038,6 +5458,9 @@
     if (!data || !Array.isArray(data.projects)) return false;
     projects = data.projects;
     if (typeof data.nextId === 'number' && data.nextId > _nextId) _nextId = data.nextId;
+    if (data.authorizedStrength && typeof data.authorizedStrength === 'object') {
+      authorizedStrength = { ...authorizedStrength, ...data.authorizedStrength };
+    }
     try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(_) {}
     return true;
   }
@@ -5045,7 +5468,7 @@
   // ── Write current state to the open file (fire-and-forget) ─
   function _saveToFile() {
     if (!_fileHandle) return;
-    const payload = { version:1, savedAt: new Date().toISOString(), nextId: _nextId, projects };
+    const payload = { version:1, savedAt: new Date().toISOString(), nextId: _nextId, projects, authorizedStrength };
     _writeHandle(_fileHandle, payload)
       .then(() => { _lastSavedAt = new Date(); updateFileStatus(); })
       .catch(e  => { showToast('File write error: ' + e.message, 'warn'); });
@@ -5239,7 +5662,7 @@
 
   // Saves to the connected .json file (if any) AND localStorage.
   function saveState() {
-    const payload = { version:1, savedAt: new Date().toISOString(), nextId: _nextId, projects };
+    const payload = { version:1, savedAt: new Date().toISOString(), nextId: _nextId, projects, authorizedStrength };
     try { localStorage.setItem(LS_KEY, JSON.stringify(payload)); } catch(_) {}
     _saveToFile(); // no-op when no file is connected
   }
@@ -5255,6 +5678,9 @@
       projects = data.projects;
       if (typeof data.nextId === 'number' && data.nextId > _nextId) {
         _nextId = data.nextId;
+      }
+      if (data.authorizedStrength && typeof data.authorizedStrength === 'object') {
+        authorizedStrength = { ...authorizedStrength, ...data.authorizedStrength };
       }
       return true;
     } catch (_) {
@@ -5318,6 +5744,7 @@
       exportedAt: new Date().toISOString(),
       nextId:     _nextId,
       projects,
+      authorizedStrength,
     }, null, 2);
 
     const blob = new Blob([payload], { type: 'application/json' });
